@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "513319776338",
+    "project_id": "vigo-a7754",
+    "storage_bucket": "vigo-a7754.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513319776338:android:00a2f6de2b0ed5122fef8b",
+        "android_client_info": {
+          "package_name": "com.vigodrivernew"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIYCycKF24mQXN1pJYFfCO-6azSETj_Qc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513319776338:android:9d339e7773e4d7ea2fef8b",
+        "android_client_info": {
+          "package_name": "com.vigomobilenew"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIYCycKF24mQXN1pJYFfCO-6azSETj_Qc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
