@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "513319776338-2j433tmg6pbmcb257555qtga33ptqj5g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vigodrivernew",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -42,6 +50,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "513319776338-ngphe8lrqhe3qu6l2e9uvpl5pkemeql0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vigomobilenew",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
           "client_type": 3
