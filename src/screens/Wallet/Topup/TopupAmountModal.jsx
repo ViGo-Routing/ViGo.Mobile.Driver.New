@@ -10,7 +10,6 @@ import {
   Modal,
 } from "react-native";
 import { vigoStyles } from "../../../../assets/theme";
-import Header from "../../../components/Header/Header";
 import { useState } from "react";
 import { vndFormat } from "../../../utils/numberUtils";
 

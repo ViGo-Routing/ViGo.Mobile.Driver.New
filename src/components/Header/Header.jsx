@@ -5,17 +5,19 @@ import { themeColors } from "../../../assets/theme";
 import { useNavigation } from "@react-navigation/native";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
 
-const Header = ({ title }) => {
+const Header = ({ title, isBackButtonShown = true }) => {
   const navigation = useNavigation();
   const onBackPress = () => {
     navigation.goBack();
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-        <ArrowLeftIcon size={30} color="white" />
-        {/* <Ionicons name="arrow-back" size={30} color="white" /> */}
-      </TouchableOpacity>
+      {isBackButtonShown && (
+        <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+          <ArrowLeftIcon size={30} color="white" />
+          {/* <Ionicons name="arrow-back" size={30} color="white" /> */}
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>{title}</Text>
     </View>
   );
