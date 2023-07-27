@@ -22,3 +22,15 @@ export const pickBookingDetailById = async (bookingDetailId) => {
     return null;
   }
 };
+
+export const getBookingDetailByDriverId = async (driverId) => {
+  try {
+    const response = await apiManager.get(
+      `/api/BookingDetail/Driver/${driverId}`
+    );
+    return response;
+  } catch (error) {
+    console.error("Driver Pick Booking Detail By Id failed:", error);
+    return null;
+  }
+};

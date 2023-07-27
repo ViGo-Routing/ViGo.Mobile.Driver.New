@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -8,40 +8,82 @@ import {
   View,
 } from "react-native";
 import { Agenda } from "react-native-calendars";
+import { getBookingDetailByDriverId } from "../../services/bookingDetailService";
+import { UserContext } from "../../context/UserContext";
+import { themeColors } from "../../../assets/theme";
 
 const SchedulerScreen = () => {
-  const [items, setItems] = useState({});
+  const { user } = useContext(UserContext);
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      await getBookingDetailByDriverId(user.id).then((result) => {
+        const items = result.data.data
+        const agendaItems = {};
+        items.forEach((item) => {
 
-  const loadItems = (day) => {
+          const { startStation, endStation, customerRouteRoutine } = item;
+          const dateString = customerRouteRoutine.routineDate;
+          if (!agendaItems[dateString]) {
+            agendaItems[dateString] = [];
+          }
+
+          const itemData = {
+            title: `${startStation.name} - ${endStation.name}`,
+            time: `${customerRouteRoutine.pickupTime} - $uu{customerRouteRoutine.routineDate}`,
+          };
+          agendaItems[dateString].push(itemData);
+          setItems(agendaItems)
+        });
+      });
+    };
+    fetchData();
+  }, []);
+
+
+  const loadItems = (day, items) => {
     // Simulating data fetching
-    setTimeout(() => {
-      const newItems = {};
-      const dateString = day.dateString;
-      newItems[dateString] = [
-        { name: "Meeting 1", time: "10:00 AM" },
-        { name: "Meeting 2", time: "2:00 PM" },
-        { name: "Meeting 3", time: "4:00 PM" },
-      ];
-      setItems(newItems);
-    }, 1000);
+    const events = {}; // This will store the events for each day
+
+    // Filter the events that match the selected day
+    items.forEach((item) => {
+      const date = item.customerRouteRoutine.routineDate;
+      const eventDate = new Date(date);
+      const dateString = eventDate.toISOString().split('T')[0];
+
+      if (!events[dateString]) {
+        events[dateString] = [];
+      }
+      events[dateString].push(item);
+    });
+
+    // Return the events for the selected day
+    const selectedDay = day.dateString;
+    return events[selectedDay] || [];
   };
 
   const renderItem = (item) => {
     return (
       <View style={styles.itemContainer}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemTime}>{item.time}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text>{item.time}</Text>
       </View>
     );
   };
-
+  const renderEmptyDate = () => {
+    return (
+      <View style={styles.itemContainer}>
+        <Text> bạn không có chuyến xe vào hôm nay</Text>
+      </View>
+    );
+  }
   const theme = {
     // Customize the agenda styles
-    agendaKnobColor: "blue",
-    selectedDayBackgroundColor: "lightblue",
+    agendaKnobColor: themeColors.primary,
+    selectedDayBackgroundColor: themeColors.primary,
     dotColor: "red",
     todayTextColor: "green",
-    agendaTodayColor: "purple",
+    agendaTodayColor: themeColors.primary,
     // Add more style customizations as needed
   };
 
@@ -49,8 +91,9 @@ const SchedulerScreen = () => {
     <View style={{ flex: 1 }}>
       <Agenda
         items={items}
-        loadItemsForMonth={loadItems}
-        renderItem={renderItem}
+
+        renderItem={(item) => renderItem(item)}
+        renderEmptyDate={() => renderEmptyDate()}
         theme={theme} // Apply the custom theme
       />
     </View>
@@ -63,7 +106,7 @@ const styles = {
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
-    marginTop: 17,
+    marginTop: 25,
   },
   itemName: {
     fontSize: 16,
@@ -73,5 +116,9 @@ const styles = {
     fontSize: 14,
     color: "gray",
   },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  }
 };
 export default SchedulerScreen;

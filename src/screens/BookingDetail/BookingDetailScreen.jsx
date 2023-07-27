@@ -57,35 +57,33 @@ const BookingDetailScreen = () => {
   const pickupPosition =
     item?.startStation?.latitude && item?.startStation?.longitude
       ? {
-          geometry: {
-            location: {
-              lat: item.startStation.latitude,
-              lng: item.startStation.longitude,
-            },
+        geometry: {
+          location: {
+            lat: item.startStation.latitude,
+            lng: item.startStation.longitude,
           },
-          name: item.startStation.name,
-          formatted_address: item.startStation.formatted_address,
-        }
+        },
+        name: item.startStation.name,
+        formatted_address: item.startStation.formatted_address,
+      }
       : null;
 
   const destinationPosition =
     item?.endStation?.latitude && item?.endStation?.longitude
       ? {
-          geometry: {
-            location: {
-              lat: item.endStation.latitude,
-              lng: item.endStation.longitude,
-            },
+        geometry: {
+          location: {
+            lat: item.endStation.latitude,
+            lng: item.endStation.longitude,
           },
-          name: item.endStation.name,
-          formatted_address: item.endStation.formatted_address,
-        }
+        },
+        name: item.endStation.name,
+        formatted_address: item.endStation.formatted_address,
+      }
       : null;
 
   const handlePickBooking = async () => {
     const bookingId = item.bookingId;
-    console.log("pickupppppppp", item.bookingId);
-    console.log("driver id", user.id);
     try {
       const requestData = {
         bookingId: item.bookingId,
@@ -95,7 +93,13 @@ const BookingDetailScreen = () => {
       if (response && response.data) {
         Alert.alert(
           "Xác nhận chuyến đi",
-          `Bạn vừa nhận chuyến ${bookingId} thành công!`
+          `Bạn vừa nhận chuyến ${bookingId} thành công!`,
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("Schedule"),
+            },
+          ],
         );
       } else {
         Alert.alert("Xác nhận chuyến", "Lỗi: Không nhận được chuyến!");

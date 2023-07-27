@@ -60,7 +60,7 @@ export default function LoginScreen() {
       } catch (err) {
         console.warn(err);
       }
-      navigation.navigate("Home");
+      navigation.navigate("Schedule");
       console.log("response.user", response.user);
     });
   };
@@ -93,7 +93,7 @@ export default function LoginScreen() {
       [
         {
           text: "OK",
-          onPress: () => navigation.navigate("Home"),
+          onPress: () => navigation.navigate("Schedule"),
         },
       ]
     );
@@ -115,8 +115,8 @@ export default function LoginScreen() {
           placeholder="+84"
           autoCompleteType="tel"
           keyboardType="phone-pad"
-          // textContentType='telephoneNumber'
-          // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
+        // textContentType='telephoneNumber'
+        // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
         />
         {/* <TextInput
           style={styles.input}

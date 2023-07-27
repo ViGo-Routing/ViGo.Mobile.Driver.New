@@ -31,7 +31,7 @@ const Navigation = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       {/* <Stack.Screen name="Register" component={RegisterScreen} /> */}
-      <Stack.Screen name="Scheduler" component={SchedulerScreen} />
+      <Stack.Screen name="Schedule" component={SchedulerScreen} />
       <Stack.Screen name="Profile" component={ProfileSreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       {/* <Stack.Screen name="Routine" component={RoutineGenerator} /> */}
