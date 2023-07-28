@@ -35,6 +35,8 @@ const Navigation = () => {
   //   }
   // }, []);
 
+  // console.log(initialScreen);
+
   return (
     // <UserProvider>
     //     <NavigationContainer>

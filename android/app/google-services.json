@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "513319776338-v8jlvt50hua0klbv9eccbvojv1c1geav.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vigodrivernew",
+            "certificate_hash": "4fc8cf08985eb1e71fb8f96e5eaa30a161e92e15"
+          }
+        },
+        {
           "client_id": "513319776338-p93tc047uo0er9apt2i74g1de629u9ei.apps.googleusercontent.com",
           "client_type": 3
         }

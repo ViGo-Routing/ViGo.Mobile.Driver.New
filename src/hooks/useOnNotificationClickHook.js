@@ -3,23 +3,33 @@ import { useEffect, useState, useContext } from "react";
 import messaging from "@react-native-firebase/messaging";
 import { paymentNotificationOnClickHandlers } from "../utils/notificationUtils/paymentNotificationHandlers";
 import { UserContext } from "../context/UserContext";
-import { isValidToken } from "../utils/tokenUtils";
+import { getUserIdViaToken, isValidToken } from "../utils/tokenUtils";
+import { getProfile } from "../services/userService";
+import { determineDefaultScreen } from "../utils/navigationUtils";
 
 export const useOnNotificationClickHook = () => {
   const navigation = useNavigation();
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const [initialScreen, setInitialScreen] = useState("");
   const [initialParams, setInitialParams] = useState(undefined);
 
   const handleInitialScreen = async () => {
     const isValid = await isValidToken();
+    // console.log(isValid);
     if (isValid) {
-      if (user && user.status == "PENDING") {
-        setInitialScreen("NewDriverUpdateProfile");
-      } else {
-        setInitialScreen("Schedule");
+      if (!user) {
+        const loginUserId = await getUserIdViaToken();
+        if (loginUserId) {
+          const userData = await getProfile(loginUserId);
+          if (userData) {
+            setUser(userData);
+          }
+        }
       }
+      // console.log(user);
+      // console.log(await getUserIdViaToken());
+      setInitialScreen(determineDefaultScreen(user));
     } else {
       setInitialScreen("Login");
     }

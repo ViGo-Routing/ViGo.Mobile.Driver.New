@@ -35,6 +35,16 @@ export const vigoStyles = StyleSheet.create({
     fontWeight: "bold",
     paddingTop: 10,
   },
+  h2: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingTop: 10,
+  },
+  h3: {
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingTop: 10,
+  },
   textContainer: {
     marginLeft: 10,
   },

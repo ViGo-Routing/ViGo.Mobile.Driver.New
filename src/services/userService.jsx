@@ -27,7 +27,7 @@ export const getProfile = async (id) => {
         "Content-Type": "application/json-patch+json",
       },
     });
-    console.log("aaaaaaas", response.data);
+    // console.log("aaaaaaas", response.data);
     return response.data;
   } catch (error) {
     console.error("Get Profile failed:", error);

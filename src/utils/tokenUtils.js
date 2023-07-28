@@ -12,6 +12,8 @@ export const isValidToken = async () => {
   var decodedToken = jwtDecode(token ? token : "");
   var dateNow = new Date();
 
+  // console.log(decodedToken);
+
   if (
     decodedToken &&
     decodedToken.exp &&
@@ -23,4 +25,18 @@ export const isValidToken = async () => {
   }
 
   return isValid;
+};
+
+export const getUserIdViaToken = async () => {
+  const token = await getString("token");
+  if (!token) {
+    return null;
+  }
+
+  var decodedToken = jwtDecode(token ? token : "");
+  if (decodedToken) {
+    return decodedToken[
+      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+    ];
+  }
 };

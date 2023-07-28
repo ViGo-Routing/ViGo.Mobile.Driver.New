@@ -15,8 +15,8 @@ import { themeColors, vigoStyles } from "../../../assets/theme";
 
 // IMPORT FIREBASE
 // import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { firebaseConfig } from "../../config/firebase";
-import firebase from "firebase/compat/app";
+// import { auth as vigoAuth, firebaseConfig } from "../../config/firebase";
+// import firebase from "firebase/compat/app";
 import { UserContext } from "../../context/UserContext";
 import { login } from "../../utils/apiManager";
 import messaging from "@react-native-firebase/messaging";
@@ -24,16 +24,18 @@ import { updateUserFcmToken } from "../../services/userService";
 import auth from "@react-native-firebase/auth";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { getString } from "../../utils/storageUtils";
+import { determineDefaultScreen } from "../../utils/navigationUtils";
+// import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [vertificationId, setVertificationId] = useState(null);
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [firebaseToken, setFirebaseToken] = useState(null);
-  // const recaptchaVerifier = useRef(null);
+  const recaptchaVerifier = useRef(null);
 
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
@@ -51,50 +53,61 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
+    // getString("token").then((result) => console.log(result));
     // console.log(firebaseToken);
     auth().settings.appVerificationDisabledForTesting = true;
     // auth().settings.forceRecaptchaFlowForTesting = true;
     // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     // return subscriber;
+    if (user) {
+      navigation.navigate(determineDefaultScreen(user));
+    }
   }, []);
 
   const handleLogin = async () => {
-    console.log(firebaseToken);
-    login(phoneNumber, firebaseToken).then(async (response) => {
-      setUser(response.user);
-      console.log("Token " + (await getString("token")));
+    // console.log(firebaseToken);
+    setIsLoading(true);
+    try {
+      login(phoneNumber, firebaseToken).then(async (response) => {
+        setUser(response.user);
+        console.log("Token " + (await getString("token")));
 
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-          {
-            title: "Cho phép ViGo gửi thông báo đến bạn",
-            message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
-                trong ngày và hơn thế nữa`,
-            buttonNeutral: "Hỏi lại sau",
-            buttonNegative: "Từ chối",
-            buttonPositive: "Đồng ý",
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            {
+              title: "Cho phép ViGo gửi thông báo đến bạn",
+              message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+                  trong ngày và hơn thế nữa`,
+              buttonNeutral: "Hỏi lại sau",
+              buttonNegative: "Từ chối",
+              buttonPositive: "Đồng ý",
+            }
+          );
+
+          console.log(response.user);
+
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            await messaging().registerDeviceForRemoteMessages();
+            const fcmToken = await messaging().getToken();
+            await updateUserFcmToken(response.user.id, fcmToken);
           }
-        );
 
-        console.log(response.user);
-
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          await messaging().registerDeviceForRemoteMessages();
-          const fcmToken = await messaging().getToken();
-          await updateUserFcmToken(response.user.id, fcmToken);
+          if (response.user.status == "PENDING") {
+            navigation.navigate("NewDriverUpdateProfile");
+          } else {
+            navigation.navigate("Schedule");
+          }
+        } catch (err) {
+          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+          console.warn(err);
         }
-
-        if (response.user.status == "PENDING") {
-          navigation.navigate("NewDriverUpdateProfile");
-        } else {
-          navigation.navigate("Schedule");
-        }
-      } catch (err) {
-        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-        console.warn(err);
-      }
-    });
+      });
+    } catch (err) {
+      Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -138,7 +151,7 @@ export default function LoginScreen() {
     //   console.log("response.user", response.user);
     // });
     if (phoneNumber) {
-      console.log(phoneNumber);
+      // console.log(phoneNumber);
       setIsLoading(true);
       try {
         // const phoneProvider = new auth.PhoneAuthProvider();
@@ -216,9 +229,11 @@ export default function LoginScreen() {
   };
 
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <ViGoSpinner isLoading={isLoading} />
+
       <Image
         source={require("../../../assets/images/ViGo_logo.png")}
         style={styles.image}
