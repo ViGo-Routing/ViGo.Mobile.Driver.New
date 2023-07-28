@@ -60,7 +60,7 @@ export default function LoginScreen() {
       } catch (err) {
         console.warn(err);
       }
-      navigation.navigate("Schedule");
+      navigation.navigate("PickCus");
       console.log("response.user", response.user);
     });
   };
@@ -93,7 +93,7 @@ export default function LoginScreen() {
       [
         {
           text: "OK",
-          onPress: () => navigation.navigate("Schedule"),
+          onPress: () => navigation.navigate("Home"),
         },
       ]
     );

@@ -11,10 +11,12 @@ import { Agenda } from "react-native-calendars";
 import { getBookingDetailByDriverId } from "../../services/bookingDetailService";
 import { UserContext } from "../../context/UserContext";
 import { themeColors } from "../../../assets/theme";
+import { useNavigation } from "@react-navigation/native";
 
 const SchedulerScreen = () => {
   const { user } = useContext(UserContext);
   const [items, setItems] = useState([]);
+  const navigation = useNavigation();
   useEffect(() => {
     const fetchData = async () => {
       await getBookingDetailByDriverId(user.id).then((result) => {
@@ -30,7 +32,8 @@ const SchedulerScreen = () => {
 
           const itemData = {
             title: `${startStation.name} - ${endStation.name}`,
-            time: `${customerRouteRoutine.pickupTime} - $uu{customerRouteRoutine.routineDate}`,
+            time: `${customerRouteRoutine.pickupTime} - ${customerRouteRoutine.routineDate}`,
+            item: item
           };
           agendaItems[dateString].push(itemData);
           setItems(agendaItems)
@@ -40,6 +43,10 @@ const SchedulerScreen = () => {
     fetchData();
   }, []);
 
+  const handelStartRoute = (item) => {
+
+    navigation.navigate("StartRoute", { item });
+  };
 
   const loadItems = (day, items) => {
     // Simulating data fetching
@@ -64,10 +71,13 @@ const SchedulerScreen = () => {
 
   const renderItem = (item) => {
     return (
-      <View style={styles.itemContainer}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text>{item.time}</Text>
-      </View>
+      <TouchableOpacity onPress={() => handelStartRoute(item.item)}>
+        <View style={styles.itemContainer}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text>{item.time}</Text>
+        </View>
+      </TouchableOpacity>
+
     );
   };
   const renderEmptyDate = () => {
