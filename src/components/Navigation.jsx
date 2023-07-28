@@ -19,6 +19,8 @@ import WalletScreen from "../screens/Wallet/WalletScreen";
 import WalletTransactionDetailScreen from "../screens/Wallet/WalletTransactionDetailScreen";
 import WalletTransactionsScreen from "../screens/Wallet/WalletTransactionsScreen";
 import NewDriverUpdateProfileScreen from "../screens/Profile/NewDriverUpdateProfileScreen";
+import StartRouteScreen from "../screens/StartRoute/StartRouteScreen";
+import PickCusScreen from "../screens/StartRoute/PickCusScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -55,8 +57,8 @@ const Navigation = () => {
       <Stack.Screen name="Schedule" component={SchedulerScreen} />
       <Stack.Screen name="Profile" component={ProfileSreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-      {/* <Stack.Screen name="Routine" component={RoutineGenerator} /> */}
-      {/* <Stack.Screen name="Mapbox" component={Mapbox} /> */}
+      <Stack.Screen name="PickCus" component={PickCusScreen} />
+      <Stack.Screen name="StartRoute" component={StartRouteScreen} />
       <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
       <Stack.Screen
         name="Wallet"

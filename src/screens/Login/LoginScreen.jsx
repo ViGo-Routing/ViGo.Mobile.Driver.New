@@ -93,10 +93,21 @@ export default function LoginScreen() {
             await updateUserFcmToken(response.user.id, fcmToken);
           }
 
+          // Alert.alert(
+          //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
+          //   "",
+          //   [
+          //     {
+          //       text: "OK",
+          //       onPress: () => navigation.navigate("PickCus"),
+          //     },
+          //   ]
+          // );
+
           if (response.user.status == "PENDING") {
             navigation.navigate("NewDriverUpdateProfile");
           } else {
-            navigation.navigate("Schedule");
+            navigation.navigate("PickCus");
           }
         } catch (err) {
           Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
