@@ -70,16 +70,39 @@ const PickCusScreen = () => {
             };
             await updateStatusBookingDetail("dcb2ae5e-bd5f-4399-86e1-381067157d6f", requestData).then((s) => {
                 if (s && s.data) {
-                    Alert.alert(
-                        "Xác nhận nhận chuyến đi",
-                        `Bạn hãy đi đón khách đúng giờ nhé!`,
-                        [
-                            {
-                                text: "OK",
-                                onPress: () => setViewVisible(true),
-                            },
-                        ],
-                    );
+                    if (currentPosition === 0) {
+                        Alert.alert(
+                            "Xác nhận đón khách",
+                            `Rước khách thành công`,
+                            [
+                                {
+                                    text: "OK",
+                                },
+                            ],
+                        );
+                    } else if (currentPosition === 1) {
+                        Alert.alert(
+                            "Xác nhận đang di chuyển",
+                            `Bạn đang đưa khách đến điểm trả`,
+                            [
+                                {
+                                    text: "OK",
+                                },
+                            ],
+                        );
+                    } else if (currentPosition === 2) {
+                        Alert.alert(
+                            "Đã đến điểm trả",
+                            `Xác nhận trả khách thành công`,
+                            [
+                                {
+                                    text: "OK",
+                                    onPress: () => navigation.navigate("Home"),
+                                },
+                            ],
+                        );
+                    }
+
                 } else {
                     Alert.alert("Xác nhận chuyến", "Lỗi: Không bắt đầu được chuyến!");
                 }
