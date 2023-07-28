@@ -15,7 +15,7 @@ export const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth();
 console.log(auth);
 const currentUser = auth.apiKey;
 console.log("Current User:", currentUser);

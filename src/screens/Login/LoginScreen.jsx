@@ -1,4 +1,4 @@
-import { React, useState, useRef, useContext } from "react";
+import { React, useState, useRef, useContext, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,23 +11,121 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 // IMPORT THEME
-import { themeColors } from "../../../assets/theme";
+import { themeColors, vigoStyles } from "../../../assets/theme";
 
 // IMPORT FIREBASE
 // import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { firebaseConfig } from "../../config/firebase";
-import firebase from "firebase/compat/app";
+// import { auth as vigoAuth, firebaseConfig } from "../../config/firebase";
+// import firebase from "firebase/compat/app";
 import { UserContext } from "../../context/UserContext";
 import { login } from "../../utils/apiManager";
 import messaging from "@react-native-firebase/messaging";
 import { updateUserFcmToken } from "../../services/userService";
+import auth from "@react-native-firebase/auth";
+import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+import { getString } from "../../utils/storageUtils";
+import { determineDefaultScreen } from "../../utils/navigationUtils";
+// import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [vertificationId, setVertificationId] = useState(null);
-  const { setUser } = useContext(UserContext);
-  // const recaptchaVerifier = useRef(null);
+  const { user, setUser } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [firebaseToken, setFirebaseToken] = useState(null);
+  const recaptchaVerifier = useRef(null);
+
+  // Handle Login by Firebase
+  const onAuthStateChanged = (user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        setCode("");
+        // setPhoneNumber(user.phoneNumber);
+        setFirebaseToken(token);
+        // setFirebaseUid(user.uid);
+        // console.log(user.firebaseUid);
+        // console.log(user);
+        // console.log(token);
+      });
+    }
+  };
+
+  useEffect(() => {
+    // getString("token").then((result) => console.log(result));
+    // console.log(firebaseToken);
+    auth().settings.appVerificationDisabledForTesting = true;
+    // auth().settings.forceRecaptchaFlowForTesting = true;
+    // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    // return subscriber;
+    if (user) {
+      navigation.navigate(determineDefaultScreen(user));
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    // console.log(firebaseToken);
+    setIsLoading(true);
+    try {
+      login(phoneNumber, firebaseToken).then(async (response) => {
+        setUser(response.user);
+        console.log("Token " + (await getString("token")));
+
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            {
+              title: "Cho phép ViGo gửi thông báo đến bạn",
+              message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+                  trong ngày và hơn thế nữa`,
+              buttonNeutral: "Hỏi lại sau",
+              buttonNegative: "Từ chối",
+              buttonPositive: "Đồng ý",
+            }
+          );
+
+          console.log(response.user);
+
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            await messaging().registerDeviceForRemoteMessages();
+            const fcmToken = await messaging().getToken();
+            await updateUserFcmToken(response.user.id, fcmToken);
+          }
+
+          // Alert.alert(
+          //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
+          //   "",
+          //   [
+          //     {
+          //       text: "OK",
+          //       onPress: () => navigation.navigate("PickCus"),
+          //     },
+          //   ]
+          // );
+
+          if (response.user.status == "PENDING") {
+            navigation.navigate("NewDriverUpdateProfile");
+          } else {
+            navigation.navigate("PickCus");
+          }
+        } catch (err) {
+          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+          console.warn(err);
+        }
+      });
+    } catch (err) {
+      Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (firebaseToken) {
+      handleLogin();
+    }
+  }, [firebaseToken]);
 
   const sendVerification = async () => {
     // const phoneProvider = new firebase.auth.PhoneAuthProvider();
@@ -35,73 +133,118 @@ export default function LoginScreen() {
     //   .verifyPhoneNumber(phoneNumber, recaptchaVerifier.current)
     //   .then(setVertificationId);
     // // .then.navigation.navigate('ConFirmCode');
-    await login("phoneNumber", "token").then(async (response) => {
-      setUser(response.user);
+    // await login("phoneNumber", "token").then(async (response) => {
+    //   setUser(response.user);
+    //   try {
+    //     const granted = await PermissionsAndroid.request(
+    //       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    //       {
+    //         title: "Cho phép ViGo gửi thông báo đến bạn",
+    //         message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi
+    //             trong ngày và hơn thế nữa`,
+    //         buttonNeutral: "Hỏi lại sau",
+    //         buttonNegative: "Từ chối",
+    //         buttonPositive: "Đồng ý",
+    //       }
+    //     );
+
+    //     console.log(granted);
+
+    //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    //       await messaging().registerDeviceForRemoteMessages();
+    //       const fcmToken = await messaging().getToken();
+    //       await updateUserFcmToken(response.user.id, fcmToken);
+    //     }
+    //   } catch (err) {
+    //     console.warn(err);
+    //   }
+    //   navigation.navigate("Schedule");
+    //   console.log("response.user", response.user);
+    // });
+    if (phoneNumber) {
+      // console.log(phoneNumber);
+      setIsLoading(true);
       try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-          {
-            title: "Cho phép ViGo gửi thông báo đến bạn",
-            message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
-                trong ngày và hơn thế nữa`,
-            buttonNeutral: "Hỏi lại sau",
-            buttonNegative: "Từ chối",
-            buttonPositive: "Đồng ý",
-          }
-        );
-
-        console.log(granted);
-
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          await messaging().registerDeviceForRemoteMessages();
-          const fcmToken = await messaging().getToken();
-          await updateUserFcmToken(response.user.id, fcmToken);
-        }
+        // const phoneProvider = new auth.PhoneAuthProvider();
+        // phoneProvider.
+        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+        setConfirm(confirmation);
       } catch (err) {
-        console.warn(err);
+        console.error(err);
+        Alert.alert("Có lỗi xảy ra khi gửi mã OTP", "Chi tiết: " + err.message);
+      } finally {
+        setIsLoading(false);
       }
-      navigation.navigate("PickCus");
-      console.log("response.user", response.user);
-    });
+    }
   };
 
-  const confirmCode = () => {
-    console.log("phoneNumber", phoneNumber);
-    const credential = firebase.auth.PhoneAuthProvider.credential(
-      vertificationId,
-      code
-    );
-    firebase
-      .auth()
-      .signInWithCredential(credential)
-      .then(() => {
-        firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
-            setCode("");
-            user.getIdToken().then((token) => {
-              login(phoneNumber, token);
-            });
-          }
+  const confirmCode = async () => {
+    // console.log("phoneNumber", phoneNumber);
+    // const credential = firebase.auth.PhoneAuthProvider.credential(
+    //   vertificationId,
+    //   code
+    // );
+    // firebase
+    //   .auth()
+    //   .signInWithCredential(credential)
+    //   .then(() => {
+    //     firebase.auth().onAuthStateChanged((user) => {
+    //       if (user) {
+    //         setCode("");
+    //         user.getIdToken().then((token) => {
+    //           login(phoneNumber, token);
+    //         });
+    //       }
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     alert(error);
+    //   });
+    // Alert.alert(
+    //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
+    //   "",
+    //   [
+    //     {
+    //       text: "OK",
+    //       onPress: () => navigation.navigate("Schedule"),
+    //     },
+    //   ]
+    // );
+    setIsLoading(true);
+    try {
+      const result = await confirm.confirm(code);
+      console.log(result);
+      const credential = auth.PhoneAuthProvider.credential(
+        confirm.verificationId,
+        code
+      );
+
+      auth()
+        .signInWithCredential(credential)
+        .then(() => {
+          // console.log(user);
+          auth().onAuthStateChanged(onAuthStateChanged);
         });
-      })
-      .catch((error) => {
-        alert(error);
-      });
-    Alert.alert(
-      "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
-      "",
-      [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Home"),
-        },
-      ]
-    );
+
+      // let userData = await auth().currentUser.linkWithCredential(credential);
+      // console.log(userData);
+    } catch (err) {
+      if (err.code == "auth/invalid-verification-code") {
+        Alert.alert("Mã OTP không chính xác", "Vui lòng kiểm tra lại mã OTP!");
+      } else {
+        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
+      <ViGoSpinner isLoading={isLoading} />
+
       <Image
         source={require("../../../assets/images/ViGo_logo.png")}
         style={styles.image}
@@ -115,8 +258,8 @@ export default function LoginScreen() {
           placeholder="+84"
           autoCompleteType="tel"
           keyboardType="phone-pad"
-        // textContentType='telephoneNumber'
-        // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
+          // textContentType='telephoneNumber'
+          // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
         />
         {/* <TextInput
           style={styles.input}
@@ -142,12 +285,14 @@ export default function LoginScreen() {
           firebaseConfig={firebaseConfig}
         /> */}
 
-        <Text style={styles.registerText}>
-          Bạn chưa có tài khoản?{" "}
-          <TouchableOpacity onPress={() => navigation.navigate("Registration")}>
+        <View
+          style={{ ...vigoStyles.row, ...{ justifyContent: "flex-start" } }}
+        >
+          <Text style={styles.registerText}>Bạn chưa có tài khoản? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
             <Text style={styles.link}>Đăng ký</Text>
           </TouchableOpacity>
-        </Text>
+        </View>
       </View>
     </View>
   );
@@ -180,10 +325,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "black",
   },
   smallText: {
     fontSize: 20,
     paddingBottom: 15,
+    color: "black",
   },
   input: {
     height: 50,

@@ -16,6 +16,10 @@ export const vigoStyles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
+  smallText: {
+    fontSize: 20,
+    paddingBottom: 15,
+  },
   body: {
     backgroundColor: themeColors.linear,
     padding: 20,
@@ -28,6 +32,16 @@ export const vigoStyles = StyleSheet.create({
   },
   h1: {
     fontSize: 20,
+    fontWeight: "bold",
+    paddingTop: 10,
+  },
+  h2: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingTop: 10,
+  },
+  h3: {
+    fontSize: 16,
     fontWeight: "bold",
     paddingTop: 10,
   },
@@ -167,5 +181,11 @@ export const vigoStyles = StyleSheet.create({
     paddingRight: 20,
     paddingTop: 20,
     paddingBottom: 20,
+  },
+  link: {
+    // textAlign:'center',
+    color: themeColors.primary,
+    fontSize: 16,
+    // textDecorationLine: 'underline',
   },
 });
