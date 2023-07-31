@@ -255,15 +255,30 @@ export default function LoginScreen() {
       <View style={styles.card}>
         <Text style={styles.title}>Đăng nhập</Text>
         <Text style={styles.smallText}>Chào mừng bạn đến ViGo</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setPhoneNumber}
-          placeholder="+84"
-          autoCompleteType="tel"
-          keyboardType="phone-pad"
-        // textContentType='telephoneNumber'
-        // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
-        />
+        <View
+          style={{
+            ...vigoStyles.row,
+            ...{
+              justifyContent: "flex-start",
+              // marginBottom: 10,
+            },
+          }}
+        >
+          <Text style={{ marginRight: 10 }}>+84</Text>
+          <TextInput
+            style={{ ...styles.input, ...{ flex: 1 } }}
+            onChangeText={setPhoneNumber}
+            placeholder="123 456 789"
+            autoCompleteType="tel"
+            keyboardType="phone-pad"
+            // textContentType='telephoneNumber'
+            // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={sendVerification}>
+          <Text style={styles.buttonText}>Nhận OTP</Text>
+        </TouchableOpacity>
         {/* <TextInput
           style={styles.input}
           placeholder="Mật khẩu"
