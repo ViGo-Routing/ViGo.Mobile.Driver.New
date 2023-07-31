@@ -21,6 +21,7 @@ import { UserContext } from "../../context/UserContext.jsx";
 const StartRouteScreen = () => {
   const navigation = useNavigation();
   const [isViewVisible, setViewVisible] = useState(false);
+
   const route = useRoute();
   const { item } = route.params;
   const { user } = useContext(UserContext);
@@ -62,17 +63,17 @@ const StartRouteScreen = () => {
       const requestData = {
         bookingDetailId: item.id,
         status: "GOING_TO_PICKUP",
-        time: time
+        time: time.toISOString()
       };
-      await updateStatusBookingDetail(item.id, requestData).then((s) => {
-        if (s && s.data) {
+      await updateStatusBookingDetail(item.id, requestData).then((response) => {
+        if (response && response.data) {
           Alert.alert(
             "Xác nhận nhận chuyến đi",
             `Bạn hãy đi đón khách đúng giờ nhé!`,
             [
               {
                 text: "OK",
-                onPress: () => { navigation.navigate("PickCus", { s }) },
+                onPress: () => { navigation.navigate("PickCus", { response }) },
               },
             ],
           );

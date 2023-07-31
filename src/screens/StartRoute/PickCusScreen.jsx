@@ -1,32 +1,33 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { themeColors } from "../../../assets/theme";
 // import { Ionicons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import StepIndicator from 'react-native-step-indicator';
 import { updateStatusBookingDetail } from "../../services/bookingDetailService";
-
+import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+const time = new Date()
 const data = [
     {
         label: "Bắt đầu chuyến đi",
         status: "Đang đến điểm đón",
-        dateTime: new Date(),
+        dateTime: `${time}`,
     },
     {
         label: "Rước khách thành công",
         status: "Bạn hãy đưa khách đến điểm trả",
-        dateTime: new Date(),
+        dateTime: `${time}`,
     },
     {
         label: "Đang di chuyển",
         status: "Bạn đang đưa khách đến điểm trả",
-        dateTime: new Date(),
+        dateTime: `${time}`,
     },
     {
         label: "Đã đến điểm trả",
         status: "Xác nhận trả khách thành công",
-        dateTime: new Date(),
+        dateTime: `${time}`,
     },
 ]
 const customStyles = {
@@ -55,20 +56,22 @@ const customStyles = {
 
 const PickCusScreen = () => {
     const route = useRoute();
-    //const { s } = route.params;
+    const [isLoading, setIsLoading] = useState(false);
 
+    const { response } = route.params;
+    console.log("responseresponseresponse", response.data)
     const handlArrivePickUp = async () => {
-
+        setIsLoading(true);
         try {
 
             const time = new Date();
-            const status = currentPosition === 0 ? "ARRIVE_AT_PICKUP" : currentPosition === 1 ? "GOING_TO_DROPOFF," : " ARRIVE_AT_DROPOFF";
+            const status = currentPosition === 0 ? "ARRIVE_AT_PICKUP" : currentPosition === 1 ? "GOING_TO_DROPOFF" : " ARRIVE_AT_DROPOFF";
             const requestData = {
-                bookingDetailId: "dcb2ae5e-bd5f-4399-86e1-381067157d6f",
+                bookingDetailId: response.data.id,
                 status: status,
-                time: time
+                time: time.toISOString()
             };
-            await updateStatusBookingDetail("dcb2ae5e-bd5f-4399-86e1-381067157d6f", requestData).then((s) => {
+            await updateStatusBookingDetail(response.data.id, requestData).then((s) => {
                 if (s && s.data) {
                     if (currentPosition === 0) {
                         Alert.alert(
@@ -102,7 +105,7 @@ const PickCusScreen = () => {
                             ],
                         );
                     }
-
+                    setCurrentPosition(currentPosition + 1)
                 } else {
                     Alert.alert("Xác nhận chuyến", "Lỗi: Không bắt đầu được chuyến!");
                 }
@@ -111,6 +114,8 @@ const PickCusScreen = () => {
         } catch (error) {
             console.error("Tài xế bắt đầu chuyến đi", error);
             Alert.alert("Tài xế bắt đầu", "Bắt đầu không thành công");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -120,11 +125,12 @@ const PickCusScreen = () => {
     const onStepPress = () => {
         console.log(currentPosition);
         if (currentPosition < 3) {
+
             handlArrivePickUp()
         } else {
             console.log("thành công");
         }
-        setCurrentPosition(currentPosition + 1)
+
     }
     const onBackPress = () => {
         navigation.goBack();
@@ -133,6 +139,7 @@ const PickCusScreen = () => {
     console.disableYellowBox = true
     return (
         <View style={styles.container}>
+            <ViGoSpinner isLoading={isLoading} />
             <View style={styles.indicatorContainer}>
 
                 <StepIndicator
@@ -140,15 +147,16 @@ const PickCusScreen = () => {
                     currentPosition={currentPosition}
                     labels={data.map(item => item.label)}
                     direction="vertical"
-                    renderStep={(position, stepStatus) => {
-                        return (
-                            <View style={styles.stepContainer}>
-                                <Text style={styles.stepLabel}>{data[position].label}</Text>
-                                <Text style={styles.stepStatus}>{data[position].status}</Text>
-                                <Text style={styles.stepDateTime}>{data[position].dateTime.toISOString()}</Text>
-                            </View>
-                        );
-                    }}
+                    stepCount={data.length}
+                    style={styles.stepIndicator}
+                    renderLabel={({ label, currentPosition }) => (
+                        <View style={styles.labelContainer}>
+                            <Text style={styles.label}>{label}</Text>
+                            <Text style={styles.dateTime}>{data[currentPosition].status}</Text>
+                            <Text style={styles.dateTime}>{data[currentPosition].dateTime}</Text>
+                        </View>
+                    )}
+
                 />
                 <TouchableOpacity onPress={onStepPress}>
                     {currentPosition === 0 && <Text>Đã rước khách</Text>}
@@ -166,40 +174,26 @@ const PickCusScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: themeColors.linear,
         padding: 20,
-    },
-    backButton: {
-        paddingTop: 10,
-        position: "absolute",
-        left: 20,
-    },
-    stepContainer: {
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stepIndicator: {
+        marginVertical: 20,
         paddingHorizontal: 10,
     },
-    stepLabel: {
+    labelContainer: {
+        alignItems: 'center',
+    },
+    label: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: 'Black',
+        marginBottom: 8,
     },
-    stepStatus: {
-        fontSize: 14,
+    dateTime: {
+        fontSize: 12,
         color: '#666666',
     },
-    stepDateTime: {
-        fontSize: 12,
-        color: '#999999',
-    },
-    indicatorContainer: {
-        height: 500,
-        padding: 20,
-        margin: 15,
-        elevation: 20,
-        borderRadius: 20,
-        backgroundColor: "white"
-    }
 });
 
 export default PickCusScreen;

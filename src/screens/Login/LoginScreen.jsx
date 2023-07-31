@@ -107,7 +107,7 @@ export default function LoginScreen() {
           if (response.user.status == "PENDING") {
             navigation.navigate("NewDriverUpdateProfile");
           } else {
-            navigation.navigate("PickCus");
+            navigation.navigate("Home");
           }
         } catch (err) {
           Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
@@ -258,8 +258,8 @@ export default function LoginScreen() {
           placeholder="+84"
           autoCompleteType="tel"
           keyboardType="phone-pad"
-          // textContentType='telephoneNumber'
-          // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
+        // textContentType='telephoneNumber'
+        // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
         />
         {/* <TextInput
           style={styles.input}

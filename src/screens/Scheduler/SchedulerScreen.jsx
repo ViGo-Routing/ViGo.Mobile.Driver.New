@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const SchedulerScreen = () => {
   const { user } = useContext(UserContext);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState({});
   const navigation = useNavigation();
   useEffect(() => {
     const fetchData = async () => {
