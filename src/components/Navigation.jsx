@@ -55,8 +55,16 @@ const Navigation = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="Schedule" component={SchedulerScreen} />
-      <Stack.Screen name="Profile" component={ProfileSreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileSreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="PickCus" component={PickCusScreen} />
       <Stack.Screen name="StartRoute" component={StartRouteScreen} />
       <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
