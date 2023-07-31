@@ -4,7 +4,7 @@ export const determineDefaultScreen = (user) => {
       // console.log("Pending");
       return "NewDriverUpdateProfile";
     } else {
-      return "Schedule";
+      return "Home";
     }
   }
   return "Login";

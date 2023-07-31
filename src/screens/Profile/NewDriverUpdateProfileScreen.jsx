@@ -444,7 +444,7 @@ const NewDriverUpdateProfileScreen = () => {
                   autoComplete="email"
                   keyboardType="email-address"
                   textContentType="emailAddress"
-                  editable={isSubmitted}
+                  // editable={isSubmitted}
                 />
               </View>
             </View>
@@ -463,7 +463,7 @@ const NewDriverUpdateProfileScreen = () => {
                   zIndex={1000}
                   zIndexInverse={3000}
                   listMode="MODAL"
-                  disabled={isSubmitted}
+                  // disabled={isSubmitted}
                   // style={styles.input}
                 />
               </View>
@@ -592,7 +592,7 @@ const NewDriverUpdateProfileScreen = () => {
                     keyboardType="default"
                     onChangeText={setVehiclePlate}
                     style={styles.input}
-                    editable={isSubmitted}
+                    // editable={isSubmitted}
                   />
                 </View>
               </View>
