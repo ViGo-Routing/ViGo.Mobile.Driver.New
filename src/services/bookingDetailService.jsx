@@ -3,7 +3,7 @@ import apiManager from "../utils/apiManager";
 export const getBookingDetailByUserId = async (driverId) => {
   try {
     const response = await apiManager.get(
-      `/api/BookingDetail/Driver/Available/${driverId}?PageSize=-1`
+      `/api/BookingDetail/Driver/Available/${driverId}?pageSize=-1`
     );
     return response;
   } catch (error) {
@@ -35,10 +35,11 @@ export const getBookingDetailByDriverId = async (driverId) => {
   }
 };
 export const updateStatusBookingDetail = async (bookingId, requestData) => {
-  console.log(requestData)
+  console.log(requestData);
   try {
     const response = await apiManager.put(
-      `/api/BookingDetail/UpdateStatus/${bookingId}`, requestData
+      `/api/BookingDetail/UpdateStatus/${bookingId}`,
+      requestData
     );
     return response;
   } catch (error) {
