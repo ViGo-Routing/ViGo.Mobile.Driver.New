@@ -107,7 +107,7 @@ export default function LoginScreen() {
           if (response.user.status == "PENDING") {
             navigation.navigate("NewDriverUpdateProfile");
           } else {
-            navigation.navigate("PickCus");
+            navigation.navigate("Home");
           }
         } catch (err) {
           Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
@@ -261,6 +261,9 @@ export default function LoginScreen() {
           // textContentType='telephoneNumber'
           // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
         />
+        <TouchableOpacity style={styles.button} onPress={sendVerification}>
+          <Text style={styles.buttonText}>Nhận OTP</Text>
+        </TouchableOpacity>
         {/* <TextInput
           style={styles.input}
           placeholder="Mật khẩu"
@@ -272,12 +275,10 @@ export default function LoginScreen() {
           onChangeText={setCode}
           keyboardType="phone-pad"
         />
-        <TouchableOpacity style={styles.button} onPress={sendVerification}>
+        <TouchableOpacity style={styles.button} onPress={confirmCode}>
           <Text style={styles.buttonText}>Đăng nhập</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={confirmCode}>
-          <Text style={styles.buttonText}>Nhập OTP</Text>
-        </TouchableOpacity>
+
         <Text style={styles.link}>Quên mật khẩu?</Text>
 
         {/* <FirebaseRecaptchaVerifierModal
