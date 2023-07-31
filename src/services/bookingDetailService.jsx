@@ -3,7 +3,7 @@ import apiManager from "../utils/apiManager";
 export const getBookingDetailByUserId = async (driverId) => {
   try {
     const response = await apiManager.get(
-      `/api/BookingDetail/Driver/Available/${driverId}`
+      `/api/BookingDetail/Driver/Available/${driverId}?PageSize=-1`
     );
     return response;
   } catch (error) {

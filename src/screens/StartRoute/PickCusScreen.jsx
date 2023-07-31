@@ -158,7 +158,7 @@ const PickCusScreen = () => {
                     )}
 
                 />
-                <TouchableOpacity onPress={onStepPress}>
+                <TouchableOpacity style={styles.button} onPress={onStepPress}>
                     {currentPosition === 0 && <Text>Đã rước khách</Text>}
                     {currentPosition === 1 && <Text>Bắt đầu di chuyển</Text>}
                     {currentPosition === 2 && <Text>Đã đến điểm trả</Text>}
@@ -193,6 +193,13 @@ const styles = StyleSheet.create({
     dateTime: {
         fontSize: 12,
         color: '#666666',
+    },
+    button: {
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 10,
+        backgroundColor: themeColors.primary,
+        alignItems: "center",
     },
 });
 
