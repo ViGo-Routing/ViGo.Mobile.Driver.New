@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -13,6 +13,7 @@ import ProfileCard from "../../components/Card/ProfileCard.jsx";
 import { themeColors } from "../../../assets/theme/index.jsx";
 import { getProfile } from "../../services/userService.jsx";
 import {
+  ArrowLeftOnRectangleIcon,
   ClipboardDocumentListIcon,
   DocumentCheckIcon,
   PencilSquareIcon,
@@ -23,10 +24,15 @@ import {
   WalletIcon,
 } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
+import { removeItem } from "../../utils/storageUtils.js";
+import { UserContext } from "../../context/UserContext.jsx";
 
 const ProfileSreen = () => {
   const navigation = useNavigation();
   const [response, setResponse] = useState(null);
+
+  const { setUser } = useContext(UserContext);
+
   useEffect(() => {
     (async () => {
       try {
@@ -38,6 +44,7 @@ const ProfileSreen = () => {
       }
     })();
   }, []);
+
   handleSendData = (item, responseData) => {
     if (item.navigator == "EditProfile") {
       navigation.navigate("EditProfile", { data: responseData });
@@ -45,6 +52,7 @@ const ProfileSreen = () => {
       navigation.navigate(item.navigator);
     }
   };
+
   const listAccountUtilities = [
     {
       icon: <PencilSquareIcon size={24} color={themeColors.primary} />,
@@ -74,6 +82,7 @@ const ProfileSreen = () => {
       navigator: "Manage Account",
     },
   ];
+
   const listGeneralUtilities = [
     {
       icon: <DocumentCheckIcon size={24} color={themeColors.primary} />,
@@ -93,6 +102,14 @@ const ProfileSreen = () => {
     },
     // { icon: "", label: "", navigator: "" },
   ];
+
+  const logout = async () => {
+    await removeItem("token");
+    setUser(null);
+
+    navigation.navigate("Login");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -124,6 +141,16 @@ const ProfileSreen = () => {
             </View>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          key="logout"
+          style={styles.list}
+          onPress={() => logout()}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <ArrowLeftOnRectangleIcon size={24} color={themeColors.primary} />
+            <Text style={{ marginLeft: 10 }}>Đăng xuất</Text>
+          </View>
+        </TouchableOpacity>
 
         <Text style={styles.title}>Thông tin chung</Text>
         {listGeneralUtilities.map((item, index) => (
