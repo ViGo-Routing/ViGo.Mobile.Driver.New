@@ -37,13 +37,17 @@ export const login = async (phone, firebaseToken) => {
     return response.data;
   } catch (error) {
     console.error("Login failed:", error.response.data);
+    Alert.alert(
+      "Đăng nhập không thành công!",
+      "Chi tiết: " + (error.response ? error.response.data : error.message)
+    );
   }
 };
 
-export const register = async (name, phone, firebaseUid) => {
+export const register = async (/*name, */ phone, firebaseUid) => {
   try {
     const requestData = {
-      name: name,
+      // name: name,
       phone: phone,
       firebaseUid: firebaseUid,
       role: "DRIVER",
@@ -56,8 +60,11 @@ export const register = async (name, phone, firebaseUid) => {
 
     return response.data;
   } catch (err) {
-    console.error(err.response.data);
-    Alert.alert("Có lỗi xảy ra khi đăng ký", "Chi tiết: " + err.response.data);
+    // console.error(err.response.data);
+    Alert.alert(
+      "Có lỗi xảy ra khi đăng ký",
+      "Chi tiết: " + (err.response ? err.response.data : err.message)
+    );
   }
 };
 

@@ -68,7 +68,7 @@ export default function LoginScreen() {
     // console.log(firebaseToken);
     setIsLoading(true);
     try {
-      login(phoneNumber, firebaseToken).then(async (response) => {
+      login(`+84${phoneNumber}`, firebaseToken).then(async (response) => {
         setUser(response.user);
         console.log("Token " + (await getString("token")));
 
@@ -167,7 +167,9 @@ export default function LoginScreen() {
       try {
         // const phoneProvider = new auth.PhoneAuthProvider();
         // phoneProvider.
-        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+        const confirmation = await auth().signInWithPhoneNumber(
+          `+84${phoneNumber}`
+        );
         setConfirm(confirmation);
       } catch (err) {
         console.error(err);
@@ -252,15 +254,27 @@ export default function LoginScreen() {
       <View style={styles.card}>
         <Text style={styles.title}>Đăng nhập</Text>
         <Text style={styles.smallText}>Chào mừng bạn đến ViGo</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setPhoneNumber}
-          placeholder="+84"
-          autoCompleteType="tel"
-          keyboardType="phone-pad"
-          // textContentType='telephoneNumber'
-          // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
-        />
+        <View
+          style={{
+            ...vigoStyles.row,
+            ...{
+              justifyContent: "flex-start",
+              // marginBottom: 10,
+            },
+          }}
+        >
+          <Text style={{ marginRight: 10 }}>+84</Text>
+          <TextInput
+            style={{ ...styles.input, ...{ flex: 1 } }}
+            onChangeText={setPhoneNumber}
+            placeholder="123 456 789"
+            autoCompleteType="tel"
+            keyboardType="phone-pad"
+            // textContentType='telephoneNumber'
+            // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
+          />
+        </View>
+
         <TouchableOpacity style={styles.button} onPress={sendVerification}>
           <Text style={styles.buttonText}>Nhận OTP</Text>
         </TouchableOpacity>
@@ -342,11 +356,11 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: themeColors.primary,
-    marginTop: 30,
+    marginTop: 0,
     paddingVertical: 10,
     paddingHorizontal: 100,
     borderRadius: 20,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   buttonText: {
     textAlign: "center",

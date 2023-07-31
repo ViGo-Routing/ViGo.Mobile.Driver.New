@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import { themeColors, vigoStyles } from "../../../assets/theme";
-import Header from "../../components/Header/Header";
 import { useNavigation } from "@react-navigation/native";
 import EnterOtpCodeModal from "../../components/Modal/EnterOtpCodeModal";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
@@ -47,11 +46,11 @@ const RegisterScreen = () => {
         setCode("");
         // setPhoneNumber(user.phoneNumber);
         setFirebaseToken(token);
-        setEnterOtpModalVisible(false);
         setFirebaseUid(user.uid);
         // console.log(user.firebaseUid);
         // console.log(user);
         // console.log(token);
+        setEnterOtpModalVisible(false);
       });
     }
   };
@@ -64,6 +63,12 @@ const RegisterScreen = () => {
     // return subscriber;
   }, []);
 
+  useEffect(() => {
+    if (firebaseToken && firebaseUid) {
+      onRegister();
+    }
+  }, [firebaseToken, firebaseUid]);
+
   // Handle Send OTP
   const sendOtp = async () => {
     if (phoneNumber) {
@@ -71,7 +76,9 @@ const RegisterScreen = () => {
       try {
         // const phoneProvider = new auth.PhoneAuthProvider();
         // phoneProvider.
-        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+        const confirmation = await auth().signInWithPhoneNumber(
+          `+84${phoneNumber}`
+        );
         setConfirm(confirmation);
 
         setEnterOtpModalVisible(true);
@@ -114,47 +121,50 @@ const RegisterScreen = () => {
     }
   };
 
-  const renderAfterOtpConfirm = () => {
-    if (firebaseToken) {
-      return (
-        <View>
-          <Text>Họ và tên</Text>
-          <View
-            style={{
-              ...vigoStyles.row,
-              ...{
-                justifyContent: "center",
-                marginBottom: 10,
-              },
-            }}
-          >
-            <TextInput
-              style={{ ...styles.input, ...{ flex: 1 } }}
-              onChangeText={setName}
-              placeholder="Nguyễn Văn A"
-              autoComplete="name"
-              keyboardType="default"
-              textContentType="name"
-            />
-          </View>
-        </View>
-      );
-    } else {
-      return <></>;
-    }
-  };
+  // const renderAfterOtpConfirm = () => {
+  //   if (firebaseToken) {
+  //     return (
+  //       <View>
+  //         <Text>Họ và tên</Text>
+  //         <View
+  //           style={{
+  //             ...vigoStyles.row,
+  //             ...{
+  //               justifyContent: "center",
+  //               marginBottom: 10,
+  //             },
+  //           }}
+  //         >
+  //           <TextInput
+  //             style={{ ...styles.input, ...{ flex: 1 } }}
+  //             onChangeText={setName}
+  //             placeholder="Nguyễn Văn A"
+  //             autoComplete="name"
+  //             keyboardType="default"
+  //             textContentType="name"
+  //           />
+  //         </View>
+  //       </View>
+  //     );
+  //   } else {
+  //     return <></>;
+  //   }
+  // };
 
   const onRegister = async () => {
     setIsLoading(true);
     try {
-      const newUserData = await register(name, phoneNumber, firebaseUid);
+      const newUserData = await register(
+        /*name, */ `+84${phoneNumber}`,
+        firebaseUid
+      );
       if (newUserData) {
         Alert.alert(
           "Đăng ký tài khoản thành công!",
           "Hãy tiến hành cập nhật hồ sơ để có thể sử dụng ViGo bạn nhé"
         );
 
-        login(phoneNumber, firebaseToken).then(async (response) => {
+        login(`+84${phoneNumber}`, firebaseToken).then(async (response) => {
           setUser(response.user);
           try {
             const granted = await PermissionsAndroid.request(
@@ -183,7 +193,7 @@ const RegisterScreen = () => {
           if (response.user.status == "PENDING") {
             navigation.navigate("NewDriverUpdateProfile");
           } else {
-            navigation.navigate("Schedule");
+            navigation.navigate("Home");
           }
         });
       }
@@ -220,18 +230,19 @@ const RegisterScreen = () => {
             },
           }}
         >
+          <Text style={{ marginRight: 10 }}>+84</Text>
           <TextInput
             style={{ ...styles.input, ...{ flex: 1 } }}
             onChangeText={setPhoneNumber}
             editable={firebaseToken ? false : true}
-            placeholder="+84 123 456 789"
+            placeholder="123 456 789"
             autoComplete="tel"
             keyboardType="phone-pad"
             textContentType="telephoneNumber"
             // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
           />
         </View>
-        {renderAfterOtpConfirm()}
+        {/* {renderAfterOtpConfirm()} */}
 
         {/* <TextInput
           style={styles.input}
@@ -246,7 +257,9 @@ const RegisterScreen = () => {
         /> */}
         <TouchableOpacity
           style={vigoStyles.buttonPrimary}
-          onPress={() => (firebaseToken ? onRegister() : sendOtp())}
+          onPress={() =>
+            /*(firebaseToken ? onRegister() : sendOtp())*/ sendOtp()
+          }
         >
           <Text style={vigoStyles.buttonPrimaryText}>Tiếp tục</Text>
         </TouchableOpacity>
@@ -267,7 +280,7 @@ const RegisterScreen = () => {
         setModalVisible={setEnterOtpModalVisible}
         onModalRequestClose={() => {}}
         onModalConfirm={() => otpConfirm()}
-        phoneNumber={phoneNumber}
+        phoneNumber={`+84${phoneNumber}`}
         setCode={setCode}
       />
     </SafeAreaView>

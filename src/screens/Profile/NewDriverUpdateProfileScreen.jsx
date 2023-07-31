@@ -25,7 +25,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 import { launchImageLibrary } from "react-native-image-picker";
 import { uploadFile } from "../../utils/firebaseUtils";
 import storage from "@react-native-firebase/storage";
-import { generateImageName, getImageData } from "../../utils/imageUtils";
+import { generateImageName } from "../../utils/imageUtils";
 import { editProfile, getProfile } from "../../services/userService";
 import {
   createUserLicense,
@@ -310,7 +310,8 @@ const NewDriverUpdateProfileScreen = () => {
         setAvatarSource(profile.avatarUrl);
       }
       const vehicles = await getVehicles(user.id);
-      if (vehicles) {
+      // console.log(vehicles);
+      if (vehicles && vehicles.length > 0) {
         const vehicle = vehicles[0];
         setVehicleType(vehicle.vehicleTypeId);
         setVehiclePlate(vehicle.licensePlate);
@@ -378,6 +379,60 @@ const NewDriverUpdateProfileScreen = () => {
     }
   }, []);
 
+  // const handleReadIdQrCode = async (frontSideUri) => {
+  //   if (frontSideUri) {
+  //     console.log(frontSideUri);
+  //     setIsLoading(true);
+
+  //     // let idWidth, idHeight;
+  //     // Image.getSize(
+  //     //   frontSideUri,
+  //     //   async (width, height) => {
+  //     //     idWidth = width;
+  //     //     idHeight = height;
+  //     //     const imageData = await getImageDataForQrReading(frontSideUri);
+
+  //     //     console.log(imageData.length);
+  //     //     console.log(idWidth, idHeight);
+  //     //     const code = jsQR(imageData, idWidth, idHeight);
+
+  //     //     console.log(code);
+  //     //     if (code) {
+  //     //       console.log(code.data);
+  //     //     }
+  //     //   },
+  //     //   (error) => {
+  //     //     throw error;
+  //     //   }
+  //     // );
+
+  //     RNQRGenerator.detect({
+  //       // uri: frontSideUri,
+  //       uri: "https://firebasestorage.googleapis.com/v0/b/vigo-a7754.appspot.com/o/images%2Fdriver_CCCD_Front_uQBh977dPO1690801899281.png?alt=media&token=1dbbe6dd-6fbe-4c59-8c01-bbe92bd87916",
+  //     })
+  //       .then((response) => {
+  //         const { values } = response;
+  //         console.log(response);
+
+  //         setIsLoading(false);
+  //       })
+  //       .catch((err) => {
+  //         throw err;
+  //       });
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (idFrontSide) {
+  //     try {
+  //       handleReadIdQrCode(idFrontSide);
+  //     } catch (err) {
+  //       Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+  //     } finally {
+  //     }
+  //   }
+  // }, [idFrontSide]);
+
   return (
     <SafeAreaView style={vigoStyles.container}>
       <ViGoSpinner isLoading={isLoading} />
@@ -386,13 +441,15 @@ const NewDriverUpdateProfileScreen = () => {
       </View>
       <View style={vigoStyles.body}>
         <ScrollView>
-          <View style={{ alignItems: "center", marginBottom: 20 }}>
-            <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text>
-          </View>
+          {isSubmitted && (
+            <View style={{ alignItems: "center", marginBottom: 20 }}>
+              <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text>
+            </View>
+          )}
           <View style={{ alignItems: "center" }}>
             <Pressable
               onPress={() => handlePickImage("Avatar", setAvatarSource)}
-              disabled={isSubmitted}
+              // disabled={isSubmitted == true}
             >
               <Image
                 source={
@@ -417,6 +474,7 @@ const NewDriverUpdateProfileScreen = () => {
                 />
               </View>
             </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.inputTitle}>Họ và Tên</Text>
               <View style={styles.inputBorder}>
@@ -428,23 +486,7 @@ const NewDriverUpdateProfileScreen = () => {
                   textContentType="name"
                   onChangeText={setName}
                   style={styles.input}
-                  editable={isSubmitted}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Email</Text>
-              <View style={styles.inputBorder}>
-                <TextInput
-                  placeholder="Nhập email"
-                  value={email}
-                  onChangeText={setEmail}
-                  style={styles.input}
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  textContentType="emailAddress"
-                  // editable={isSubmitted}
+                  // editable={isSubmitted == true}
                 />
               </View>
             </View>
@@ -463,7 +505,7 @@ const NewDriverUpdateProfileScreen = () => {
                   zIndex={1000}
                   zIndexInverse={3000}
                   listMode="MODAL"
-                  // disabled={isSubmitted}
+                  // disabled={isSubmitted == true}
                   // style={styles.input}
                 />
               </View>
@@ -483,10 +525,13 @@ const NewDriverUpdateProfileScreen = () => {
                 }}
                 onCancel={toggleDatepicker}
                 date={dob ?? new Date()}
-                disabled={isSubmitted}
+                // disabled={isSubmitted == true}
               />
               <View style={styles.inputBorder}>
-                <Pressable disabled={isSubmitted} onPress={toggleDatepicker}>
+                <Pressable
+                  // disabled={isSubmitted == true}
+                  onPress={toggleDatepicker}
+                >
                   <TextInput
                     placeholder="Nhập ngày sinh"
                     value={dob ? formatDate(dob) : ""}
@@ -500,23 +545,43 @@ const NewDriverUpdateProfileScreen = () => {
             </View>
 
             <View style={styles.inputContainer}>
+              <Text style={styles.inputTitle}>Email</Text>
+              <View style={styles.inputBorder}>
+                <TextInput
+                  placeholder="Nhập email"
+                  value={email}
+                  onChangeText={setEmail}
+                  style={styles.input}
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                  // editable={isSubmitted == true}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
               <Text
                 style={{
-                  marginBottom: 20,
+                  marginBottom: 10,
                   fontWeight: "bold",
                   fontSize: 16,
                 }}
               >
                 CCCD / CMND
               </Text>
-              <View style={vigoStyles.row}>
+              {/* <Text style={{ marginBottom: 20 }}>
+                Tải ảnh CCCD gắn chip lên để các thông tin được cập nhật chính
+                xác nhất
+              </Text> */}
+              <View style={{ ...vigoStyles.row, ...{ marginBottom: 20 } }}>
                 <View style={{ alignItems: "center" }}>
                   <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
                   <Pressable
                     onPress={() =>
                       handlePickImage("CCCD_Front", setIdFrontSide)
                     }
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
@@ -535,7 +600,7 @@ const NewDriverUpdateProfileScreen = () => {
                   <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
                   <Pressable
                     onPress={() => handlePickImage("CCCD_Back", setIdBackSide)}
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
@@ -577,7 +642,7 @@ const NewDriverUpdateProfileScreen = () => {
                     zIndex={2000}
                     zIndexInverse={2000}
                     listMode="MODAL"
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                     // style={styles.input}
                   />
                 </View>
@@ -592,7 +657,7 @@ const NewDriverUpdateProfileScreen = () => {
                     keyboardType="default"
                     onChangeText={setVehiclePlate}
                     style={styles.input}
-                    // editable={isSubmitted}
+                    // editable={isSubmitted == true}
                   />
                 </View>
               </View>
@@ -615,7 +680,7 @@ const NewDriverUpdateProfileScreen = () => {
                     onPress={() =>
                       handlePickImage("Vehicle_Front", setVehicleFrontSide)
                     }
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
@@ -636,7 +701,7 @@ const NewDriverUpdateProfileScreen = () => {
                     onPress={() =>
                       handlePickImage("Vehicle_Back", setVehicleBackSide)
                     }
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
@@ -671,7 +736,7 @@ const NewDriverUpdateProfileScreen = () => {
                     onPress={() =>
                       handlePickImage("Driving_Front", setDrivingFrontSide)
                     }
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
@@ -692,7 +757,7 @@ const NewDriverUpdateProfileScreen = () => {
                     onPress={() =>
                       handlePickImage("Driving_Back", setDrivingBackSide)
                     }
-                    disabled={isSubmitted}
+                    // disabled={isSubmitted == true}
                   >
                     <Image
                       source={
