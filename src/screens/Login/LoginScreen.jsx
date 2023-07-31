@@ -25,6 +25,7 @@ import auth from "@react-native-firebase/auth";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { getString } from "../../utils/storageUtils";
 import { determineDefaultScreen } from "../../utils/navigationUtils";
+import EnterOtpCodeModal from "../../components/Modal/EnterOtpCodeModal";
 // import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 
 export default function LoginScreen() {
@@ -36,6 +37,7 @@ export default function LoginScreen() {
   const [confirm, setConfirm] = useState(null);
   const [firebaseToken, setFirebaseToken] = useState(null);
   const recaptchaVerifier = useRef(null);
+  const [enterOtpModalVisible, setEnterOtpModalVisible] = useState(false);
 
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
@@ -48,6 +50,7 @@ export default function LoginScreen() {
         // console.log(user.firebaseUid);
         // console.log(user);
         // console.log(token);
+        setEnterOtpModalVisible(false);
       });
     }
   };
@@ -172,6 +175,7 @@ export default function LoginScreen() {
           `+84${phoneNumber}`
         );
         setConfirm(confirmation);
+        setEnterOtpModalVisible(true);
       } catch (err) {
         console.error(err);
         Alert.alert("Có lỗi xảy ra khi gửi mã OTP", "Chi tiết: " + err.message);
@@ -260,7 +264,7 @@ export default function LoginScreen() {
             ...vigoStyles.row,
             ...{
               justifyContent: "flex-start",
-              // marginBottom: 10,
+              marginBottom: 10,
             },
           }}
         >
@@ -284,7 +288,7 @@ export default function LoginScreen() {
           placeholder="Mật khẩu"
           secureTextEntry={true}
         /> */}
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           placeholder="OTP Code"
           onChangeText={setCode}
@@ -292,7 +296,7 @@ export default function LoginScreen() {
         />
         <TouchableOpacity style={styles.button} onPress={confirmCode}>
           <Text style={styles.buttonText}>Đăng nhập</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <Text style={styles.link}>Quên mật khẩu?</Text>
 
@@ -309,6 +313,16 @@ export default function LoginScreen() {
             <Text style={styles.link}>Đăng ký</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Modal */}
+        <EnterOtpCodeModal
+          modalVisible={enterOtpModalVisible}
+          setModalVisible={setEnterOtpModalVisible}
+          onModalRequestClose={() => {}}
+          onModalConfirm={() => confirmCode()}
+          phoneNumber={`+84${phoneNumber}`}
+          setCode={setCode}
+        />
       </View>
     </View>
   );
@@ -352,7 +366,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 15,
     paddingHorizontal: 20,
-    marginBottom: 10,
+    // marginBottom: 10,
     backgroundColor: themeColors.linear,
   },
   button: {
