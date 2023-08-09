@@ -21,6 +21,7 @@ import WalletTransactionsScreen from "../screens/Wallet/WalletTransactionsScreen
 import NewDriverUpdateProfileScreen from "../screens/Profile/NewDriverUpdateProfileScreen";
 import StartRouteScreen from "../screens/StartRoute/StartRouteScreen";
 import PickCusScreen from "../screens/StartRoute/PickCusScreen";
+import { CustomerDetailScreen } from "../screens/BookingDetail/CustomerDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,7 +49,7 @@ const Navigation = () => {
         component={LoginScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
@@ -65,9 +66,9 @@ const Navigation = () => {
         component={EditProfileScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="PickCus" component={PickCusScreen} />
-      <Stack.Screen name="StartRoute" component={StartRouteScreen} />
-      <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
+      <Stack.Screen name="PickCus" component={PickCusScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="StartRoute" component={StartRouteScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="Wallet"
         options={{ headerShown: false }}
@@ -90,6 +91,11 @@ const Navigation = () => {
         name="NewDriverUpdateProfile"
         options={{ headerShown: false }}
         component={NewDriverUpdateProfileScreen}
+      />
+      <Stack.Screen
+        name="CustomerDetail"
+        options={{ headerShown: false }}
+        component={CustomerDetailScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>

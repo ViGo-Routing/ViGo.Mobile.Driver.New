@@ -1,8 +1,7 @@
 import { React, useState, useRef, useContext, useEffect } from "react";
 import {
   StyleSheet,
-  Text,
-  View,
+
   TextInput,
   TouchableOpacity,
   Image,
@@ -26,19 +25,22 @@ import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { getString } from "../../utils/storageUtils";
 import { determineDefaultScreen } from "../../utils/navigationUtils";
 import EnterOtpCodeModal from "../../components/Modal/EnterOtpCodeModal";
+import { Box, CheckIcon, FormControl, Input, Select, View, Text, useToast, WarningOutlineIcon } from "native-base";
 // import { getAuth, signInWithPhoneNumber } from "firebase/auth";
-
+import { EyeIcon, EyeSlashIcon } from "react-native-heroicons/solid";
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [code, setCode] = useState("");
-  const [vertificationId, setVertificationId] = useState(null);
+  const [password, setPassword] = useState("");
   const { user, setUser } = useContext(UserContext);
+  const [enterOtpModalVisible, setEnterOtpModalVisible] = useState(false);
+
+  // const recaptchaVerifier = useRef(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [firebaseToken, setFirebaseToken] = useState(null);
   const recaptchaVerifier = useRef(null);
-  const [enterOtpModalVisible, setEnterOtpModalVisible] = useState(false);
-
+  const [show, setShow] = useState(false);
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
     if (user) {
@@ -63,66 +65,74 @@ export default function LoginScreen() {
     // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     // return subscriber;
     if (user) {
-      navigation.navigate(determineDefaultScreen(user));
+      navigation.navigate("Home");
     }
   }, []);
 
   const handleLogin = async () => {
     // console.log(firebaseToken);
-    setIsLoading(true);
-    try {
-      login(`+84${phoneNumber}`, firebaseToken).then(async (response) => {
-        setUser(response.user);
-        console.log("Token " + (await getString("token")));
+    const phoneRegex = /^0\d{9}$/;
+    const isValid = phoneRegex.test(phoneNumber);
+    if (!isValid || phoneNumber == "" && password == "") {
+      if (password == "") {
+        setIsInputPasswordInvalid(true)
+      }
+      setIsInputPhoneInvalid(true);
 
-        try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-            {
-              title: "Cho phép ViGo gửi thông báo đến bạn",
-              message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
-                  trong ngày và hơn thế nữa`,
-              buttonNeutral: "Hỏi lại sau",
-              buttonNegative: "Từ chối",
-              buttonPositive: "Đồng ý",
+    } else {
+      setIsLoading(true);
+      try {
+        const phone = `+84${phoneNumber.substring(1, 10)}`
+        console.log(phone)
+        login(phone, password).then(async (response) => {
+          setUser(response.user);
+          // console.log("Token " + (await getString("token")));
+
+          try {
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+              {
+                title: "Cho phép ViGo gửi thông báo đến bạn",
+                message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+              trong ngày và hơn thế nữa`,
+                buttonNeutral: "Hỏi lại sau",
+                buttonNegative: "Từ chối",
+                buttonPositive: "Đồng ý",
+              }
+            );
+
+            console.log(response.user);
+
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+              await messaging().registerDeviceForRemoteMessages();
+              const fcmToken = await messaging().getToken();
+              await updateUserFcmToken(response.user.id, fcmToken);
             }
-          );
 
-          console.log(response.user);
-
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            await messaging().registerDeviceForRemoteMessages();
-            const fcmToken = await messaging().getToken();
-            await updateUserFcmToken(response.user.id, fcmToken);
-          }
-
-          // Alert.alert(
-          //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
-          //   "",
-          //   [
-          //     {
-          //       text: "OK",
-          //       onPress: () => navigation.navigate("PickCus"),
-          //     },
-          //   ]
-          // );
-
-          if (response.user.status == "PENDING") {
-            navigation.navigate("NewDriverUpdateProfile");
-          } else {
+            // Alert.alert(
+            //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
+            //   "",
+            //   [
+            //     {
+            //       text: "OK",
+            //       onPress: () => navigation.navigate("PickCus"),
+            //     },
+            //   ]
+            // );
             navigation.navigate("Home");
-            navigation.navigate("Home");
+          } catch (err) {
+            Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+            console.warn(err);
           }
-        } catch (err) {
-          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-          console.warn(err);
-        }
-      });
-    } catch (err) {
-      Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-    } finally {
-      setIsLoading(false);
+        });
+      } catch (err) {
+        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
+
+
   };
 
   useEffect(() => {
@@ -131,120 +141,18 @@ export default function LoginScreen() {
     }
   }, [firebaseToken]);
 
-  const sendVerification = async () => {
-    // const phoneProvider = new firebase.auth.PhoneAuthProvider();
-    // phoneProvider
-    //   .verifyPhoneNumber(phoneNumber, recaptchaVerifier.current)
-    //   .then(setVertificationId);
-    // // .then.navigation.navigate('ConFirmCode');
-    // await login("phoneNumber", "token").then(async (response) => {
-    //   setUser(response.user);
-    //   try {
-    //     const granted = await PermissionsAndroid.request(
-    //       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    //       {
-    //         title: "Cho phép ViGo gửi thông báo đến bạn",
-    //         message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi
-    //             trong ngày và hơn thế nữa`,
-    //         buttonNeutral: "Hỏi lại sau",
-    //         buttonNegative: "Từ chối",
-    //         buttonPositive: "Đồng ý",
-    //       }
-    //     );
-
-    //     console.log(granted);
-
-    //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-    //       await messaging().registerDeviceForRemoteMessages();
-    //       const fcmToken = await messaging().getToken();
-    //       await updateUserFcmToken(response.user.id, fcmToken);
-    //     }
-    //   } catch (err) {
-    //     console.warn(err);
-    //   }
-    //   navigation.navigate("Schedule");
-    //   console.log("response.user", response.user);
-    // });
-    if (phoneNumber) {
-      // console.log(phoneNumber);
-      setIsLoading(true);
-      try {
-        // const phoneProvider = new auth.PhoneAuthProvider();
-        // phoneProvider.
-        const confirmation = await auth().signInWithPhoneNumber(
-          `+84${phoneNumber}`
-        );
-        setConfirm(confirmation);
-        setEnterOtpModalVisible(true);
-      } catch (err) {
-        console.error(err);
-        Alert.alert("Có lỗi xảy ra khi gửi mã OTP", "Chi tiết: " + err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const [inputValue, setInputValue] = useState('');
+  const [isInputPhoneInvalid, setIsInputPhoneInvalid] = useState(false);
+  const [isInputPasswordInvalid, setIsInputPasswordInvalid] = useState(false);
+  const handlePhoneChange = (text) => {
+    setPhoneNumber(text);
+    setIsInputPhoneInvalid(false); // Reset the input validation when the user starts typing again
+  };
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+    setIsInputPasswordInvalid(false); // Reset the input validation when the user starts typing again
   };
 
-  const confirmCode = async () => {
-    // console.log("phoneNumber", phoneNumber);
-    // const credential = firebase.auth.PhoneAuthProvider.credential(
-    //   vertificationId,
-    //   code
-    // );
-    // firebase
-    //   .auth()
-    //   .signInWithCredential(credential)
-    //   .then(() => {
-    //     firebase.auth().onAuthStateChanged((user) => {
-    //       if (user) {
-    //         setCode("");
-    //         user.getIdToken().then((token) => {
-    //           login(phoneNumber, token);
-    //         });
-    //       }
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     alert(error);
-    //   });
-    // Alert.alert(
-    //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
-    //   "",
-    //   [
-    //     {
-    //       text: "OK",
-    //       onPress: () => navigation.navigate("Schedule"),
-    //     },
-    //   ]
-    // );
-    setIsLoading(true);
-    try {
-      const result = await confirm.confirm(code);
-      console.log(result);
-      const credential = auth.PhoneAuthProvider.credential(
-        confirm.verificationId,
-        code
-      );
-
-      auth()
-        .signInWithCredential(credential)
-        .then(() => {
-          // console.log(user);
-          auth().onAuthStateChanged(onAuthStateChanged);
-        });
-
-      // let userData = await auth().currentUser.linkWithCredential(credential);
-      // console.log(userData);
-    } catch (err) {
-      if (err.code == "auth/invalid-verification-code") {
-        Alert.alert("Mã OTP không chính xác", "Vui lòng kiểm tra lại mã OTP!");
-      } else {
-        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const navigation = useNavigation();
 
@@ -256,74 +164,67 @@ export default function LoginScreen() {
         source={require("../../../assets/images/ViGo_logo.png")}
         style={styles.image}
       />
-      <View style={styles.card}>
-        <Text style={styles.title}>Đăng nhập</Text>
-        <Text style={styles.smallText}>Chào mừng bạn đến ViGo</Text>
-        <View
-          style={{
-            ...vigoStyles.row,
-            ...{
-              justifyContent: "flex-start",
-              marginBottom: 10,
-            },
-          }}
-        >
-          <Text style={{ marginRight: 10 }}>+84</Text>
-          <TextInput
-            style={{ ...styles.input, ...{ flex: 1 } }}
-            onChangeText={setPhoneNumber}
-            placeholder="123 456 789"
-            autoCompleteType="tel"
-            keyboardType="phone-pad"
-            // textContentType='telephoneNumber'
-            // onChangeText={(phoneNumber) => setPhoneNumber(phoneNumber)}
-          />
-        </View>
+      <Box alignItems="center">
+        <Box maxW="80" rounded="xl" overflow="hidden" borderColor="coolGray.200" borderWidth="2" _dark={{
+          borderColor: "coolGray.600",
+          backgroundColor: "gray.700"
+        }} _web={{
+          shadow: 8,
+          borderWidth: 0
+        }} _light={{
+          backgroundColor: "gray.50"
+        }}>
+          <Box p="4">
+            <Text fontSize="3xl" bold >Đăng nhập</Text>
+            <Text fontSize="xl" >Chào mừng bạn đến ViGo</Text>
+            <Box alignItems="center" pt="4">
+              <FormControl style={styles.input} isInvalid={isInputPhoneInvalid} w="95%" maxW="500px">
 
-        <TouchableOpacity style={styles.button} onPress={sendVerification}>
-          <Text style={styles.buttonText}>Nhận OTP</Text>
-        </TouchableOpacity>
-        {/* <TextInput
-          style={styles.input}
-          placeholder="Mật khẩu"
-          secureTextEntry={true}
-        /> */}
-        {/* <TextInput
-          style={styles.input}
-          placeholder="OTP Code"
-          onChangeText={setCode}
-          keyboardType="phone-pad"
-        />
-        <TouchableOpacity style={styles.button} onPress={confirmCode}>
-          <Text style={styles.buttonText}>Đăng nhập</Text>
-        </TouchableOpacity> */}
+                <Input variant="unstyled" value={phoneNumber} onChangeText={handlePhoneChange} InputLeftElement={<Text fontSize="xs" bold>+84</Text>} placeholder="Nhập số điện thoại" />
+                {isInputPhoneInvalid && (
+                  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />} pb="2">
+                    Số điện thoại không hợp lệ
+                  </FormControl.ErrorMessage>
+                )}
+              </FormControl>
+            </Box>
+            <Box alignItems="center" pt="1">
+              <FormControl style={styles.input} isInvalid={isInputPasswordInvalid} w="95%" maxW="500px">
 
-        <Text style={styles.link}>Quên mật khẩu?</Text>
+                <Input variant="unstyled" value={password} onChangeText={handlePasswordChange} keyboardType="numeric" type={show ? "number" : "password"} InputLeftElement={<TouchableOpacity p="3" onPress={() => setShow(!show)}>
+                  {!show ? (
+                    <EyeIcon size={18} color="black" />
+                  ) : (
+                    <EyeSlashIcon name="eye-off" size={18} color="black" />
+                  )}
+                </TouchableOpacity>} placeholder="Mật khẩu" />
+                {isInputPasswordInvalid && (
+                  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />} pb="2">
+                    Bạn chưa nhập mật khẩu
+                  </FormControl.ErrorMessage>
+                )}
+              </FormControl>
+            </Box>
 
-        {/* <FirebaseRecaptchaVerifierModal
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Đăng nhập</Text>
+            </TouchableOpacity>
+            <Text style={styles.link}>Quên mật khẩu?</Text>
+
+            {/* <FirebaseRecaptchaVerifierModal
           ref={recaptchaVerifier}
           firebaseConfig={firebaseConfig}
         /> */}
 
-        <View
-          style={{ ...vigoStyles.row, ...{ justifyContent: "flex-start" } }}
-        >
-          <Text style={styles.registerText}>Bạn chưa có tài khoản? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-            <Text style={styles.link}>Đăng ký</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Modal */}
-        <EnterOtpCodeModal
-          modalVisible={enterOtpModalVisible}
-          setModalVisible={setEnterOtpModalVisible}
-          onModalRequestClose={() => {}}
-          onModalConfirm={() => confirmCode()}
-          phoneNumber={`+84${phoneNumber}`}
-          setCode={setCode}
-        />
-      </View>
+            <Text style={styles.registerText}>
+              Bạn chưa có tài khoản?{" "}
+              <TouchableOpacity onPress={() => navigation.navigate("Registration")}>
+                <Text style={styles.link}>Đăng ký</Text>
+              </TouchableOpacity>
+            </Text>
+          </Box>
+        </Box>
+      </Box>
     </View>
   );
 }
@@ -355,15 +256,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "black",
   },
   smallText: {
     fontSize: 20,
     paddingBottom: 15,
-    color: "black",
   },
   input: {
-    height: 50,
     borderRadius: 15,
     paddingHorizontal: 20,
     // marginBottom: 10,
@@ -371,7 +269,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: themeColors.primary,
-    marginTop: 0,
+    marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 100,
     borderRadius: 20,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Alert, Animated } from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
 
@@ -16,37 +16,24 @@ import {
   ClockIcon,
   MapPinIcon,
 } from "react-native-heroicons/outline";
-
+import { CustomBottomSheet } from "../../components/BottomSheet/BottomSheet.jsx";
+import { Box, Button, Center, HStack, Pressable, VStack } from "native-base";
+import { MinusIcon } from "react-native-heroicons/solid";
 const BookingDetailScreen = () => {
-  // const handlePickupPositionChange = (position) => {
-  //   setPickupPosition(position);
-  // };
+  const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
 
-  // const handleDestinationPositionChange = (position) => {
-  //   setDestinationPosition(position);
-  // };
+  // Move this block below the 'isBottomSheetVisible' state declaration
+  const translateY = new Animated.Value(300);
 
-  // const handleRouteIdReceived = (routeId) => {
-  //   // Handle the received routeId here, if needed.
-  //   console.log("Received Route ID:", routeId);
-  // };
-  // const [routeData, setRouteData] = useState(null);
-
-  // useEffect(() => {
-  //   const fetchRouteById = async () => {
-  //     try {
-  //       const routeId = item.id;
-  //       const response = await getRouteById(routeId);
-  //       if (response && response.data) {
-  //         setRouteData(response.data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching route details:", error);
-  //     }
-  //   };
-
-  //   fetchRouteById();
-  // }, []);
+  React.useEffect(() => {
+    Animated.spring(translateY, {
+      toValue: isBottomSheetVisible ? 0 : 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isBottomSheetVisible]);
+  const toggleBottomSheet = () => {
+    setBottomSheetVisible(!isBottomSheetVisible);
+  };
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -81,7 +68,9 @@ const BookingDetailScreen = () => {
         formatted_address: item.endStation.formatted_address,
       }
       : null;
-
+  const handleCustomerDetail = async () => {
+    navigation.navigate("CustomerDetail")
+  }
   const handlePickBooking = async () => {
     const bookingId = item.bookingId;
     try {
@@ -128,230 +117,166 @@ const BookingDetailScreen = () => {
           destinationPosition={destinationPosition}
           sendRouteId={(routeId) => console.log("Received Route ID:", routeId)}
         />
-        <View
-          style={{
-            position: "absolute",
-            alignSelf: "center",
-            top: "0%",
-            width: "90%",
-          }}
-        >
-          <View style={[styles.card, styles.shadowProp]}>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={[styles.cardInsideDateTime, styles.shadowProp]}>
+        {!isBottomSheetVisible && <Box position="absolute" bottom={5} alignSelf="center" alignItems="center" bgColor={themeColors.primary}>
+          <Button onPress={toggleBottomSheet}>Chi tiết</Button>
+        </Box>}
+
+        {isBottomSheetVisible && <Animated.View position="absolute" bottom="45%" width="100%" style={[styles.container, { transform: [{ translateY }] }]}>
+          <View
+            style={{
+              position: "absolute",
+              alignSelf: "center",
+              top: "0%",
+              width: "90%",
+            }}
+          >
+
+            <View style={[styles.card, styles.shadowProp]}>
+              <Center>
+                <TouchableOpacity onPress={toggleBottomSheet} style={styles.closeButton}>
+                  <MinusIcon size={40} color="#00A1A1" />
+                </TouchableOpacity>
+              </Center>
+              <HStack alignItems="center" justifyContent="center">
+                <Center style={[styles.cardInsideDateTime, styles.shadowProp]}>
+                  <HStack alignItems="center" justifyContent="center">
+                    <VStack alignItems="center" justifyContent="center" >
+
+                      <CalendarDaysIcon size={25} color="#00A1A1" />
+                    </VStack>
+                    <VStack alignItems="center">
+                      <Text style={styles.title}>Ngày đón</Text>
+                      <Text
+                        style={{
+                          paddingLeft: 5,
+                          paddingBottom: 5,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {item.customerRouteRoutine.routineDate}
+                      </Text>
+                    </VStack>
+                  </HStack >
+                </Center>
+                <Center style={[styles.cardInsideDateTime, styles.shadowProp]}>
+                  <HStack alignItems="center" justifyContent="center">
+                    <VStack alignItems="center" justifyContent="center">
+                      {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
+                      <ClockIcon size={25} color="#00A1A1" />
+                    </VStack>
+
+                    <VStack alignItems="center" justifyContent="center">
+                      <Text style={styles.title}>Giờ đón</Text>
+
+                      <Text
+                        style={{
+                          paddingLeft: 5,
+                          paddingBottom: 5,
+                          fontSize: 15,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {item.customerRouteRoutine.pickupTime}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Center>
+              </HStack >
+              <HStack alignItems="center">
+                <Center style={[styles.cardInsideLocation, styles.shadowProp]}>
+                  <HStack alignItems="center" justifyContent="center">
+                    <VStack alignItems="center">
+                      <MapPinIcon size={25} color="#00A1A1" />
+                    </VStack>
+
+                    <VStack alignItems="center" justifyContent="center" >
+                      <Text style={styles.title}>Điểm đón</Text>
+
+                      <Text
+                        style={{
+                          paddingLeft: 5,
+                          paddingBottom: 5,
+                          fontSize: 15,
+                        }}
+                      >
+                        {item.startStation.name}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Center>
+              </HStack>
+              <HStack alignItems="center" justifyContent="center" >
+                <Center style={[styles.cardInsideLocation, styles.shadowProp]}>
+                  <HStack alignItems="center" justifyContent="center">
+                    <VStack alignItems="center" justifyContent="center">
+                      <MapPinIcon size={25} color="#00A1A1" />
+                    </VStack>
+
+                    <VStack alignItems="center" justifyContent="center">
+                      <Text style={styles.title}>Điểm đến</Text>
+                      <Text
+                        style={{
+                          paddingLeft: 5,
+                          paddingBottom: 5,
+                          fontSize: 15,
+                        }}
+                      >
+                        {item.endStation.name}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Center>
+              </HStack>
+              <HStack>
                 <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
+                  style={[
+                    styles.cardInsideLocation,
+                    {
+                      backgroundColor: themeColors.primary,
+                      height: 40,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                  ]}
                 >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
+                  <TouchableOpacity
+                    style={styles.assignButton}
+                    onPress={navigation.navigate("CustomerDetail")}
                   >
-                    {/* <Ionicons
-                      name="calendar-outline"
-                      size={25}
-                      color="#00A1A1"
-                    /> */}
-                    <CalendarDaysIcon size={25} color="#00A1A1" />
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={styles.title}>Ngày đón</Text>
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {item.customerRouteRoutine.routineDate}
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Chi tiết
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
-              </View>
-              <View style={[styles.cardInsideDateTime, styles.shadowProp]}>
                 <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
+                  style={[
+                    styles.cardInsideLocation,
+                    {
+                      backgroundColor: themeColors.primary,
+                      height: 40,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                  ]}
                 >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
+                  <TouchableOpacity
+                    style={styles.assignButton}
+                    onPress={handlePickBooking}
                   >
-                    {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-                    <ClockIcon size={25} color="#00A1A1" />
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={styles.title}>Giờ đón</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {item.customerRouteRoutine.pickupTime}
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Nhận chuyến
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={[styles.cardInsideLocation, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons name="locate-outline" size={25} color="#00A1A1" /> */}
-                    <MapPinIcon size={25} color="#00A1A1" />
-                  </View>
+              </HStack>
 
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <Text style={styles.title}>Điểm đón</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                      }}
-                    >
-                      {item.startStation.name}
-                    </Text>
-                  </View>
-                </View>
-              </View>
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={[styles.cardInsideLocation, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons
-                      name="location-outline"
-                      size={25}
-                      color="#00A1A1"
-                    /> */}
-                    <MapPinIcon size={25} color="#00A1A1" />
-                  </View>
 
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <Text style={styles.title}>Điểm đến</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                      }}
-                    >
-                      {item.endStation.name}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View
-              style={[
-                styles.cardInsideLocation,
-                {
-                  backgroundColor: themeColors.primary,
-                  height: 40,
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.assignButton}
-                onPress={handlePickBooking}
-              >
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  Nhận chuyến
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </View>
+        </Animated.View>}
       </View>
+
       <View style={styles.footer}>{/* <BottomNavigationBar /> */}</View>
     </View>
   );
@@ -362,8 +287,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: "white",
     borderRadius: 8,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
     width: "100%",
     marginVertical: 10,
     shadowColor: "#000",
@@ -385,7 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 8,
 
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     width: "40%",
     marginVertical: 10,
     shadowColor: "#000",
@@ -416,8 +341,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    flexDirection: "row",
-    flexGrow: 1,
+
     margin: 5,
   },
   body: {
@@ -431,7 +355,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   list: {
-    paddingTop: 20,
+    paddingTop: 10,
     fontSize: 20,
   },
 });

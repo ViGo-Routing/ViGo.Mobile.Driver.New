@@ -15,10 +15,10 @@ const updateToken = async (newToken) => {
   await setString("token", newToken);
 };
 
-export const login = async (phone, firebaseToken) => {
+export const login = async (phone, password) => {
   try {
     const requestData = {
-      firebaseToken: firebaseToken,
+      password: password,
       phone: phone,
       role: "DRIVER",
     };

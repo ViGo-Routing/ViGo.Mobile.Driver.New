@@ -22,7 +22,7 @@ const BottomNavigationBar = () => {
       {/* <TouchableOpacity onPress={() => navigation.navigate('Promotion')}>
         <Ionicons name="pricetags" size={24} color="white" />
       </TouchableOpacity> */}
-      <TouchableOpacity onPress={() => navigation.navigate("Scheduler")}>
+      <TouchableOpacity onPress={() => navigation.navigate("Schedule")}>
         <MapIcon size={24} color="white" />
         {/* <Ionicons name="git-branch" size={24} color="white" /> */}
       </TouchableOpacity>

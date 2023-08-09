@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import BottomNavigationBar from "../../components/NavBar/BottomNavigationBar";
 import WelcomeDriverHeader from "../../components/Header/WelcomeDriverHeader";
 import { getProfile } from "../../services/userService";
+import { Center, Image, VStack } from "native-base";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -53,9 +54,8 @@ const HomeScreen = () => {
       <ScrollView style={styles.body}>
         <View style={styles.header}>
           <WelcomeDriverHeader
-            title={`Chào mừng ${
-              response && response.name ? response.name : ""
-            }`}
+            title={`Chào mừng ${response && response.name ? response.name : ""
+              }`}
             subtitle="..."
             onBack={() => navigation.goBack()}
           />
@@ -66,7 +66,7 @@ const HomeScreen = () => {
             style={[
               styles.list,
               index === bookingDetailAvailable.length - 1 &&
-                styles.lastListItem,
+              styles.lastListItem,
             ]}
             key={item.id}
           >
@@ -74,18 +74,26 @@ const HomeScreen = () => {
               style={[styles.card, styles.shadowProp]}
               onPress={() => handelSendData(item)}
             >
+
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View style={{ width: "20%", paddingRight: 5 }}>
-                  <View
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: 15,
-                    }}
-                  >
-                    <Text style={{ fontWeight: "bold" }}>Giờ đón</Text>
-                    <Text>{item.customerRouteRoutine.pickupTime}</Text>
+
+                <VStack>
+                  <Center>
+                    <Image p="1" size={"xs"} resizeMode="cover" source={require("../../../assets/icons/vigobike.png")} alt="Alternate Text" />
+                  </Center>
+                  <View style={{ width: "100%", paddingRight: 15 }}>
+                    <View
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 15,
+                      }}
+                    >
+                      <Text style={{ fontWeight: "bold" }}>Giờ đón</Text>
+                      <Text>{item.customerRouteRoutine.pickupTime}</Text>
+                    </View>
                   </View>
-                </View>
+                </VStack>
+
                 <View
                   style={{
                     width: "80%",
@@ -188,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#000",
     fontWeight: "bold",
-    fontSize: 20,
+    fontSize: 18,
     paddingLeft: 5,
   },
   priceCart: {
