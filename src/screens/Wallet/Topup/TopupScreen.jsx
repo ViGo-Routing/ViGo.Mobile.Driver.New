@@ -15,8 +15,8 @@ import Header from "../../../components/Header/Header";
 import { ChevronRightIcon } from "react-native-heroicons/solid";
 import { useContext, useState } from "react";
 import TopupAmountModal from "./TopupAmountModal";
-import { createTopupTransaction } from "../../../service/paymentService";
 import { UserContext } from "../../../context/UserContext";
+import { createTopupTransaction } from "../../../services/paymentService";
 
 const TopupScreen = () => {
   const { user } = useContext(UserContext);
@@ -25,7 +25,7 @@ const TopupScreen = () => {
     {
       key: "VNPAY",
       title: "Ví VNPAY",
-      logo: require("../../../assets/icons/vnpay.png"),
+      logo: require("../../../../assets/icons/vnpay.png"),
     },
   ];
 
