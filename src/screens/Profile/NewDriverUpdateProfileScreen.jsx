@@ -3,12 +3,13 @@ import {
   View,
   // Image,
   StyleSheet,
-  Alert,
+  // Alert,
   ScrollView,
   TouchableOpacity,
-  TextInput,
+  // TextInput,
   // Text,
-  Pressable,
+  // Pressable,
+  NativeEventEmitter,
 } from "react-native";
 import Header from "../../components/Header/Header";
 import { themeColors, vigoStyles } from "../../../assets/theme";
@@ -32,6 +33,7 @@ import {
   getUserLicenses,
 } from "../../services/userLicenseService";
 import {
+  Alert,
   Box,
   Button,
   Center,
@@ -45,11 +47,14 @@ import {
   Text,
   VStack,
   useToast,
+  Pressable,
 } from "native-base";
 import { issuedAtTime } from "@firebase/util";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { getMaximumDob } from "../../utils/datetimeUtils";
 import { CheckIcon } from "react-native-heroicons/solid";
+import { eventNames, handleError, handleWarning } from "../../utils/alertUtils";
+import ConfirmAlert from "../../components/Alert/ConfirmAlert";
 
 const NewDriverUpdateProfileScreen = () => {
   const { user } = useContext(UserContext);
@@ -93,9 +98,13 @@ const NewDriverUpdateProfileScreen = () => {
 
   const [vehicleTypesDropdown, setVehicleTypesDropdown] = useState([]);
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(true);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const toast = useToast();
+
+  const eventEmitter = new NativeEventEmitter();
 
   const loadVehicleTypes = async () => {
     const response = await getVehicleTypes();
@@ -106,6 +115,7 @@ const NewDriverUpdateProfileScreen = () => {
         value: item.id,
       }))
     );
+
     // console.log(response);
   };
 
@@ -143,7 +153,8 @@ const NewDriverUpdateProfileScreen = () => {
     });
 
     if (result.errorMessage) {
-      Alert.alert("Có lỗi xảy ra", "Chi tiết: " + result.errorMessage);
+      // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + result.errorMessage);
+      handleError("Có lỗi xảy ra", result.errorMessage);
     } else {
       if (result.assets) {
         setIsLoading(true);
@@ -163,14 +174,19 @@ const NewDriverUpdateProfileScreen = () => {
             // return ref.getDownloadURL();
             // console.log("Upload success");
             const downloadUrl = await ref.getDownloadURL();
-            setImageUrl(downloadUrl);
-            setIsLoading(false);
-            toast.show({
-              description: "Tải ảnh lên thành công",
-            });
+            if (downloadUrl) {
+              setIsLoading(false);
+              setImageUrl(downloadUrl);
+              console.log(downloadUrl);
+              toast.show({
+                description: "Tải ảnh lên thành công",
+                duration: 3000,
+              });
+            }
           });
         } catch (error) {
-          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + error.message);
+          // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + error.message);
+          handleError("Có lỗi xảy ra", error);
           setIsLoading(false);
         } finally {
           // setIsLoading(false);
@@ -179,7 +195,95 @@ const NewDriverUpdateProfileScreen = () => {
     }
   };
 
-  const handleUpdateProfile = async () => {
+  const handleConfirmUpdateProfile = async () => {
+    try {
+      setIsLoading(true);
+      // Update profile
+      const profileToUpdate = {
+        email: email,
+        name: name,
+        gender: gender,
+        dateOfBirth: dob,
+        avatarUrl: avatarSource,
+      };
+
+      // console.log(profileToUpdate);
+      const profileData = await editProfile(user.id, profileToUpdate);
+
+      // Create UserLicense
+      // ID
+      const idLicense = {
+        frontSideFile: idFrontSide,
+        backSideFile: idBackSide,
+        licenseType: "IDENTIFICATION",
+      };
+      // console.log(idLicense);
+      const idData = await createUserLicense(idLicense);
+
+      // Vehicle
+      const vehicleLicense = {
+        frontSideFile: vehicleFrontSide,
+        backSideFile: vehicleBackSide,
+        licenseType: "VEHICLE_REGISTRATION",
+      };
+      // console.log(vehicleLicense);
+      const vehicleLicenseData = await createUserLicense(vehicleLicense);
+
+      // Driving
+      const drivingLicense = {
+        frontSideFile: drivingFrontSide,
+        backSideFile: drivingBackSide,
+        licenseType: "DRIVER_LICENSE",
+      };
+      // console.log(drivingLicense);
+      const drivingData = await createUserLicense(drivingLicense);
+
+      // Vehicle
+      const vehicleTypeObj = vehicleTypes.filter(
+        (item) => item.id == vehicleType
+      )[0];
+
+      const vehicle = {
+        name: `${vehicleTypeObj.name} - ${vehiclePlate}`,
+        licensePlate: vehiclePlate,
+        vehicleTypeId: vehicleType,
+        userId: user.id,
+        userLicenseId: vehicleLicenseData.id,
+      };
+      // console.log(vehicle);
+      const vehicleData = await createVehicle(vehicle);
+
+      setIsLoading(false);
+
+      eventEmitter.emit(eventNames.SHOW_TOAST, {
+        title: "Tạo hồ sơ thành công",
+        description:
+          "Hồ sơ tài xế của bạn đã được gửi tới hệ thống ViGo thành công! Hãy chờ quản trị viên xem xét hồ sơ của bạn nhé",
+        status: "success",
+        // placement: "top",
+        isDialog: true,
+      });
+
+      setIsSubmitted(true);
+      // Alert.alert(
+      //   "Tạo hồ sơ thành công",
+      //   "Hồ sơ tài xế của bạn đã được gửi tới hệ thống ViGo thành công!"
+      // );
+    } catch (err) {
+      handleError("Có lỗi xảy ra", err);
+      // console.error(err);
+      // if (err.response) {
+      //   Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.response.data);
+      // } else {
+      //   Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+      // }
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = () => {
+    // setConfirmOpen(true);
+
     if (
       avatarSource &&
       name &&
@@ -194,131 +298,94 @@ const NewDriverUpdateProfileScreen = () => {
       drivingFrontSide &&
       drivingBackSide
     ) {
-      try {
-        setIsLoading(true);
-        // Update profile
-        const profileToUpdate = {
-          email: email,
-          name: name,
-          gender: gender,
-          dateOfBirth: dob,
-          avatarUrl: avatarSource,
-        };
-
-        console.log(profileToUpdate);
-        const profileData = await editProfile(user.id, profileToUpdate);
-
-        // Create UserLicense
-        // ID
-        const idLicense = {
-          frontSideFile: idFrontSide,
-          backSideFile: idBackSide,
-          licenseType: "IDENTIFICATION",
-        };
-        console.log(idLicense);
-        const idData = await createUserLicense(idLicense);
-
-        // Vehicle
-        const vehicleLicense = {
-          frontSideFile: vehicleFrontSide,
-          backSideFile: vehicleBackSide,
-          licenseType: "VEHICLE_REGISTRATION",
-        };
-        console.log(vehicleLicense);
-        const vehicleLicenseData = await createUserLicense(vehicleLicense);
-
-        // Driving
-        const drivingLicense = {
-          frontSideFile: drivingFrontSide,
-          backSideFile: drivingBackSide,
-          licenseType: "DRIVER_LICENSE",
-        };
-        console.log(drivingLicense);
-        const drivingData = await createUserLicense(drivingLicense);
-
-        // Vehicle
-        const vehicleTypeObj = vehicleTypes.filter(
-          (item) => item.id == vehicleType
-        )[0];
-
-        const vehicle = {
-          name: `${vehicleTypeObj.name} - ${vehiclePlate}`,
-          licensePlate: vehiclePlate,
-          vehicleTypeId: vehicleType,
-          userId: user.id,
-          userLicenseId: vehicleLicenseData.id,
-        };
-        console.log(vehicle);
-        const vehicleData = await createVehicle(vehicle);
-
-        setIsLoading(false);
-        Alert.alert(
-          "Tạo hồ sơ thành công",
-          "Hồ sơ tài xế của bạn đã được gửi tới hệ thống ViGo thành công!"
-        );
-      } catch (err) {
-        console.error(err);
-        if (err.response) {
-          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.response.data);
-        } else {
-          Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-        }
-        setIsLoading(false);
-      }
+      setConfirmOpen(true);
     } else {
       if (!avatarSource) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh đại diện của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh đại diện của bạn!"
         );
       }
       if (!name || name.length <= 5) {
-        Alert.alert("Thiếu thông tin", "Họ và tên phải có ít nhất 5 kí tự!");
+        handleWarning("Thiếu thông tin", "Họ và tên phải có ít nhất 5 kí tự!");
+        // Alert.alert("Thiếu thông tin", "Họ và tên phải có ít nhất 5 kí tự!");
       }
       if (!email) {
-        Alert.alert("Thiếu thông tin", "Vui lòng nhập email!");
+        handleWarning("Thiếu thông tin", "Vui lòng nhập email!");
+        // Alert.alert("Thiếu thông tin", "Vui lòng nhập email!");
       }
       if (!dob) {
-        Alert.alert("Thiếu thông tin", "Vui lòng chọn ngày tháng năm sinh!");
+        handleWarning("Thiếu thông tin", "Vui lòng chọn ngày tháng năm sinh!");
+        // Alert.alert("Thiếu thông tin", "Vui lòng chọn ngày tháng năm sinh!");
       }
       if (!idFrontSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt trước của CCCD/CMND của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt trước của CCCD/CMND của bạn!"
         );
       }
       if (!idBackSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt sau của CCCD/CMND của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt sau của CCCD/CMND của bạn!"
         );
       }
       if (!vehicleType) {
-        Alert.alert("Thiếu thông tin", "Vui lòng chọn loại phương tiện!");
+        // Alert.alert("Thiếu thông tin", "Vui lòng chọn loại phương tiện!");
+        handleWarning("Thiếu thông tin", "Vui lòng chọn loại phương tiện!");
       }
       if (!vehiclePlate) {
-        Alert.alert("Thiếu thông tin", "Vui lòng nhập biển số xe của bạn!");
+        // Alert.alert("Thiếu thông tin", "Vui lòng nhập biển số xe của bạn!");
+        handleWarning("Thiếu thông tin", "Vui lòng nhập biển số xe của bạn!");
       }
       if (!vehicleFrontSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt trước của giấy đăng ký sử dụng xe của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt trước của giấy đăng ký sử dụng xe của bạn!"
         );
       }
       if (!vehicleBackSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt sau của giấy đăng ký sử dụng xe của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt sau của giấy đăng ký sử dụng xe của bạn!"
         );
       }
       if (!drivingFrontSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt trước của giấy phép lái xe của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt trước của giấy phép lái xe của bạn!"
         );
       }
       if (!drivingBackSide) {
-        Alert.alert(
+        // Alert.alert(
+        //   "Thiếu thông tin",
+        //   "Vui lòng tải lên ảnh mặt sau của giấy phép lái xe của bạn!"
+        // );
+        handleWarning(
           "Thiếu thông tin",
           "Vui lòng tải lên ảnh mặt sau của giấy phép lái xe của bạn!"
         );
@@ -336,6 +403,14 @@ const NewDriverUpdateProfileScreen = () => {
         setGender(profile.gender);
         setDob(new Date(profile.dateOfBirth));
         setAvatarSource(profile.avatarUrl);
+        if (
+          !profile.name ||
+          !profile.email ||
+          !profile.dateOfBirth ||
+          !profile.avatarUrl
+        ) {
+          setIsSubmitted(false);
+        }
       }
       const vehicles = await getVehicles(user.id);
       // console.log(vehicles);
@@ -343,6 +418,8 @@ const NewDriverUpdateProfileScreen = () => {
         const vehicle = vehicles[0];
         setVehicleType(vehicle.vehicleTypeId);
         setVehiclePlate(vehicle.licensePlate);
+      } else {
+        setIsSubmitted(false);
       }
 
       const licenses = await getUserLicenses(user.id);
@@ -355,6 +432,8 @@ const NewDriverUpdateProfileScreen = () => {
           console.log(idLicense);
           setIdFrontSide(idLicense.frontSideFile);
           setIdBackSide(idLicense.backSideFile);
+        } else {
+          setIsSubmitted(false);
         }
         const vehicleLicense = licenses.filter(
           (item) => item.licenseType == "VEHICLE_REGISTRATION"
@@ -362,6 +441,8 @@ const NewDriverUpdateProfileScreen = () => {
         if (vehicleLicense) {
           setVehicleFrontSide(vehicleLicense.frontSideFile);
           setVehicleBackSide(vehicleLicense.backSideFile);
+        } else {
+          setIsSubmitted(false);
         }
         const drivingLicense = licenses.filter(
           (item) => item.licenseType == "DRIVER_LICENSE"
@@ -369,24 +450,9 @@ const NewDriverUpdateProfileScreen = () => {
         if (drivingLicense) {
           setDrivingFrontSide(drivingLicense.frontSideFile);
           setDrivingBackSide(drivingLicense.backSideFile);
+        } else {
+          setIsSubmitted(false);
         }
-      }
-
-      if (
-        avatarSource &&
-        name &&
-        email &&
-        dob &&
-        idFrontSide &&
-        idBackSide &&
-        vehicleType &&
-        vehiclePlate &&
-        vehicleFrontSide &&
-        vehicleBackSide &&
-        drivingFrontSide &&
-        drivingBackSide
-      ) {
-        setIsSubmitted(true);
       }
     } catch (err) {
       throw err;
@@ -396,18 +462,40 @@ const NewDriverUpdateProfileScreen = () => {
   };
 
   useEffect(() => {
+    // console.log(idFrontSide);
     setIsLoading(true);
     try {
+      setDob(defaultDob);
+
       loadVehicleTypes();
       loadInitialData();
-      setDob(defaultDob);
-    } catch (err) {
-      Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-    } finally {
       setIsLoading(false);
+
+      // if (
+      //   avatarSource &&
+      //   name &&
+      //   email &&
+      //   dob &&
+      //   idFrontSide &&
+      //   idBackSide &&
+      //   vehicleType &&
+      //   vehiclePlate &&
+      //   vehicleFrontSide &&
+      //   vehicleBackSide &&
+      //   drivingFrontSide &&
+      //   drivingBackSide
+      // ) {
+      //   setIsSubmitted(true);
+      // }
+    } catch (err) {
+      // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+      handleError("Có lỗi xảy ra", err);
+      setIsLoading(false);
+    } finally {
     }
   }, []);
 
+  const didMount = useRef(false);
   // const handleReadIdQrCode = async (frontSideUri) => {
   //   if (frontSideUri) {
   //     console.log(frontSideUri);
@@ -474,13 +562,32 @@ const NewDriverUpdateProfileScreen = () => {
             <VStack>
               {isSubmitted && (
                 <Center marginBottom={"2"}>
-                  <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text>
+                  {/* <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text> */}
+                  <Alert status="info" colorScheme={"info"}>
+                    <HStack
+                      flexShrink={1}
+                      space={2}
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <HStack flexShrink={1} space={2} alignItems="center">
+                        <Alert.Icon />
+                        <Text
+                          fontSize="md"
+                          fontWeight="medium"
+                          color="coolGray.800"
+                        >
+                          Hồ sơ của bạn đã được gửi đến ViGo!
+                        </Text>
+                      </HStack>
+                    </HStack>
+                  </Alert>
                 </Center>
               )}
               <View style={{ alignItems: "center" }}>
                 <Pressable
                   onPress={() => handlePickImage("Avatar", setAvatarSource)}
-                  // disabled={isSubmitted == true}
+                  isDisabled={isSubmitted}
                 >
                   <Image
                     source={
@@ -547,7 +654,7 @@ const NewDriverUpdateProfileScreen = () => {
                       keyboardType="default"
                       textContentType="name"
                       onChangeText={setName}
-                      isReadOnly={isSubmitted == true}
+                      isReadOnly={isSubmitted}
                       // variant={"filled"}
                       // style={{ backgroundColor: "white" }}
                       style={styles.input}
@@ -583,6 +690,7 @@ const NewDriverUpdateProfileScreen = () => {
                       selectedValue={gender}
                       onValueChange={(item) => setGender(item)}
                       // color={"white"}
+                      isDisabled={isSubmitted}
                       backgroundColor={"white"}
                     >
                       {availableGender.map((item) => (
@@ -634,15 +742,16 @@ const NewDriverUpdateProfileScreen = () => {
                     <FormControl.Label>Ngày sinh</FormControl.Label>
                     <Pressable
                       // disabled={isSubmitted == true}
+                      isDisabled={isSubmitted}
                       onPress={toggleDatepicker}
                     >
-                      <TextInput
+                      <Input
                         placeholder="Nhập ngày sinh"
                         value={dob ? formatDate(dob) : ""}
                         // onChangeText={setDob}
                         ref={dobRef}
                         style={styles.input}
-                        editable={false}
+                        isReadOnly={true}
                       />
                     </Pressable>
                     {showPicker && (
@@ -769,6 +878,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("CCCD_Front", setIdFrontSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -790,6 +900,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("CCCD_Back", setIdBackSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -868,6 +979,7 @@ const NewDriverUpdateProfileScreen = () => {
                           setVehicleType(vehicleTypeId)
                         }
                         // color={"white"}
+                        isDisabled={isSubmitted}
                         backgroundColor={"white"}
                       >
                         {vehicleTypesDropdown.map((item) => (
@@ -888,7 +1000,7 @@ const NewDriverUpdateProfileScreen = () => {
                         value={vehiclePlate}
                         keyboardType="default"
                         onChangeText={setVehiclePlate}
-                        isReadOnly={isSubmitted == true}
+                        isReadOnly={isSubmitted}
                         // variant={"filled"}
                         // style={{ backgroundColor: "white" }}
                         style={styles.input}
@@ -969,6 +1081,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("Vehicle_Front", setVehicleFrontSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -990,6 +1103,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("Vehicle_Back", setVehicleBackSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -1079,6 +1193,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("Driving_Front", setDrivingFrontSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -1100,6 +1215,7 @@ const NewDriverUpdateProfileScreen = () => {
                           handlePickImage("Driving_Back", setDrivingBackSide)
                         }
                         // disabled={isSubmitted == true}
+                        isDisabled={isSubmitted}
                       >
                         <Image
                           source={
@@ -1162,14 +1278,25 @@ const NewDriverUpdateProfileScreen = () => {
               vehicleBackSide &&
               drivingFrontSide &&
               drivingBackSide
-            ) && !isSubmitted
+            ) || isSubmitted
           }
           style={styles.button}
           leftIcon={<CheckIcon size={24} color="white" />}
+          onPress={() => handleUpdateProfile()}
         >
           Cập nhật
         </Button>
       </Box>
+      <ConfirmAlert
+        title="Kiểm tra lại thông tin"
+        description="Vui lòng kiểm tra kĩ lại các thông tin hồ sơ tải xế của bạn trước khi gửi đi nhé"
+        okButtonText="Tôi đã kiểm tra kĩ"
+        cancelButtonText="Hủy"
+        onOkPress={() => handleConfirmUpdateProfile()}
+        isOpen={confirmOpen}
+        setIsOpen={setConfirmOpen}
+        key="confirm-profile-alert"
+      />
     </SafeAreaView>
   );
 };

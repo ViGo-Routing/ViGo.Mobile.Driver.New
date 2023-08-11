@@ -6,6 +6,8 @@ import {
   Image,
   Alert,
   PermissionsAndroid,
+  DeviceEventEmitter,
+  NativeEventEmitter,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 // IMPORT THEME
@@ -39,6 +41,12 @@ import {
 // import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { EyeIcon, EyeSlashIcon } from "react-native-heroicons/solid";
 import { isPhoneNumber } from "../../utils/stringUtils";
+import { createToast, eventNames, handleError } from "../../utils/alertUtils";
+import ViGoAlert from "../../components/Alert/ViGoAlertProvider";
+// import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
+
+// const eventEmitter = new EventEmitter();
+
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -52,6 +60,8 @@ export default function LoginScreen() {
   const [firebaseToken, setFirebaseToken] = useState(null);
   const recaptchaVerifier = useRef(null);
   const [show, setShow] = useState(false);
+  const eventEmitter = new NativeEventEmitter();
+
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
     if (user) {
@@ -75,9 +85,9 @@ export default function LoginScreen() {
     // auth().settings.forceRecaptchaFlowForTesting = true;
     // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     // return subscriber;
-    if (user) {
-      navigation.navigate("Home");
-    }
+    // if (user) {
+    //   navigation.navigate(determineDefaultScreen(user));
+    // }
   }, []);
 
   const handleLogin = async () => {
@@ -91,10 +101,10 @@ export default function LoginScreen() {
       setIsInputPhoneInvalid(true);
     } else {
       setIsLoading(true);
-      try {
-        const phone = `+84${phoneNumber.substring(1, 10)}`;
-        console.log(phone);
-        login(phone, password).then(async (response) => {
+      const phone = `+84${phoneNumber.substring(1, 10)}`;
+      console.log(phone);
+      login(phone, password)
+        .then(async (response) => {
           setUser(response.user);
           // console.log("Token " + (await getString("token")));
 
@@ -112,6 +122,7 @@ export default function LoginScreen() {
             );
 
             // console.log(response.user);
+            setIsLoading(false);
 
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
               await messaging().registerDeviceForRemoteMessages();
@@ -129,21 +140,63 @@ export default function LoginScreen() {
             //     },
             //   ]
             // );
+
+            // createToast("Đăng nhập thành công", "", "success", "top-right");
+
+            // <ViGoAlert
+            //   title="Đăng nhập thành công"
+            //   description=""
+            //   status="success"
+            //   placement="top-right"
+            // />;
+
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              title: "Đăng nhập thành công",
+              description: "",
+              status: "success",
+              placement: "top",
+            });
+
+            // eventEmitter.emit(eventNames.SHOW_TOAST, {
+            //   title: "Đăng nhập thành công",
+            //   description: "Hãy nhận chuyến xe đầu tiên của bạn nào!",
+            //   status: "success",
+            //   isDialog: true,
+            // });
+
             if (response.user.status == "PENDING") {
               navigation.navigate("NewDriverUpdateProfile");
             } else {
               navigation.navigate("Home");
             }
           } catch (err) {
-            Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-            console.warn(err);
+            // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+            handleError("Có lỗi xảy ra", err);
+            // console.warn(err);
+            setIsLoading(false);
+          }
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          // console.error(err.response.status);
+          // const eventEmitter = new NativeEventEmitter();
+          if (err.response && err.response.status != 401) {
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              // title: "Đăng nhập không thành công",
+              description: err.response.data,
+              status: "error",
+              // placement: "top-right",
+              isDialog: true,
+            });
+          } else {
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              title: "Đăng nhập không thành công",
+              description: "Vui lòng kiểm tra lại thông tin đăng nhập",
+              status: "error",
+              // placement: "top-right",
+            });
           }
         });
-      } catch (err) {
-        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-      } finally {
-        setIsLoading(false);
-      }
     }
   };
 

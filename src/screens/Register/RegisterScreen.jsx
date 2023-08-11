@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Alert,
   PermissionsAndroid,
+  NativeAppEventEmitter,
+  NativeEventEmitter,
 } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import { themeColors, vigoStyles } from "../../../assets/theme";
@@ -24,6 +26,7 @@ import messaging from "@react-native-firebase/messaging";
 import { Box, FormControl, Input, WarningOutlineIcon, Text } from "native-base";
 import { EyeIcon, EyeSlashIcon } from "react-native-heroicons/solid";
 import { isPhoneNumber } from "../../utils/stringUtils";
+import { eventNames, handleError } from "../../utils/alertUtils";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -222,10 +225,19 @@ const RegisterScreen = () => {
           password
         );
         if (newUserData) {
-          Alert.alert(
-            "Đăng ký tài khoản thành công!",
-            "Hãy tiến hành cập nhật hồ sơ để có thể sử dụng ViGo bạn nhé"
-          );
+          // Alert.alert(
+          //   "Đăng ký tài khoản thành công!",
+          //   "Hãy tiến hành cập nhật hồ sơ để có thể sử dụng ViGo bạn nhé"
+          // );
+          const eventEmitter = new NativeEventEmitter();
+          eventEmitter.emit(eventNames.SHOW_TOAST, {
+            title: "Đăng ký tài khoản thành công!",
+            description:
+              "Hãy tiến hành cập nhật hồ sơ để có thể sử dụng ViGo bạn nhé",
+            status: "success",
+            // placement: "top-right",
+            isDialog: true,
+          });
 
           login(`+84${phoneNumber.substring(1, 10)}`, password).then(
             async (response) => {
@@ -264,7 +276,8 @@ const RegisterScreen = () => {
         }
         // console.log(newUserData);
       } catch (err) {
-        Alert.alert("Có lỗi xảy ra khi đăng ký", "Chi tiết: " + err.message);
+        // Alert.alert("Có lỗi xảy ra khi đăng ký", "Chi tiết: " + err.message);
+        handleError("Có lỗi xảy ra khi đăng ký", err);
       } finally {
         setIsLoading(false);
       }
