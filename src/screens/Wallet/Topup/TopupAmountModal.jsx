@@ -113,7 +113,7 @@ const TopupAmountModal = ({
               onModalConfirm(amount);
               setModalVisible(!modalVisible);
             }}
-            disabled={amount <= 1000}
+            disabled={isAmountInvalid}
             // activeOpacity={amount <= 1000 ? 1 : 0.7}
           >
             <Text style={vigoStyles.buttonPrimaryText}>Xác nhận</Text>

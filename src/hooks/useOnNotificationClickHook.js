@@ -41,6 +41,9 @@ export const useOnNotificationClickHook = () => {
     messaging().onNotificationOpenedApp((remoteMessage) => {
       if (remoteMessage.data.action == "payment") {
         paymentNotificationOnClickHandlers(remoteMessage.data, navigation);
+      } else if (remoteMessage.data.action == "login") {
+        setUser(null);
+        navigation.navigate("Login");
       }
     });
 

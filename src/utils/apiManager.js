@@ -44,12 +44,12 @@ export const login = async (phone, password) => {
   }
 };
 
-export const register = async (/*name, */ phone, firebaseUid) => {
+export const register = async (/*name, */ phone, password) => {
   try {
     const requestData = {
       // name: name,
       phone: phone,
-      firebaseUid: firebaseUid,
+      password: password,
       role: "DRIVER",
     };
 

@@ -1,13 +1,13 @@
 import {
   SafeAreaView,
   View,
-  Image,
+  // Image,
   StyleSheet,
   Alert,
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Text,
+  // Text,
   Pressable,
 } from "react-native";
 import Header from "../../components/Header/Header";
@@ -21,7 +21,7 @@ import {
 } from "../../services/vehicleService";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import DropDownPicker from "react-native-dropdown-picker";
-import DateTimePicker from "react-native-modal-datetime-picker";
+// import DateTimePicker from "react-native-modal-datetime-picker";
 import { launchImageLibrary } from "react-native-image-picker";
 import { uploadFile } from "../../utils/firebaseUtils";
 import storage from "@react-native-firebase/storage";
@@ -31,6 +31,25 @@ import {
   createUserLicense,
   getUserLicenses,
 } from "../../services/userLicenseService";
+import {
+  Box,
+  Button,
+  Center,
+  FormControl,
+  HStack,
+  Heading,
+  Image,
+  Input,
+  KeyboardAvoidingView,
+  Select,
+  Text,
+  VStack,
+  useToast,
+} from "native-base";
+import { issuedAtTime } from "@firebase/util";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { getMaximumDob } from "../../utils/datetimeUtils";
+import { CheckIcon } from "react-native-heroicons/solid";
 
 const NewDriverUpdateProfileScreen = () => {
   const { user } = useContext(UserContext);
@@ -51,7 +70,11 @@ const NewDriverUpdateProfileScreen = () => {
   const [gender, setGender] = useState(user.gender);
 
   const [showPicker, setShowpicker] = useState(false);
-  const [dob, setDob] = useState(new Date(user.dateOfBirth));
+  const defaultDob =
+    user.dateOfBirth != null ? new Date(user.dateOfBirth) : getMaximumDob();
+
+  const [dob, setDob] = useState(defaultDob);
+  // console.log(defaultDob);
   const [idFrontSide, setIdFrontSide] = useState(null);
   const [idBackSide, setIdBackSide] = useState(null);
 
@@ -71,6 +94,8 @@ const NewDriverUpdateProfileScreen = () => {
   const [vehicleTypesDropdown, setVehicleTypesDropdown] = useState([]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const toast = useToast();
 
   const loadVehicleTypes = async () => {
     const response = await getVehicleTypes();
@@ -140,6 +165,9 @@ const NewDriverUpdateProfileScreen = () => {
             const downloadUrl = await ref.getDownloadURL();
             setImageUrl(downloadUrl);
             setIsLoading(false);
+            toast.show({
+              description: "Tải ảnh lên thành công",
+            });
           });
         } catch (error) {
           Alert.alert("Có lỗi xảy ra", "Chi tiết: " + error.message);
@@ -372,6 +400,7 @@ const NewDriverUpdateProfileScreen = () => {
     try {
       loadVehicleTypes();
       loadInitialData();
+      setDob(defaultDob);
     } catch (err) {
       Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
     } finally {
@@ -436,349 +465,666 @@ const NewDriverUpdateProfileScreen = () => {
   return (
     <SafeAreaView style={vigoStyles.container}>
       <ViGoSpinner isLoading={isLoading} />
-      <View>
+      <Box>
         <Header title="Tạo hồ sơ tài xế" isBackButtonShown={false} />
-      </View>
-      <View style={vigoStyles.body}>
-        <ScrollView>
-          {isSubmitted && (
-            <View style={{ alignItems: "center", marginBottom: 20 }}>
-              <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text>
-            </View>
-          )}
-          <View style={{ alignItems: "center" }}>
-            <Pressable
-              onPress={() => handlePickImage("Avatar", setAvatarSource)}
-              // disabled={isSubmitted == true}
-            >
-              <Image
-                source={
-                  avatarSource
-                    ? { uri: avatarSource }
-                    : require("../../../assets/images/no-image.jpg")
-                }
-                style={styles.image}
-              />
-            </Pressable>
-          </View>
-
-          <View style={styles.profileContainer}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Số điện thoại</Text>
-              <View style={styles.inputBorder}>
-                <TextInput
-                  placeholder={user.phone}
-                  value={user.phone}
-                  style={styles.input}
-                  editable={false}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Họ và Tên</Text>
-              <View style={styles.inputBorder}>
-                <TextInput
-                  placeholder="Nhập họ và tên"
-                  value={name}
-                  autoComplete="name"
-                  keyboardType="default"
-                  textContentType="name"
-                  onChangeText={setName}
-                  style={styles.input}
-                  // editable={isSubmitted == true}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Giới tính</Text>
-
-              <View style={styles.inputBorder}>
-                <DropDownPicker
-                  open={genderOpen}
-                  value={gender}
-                  items={availableGender}
-                  setOpen={setGenderOpen}
-                  setValue={setGender}
-                  setItems={setAvailableGenders}
-                  zIndex={1000}
-                  zIndexInverse={3000}
-                  listMode="MODAL"
-                  // disabled={isSubmitted == true}
-                  // style={styles.input}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Ngày sinh</Text>
-              <DateTimePicker
-                isVisible={showPicker}
-                mode="date"
-                display="spinner"
-                value={dob}
-                onConfirm={(date) => {
-                  setShowpicker(false);
-                  setDob(date);
-                  // dobRef.current.props.value = formatDate(date);
-                }}
-                onCancel={toggleDatepicker}
-                date={dob ?? new Date()}
-                // disabled={isSubmitted == true}
-              />
-              <View style={styles.inputBorder}>
+      </Box>
+      <Box style={vigoStyles.body}>
+        <KeyboardAvoidingView>
+          <ScrollView>
+            <VStack>
+              {isSubmitted && (
+                <Center marginBottom={"2"}>
+                  <Text>Hồ sơ của bạn đã được gửi đến ViGo!</Text>
+                </Center>
+              )}
+              <View style={{ alignItems: "center" }}>
                 <Pressable
+                  onPress={() => handlePickImage("Avatar", setAvatarSource)}
                   // disabled={isSubmitted == true}
-                  onPress={toggleDatepicker}
                 >
-                  <TextInput
-                    placeholder="Nhập ngày sinh"
-                    value={dob ? formatDate(dob) : ""}
-                    // onChangeText={setDob}
-                    ref={dobRef}
-                    style={styles.input}
-                    editable={false}
+                  <Image
+                    source={
+                      avatarSource
+                        ? { uri: avatarSource }
+                        : require("../../../assets/images/no-image.jpg")
+                    }
+                    // style={styles.image}
+                    alt="Ảnh đại diện"
+                    size={100}
+                    borderRadius={100}
                   />
                 </Pressable>
               </View>
-            </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputTitle}>Email</Text>
-              <View style={styles.inputBorder}>
-                <TextInput
-                  placeholder="Nhập email"
-                  value={email}
-                  onChangeText={setEmail}
-                  style={styles.input}
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  textContentType="emailAddress"
-                  // editable={isSubmitted == true}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text
-                style={{
-                  marginBottom: 10,
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                CCCD / CMND
-              </Text>
-              {/* <Text style={{ marginBottom: 20 }}>
-                Tải ảnh CCCD gắn chip lên để các thông tin được cập nhật chính
-                xác nhất
-              </Text> */}
-              <View style={{ ...vigoStyles.row, ...{ marginBottom: 20 } }}>
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
-                  <Pressable
-                    onPress={() =>
-                      handlePickImage("CCCD_Front", setIdFrontSide)
-                    }
-                    // disabled={isSubmitted == true}
-                  >
-                    <Image
-                      source={
-                        idFrontSide
-                          ? {
-                              uri: idFrontSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
-                    />
-                  </Pressable>
+              {/* <View style={styles.profileContainer}> */}
+              {/* <View style={styles.inputContainer}>
+                <Text style={styles.inputTitle}>Số điện thoại</Text>
+                <View style={styles.inputBorder}>
+                  <TextInput
+                    placeholder={user.phone}
+                    value={user.phone}
+                    style={styles.input}
+                    editable={false}
+                  />
                 </View>
-
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
-                  <Pressable
-                    onPress={() => handlePickImage("CCCD_Back", setIdBackSide)}
-                    // disabled={isSubmitted == true}
-                  >
-                    <Image
-                      source={
-                        idBackSide
-                          ? {
-                              uri: idBackSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
+              </View> */}
+              <Box>
+                <Box marginTop={3}>
+                  <FormControl>
+                    <FormControl.Label>Số điện thoại</FormControl.Label>
+                    <Input
+                      value={user.phone}
+                      // editable={false}
+                      isReadOnly={true}
+                      variant={"filled"}
+                      // style={styles.input}
                     />
-                  </Pressable>
+                  </FormControl>
+                </Box>
+
+                {/* <View style={styles.inputContainer}>
+                <Text style={styles.inputTitle}>Họ và Tên</Text>
+                <View style={styles.inputBorder}>
+                  <TextInput
+                    placeholder="Nhập họ và tên"
+                    value={name}
+                    autoComplete="name"
+                    keyboardType="default"
+                    textContentType="name"
+                    onChangeText={setName}
+                    style={styles.input}
+                    // editable={isSubmitted == true}
+                  />
                 </View>
-              </View>
-            </View>
+              </View> */}
+                <Box marginTop={3}>
+                  <FormControl>
+                    <FormControl.Label>Họ và tên</FormControl.Label>
+                    <Input
+                      placeholder="Nhập họ và tên"
+                      value={name}
+                      autoComplete="name"
+                      keyboardType="default"
+                      textContentType="name"
+                      onChangeText={setName}
+                      isReadOnly={isSubmitted == true}
+                      // variant={"filled"}
+                      // style={{ backgroundColor: "white" }}
+                      style={styles.input}
+                    />
+                  </FormControl>
+                </Box>
 
-            <View style={styles.inputContainer}>
-              <Text
-                style={{
-                  marginBottom: 20,
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                Phương tiện
-              </Text>
-
-              <View style={[styles.inputContainer, { width: "100%" }]}>
-                <Text style={styles.inputTitle}>Loại phương tiện</Text>
+                {/* <View style={styles.inputContainer}>
+                <Text style={styles.inputTitle}>Giới tính</Text>
 
                 <View style={styles.inputBorder}>
                   <DropDownPicker
-                    open={vehicleTypesOpen}
-                    value={vehicleType}
-                    items={vehicleTypesDropdown}
-                    setOpen={setVehicleTypesOpen}
-                    setValue={setVehicleType}
-                    setItems={setVehicleTypesDropdown}
-                    zIndex={2000}
-                    zIndexInverse={2000}
+                    open={genderOpen}
+                    value={gender}
+                    items={availableGender}
+                    setOpen={setGenderOpen}
+                    setValue={setGender}
+                    setItems={setAvailableGenders}
+                    zIndex={1000}
+                    zIndexInverse={3000}
                     listMode="MODAL"
                     // disabled={isSubmitted == true}
                     // style={styles.input}
                   />
                 </View>
-              </View>
+              </View> */}
+                <Box marginTop={3}>
+                  <FormControl>
+                    <FormControl.Label>Giới tính</FormControl.Label>
+                    <Select
+                      accessibilityLabel="Nam hoặc nữ"
+                      placeholder="Nam hoặc nữ"
+                      selectedValue={gender}
+                      onValueChange={(item) => setGender(item)}
+                      // color={"white"}
+                      backgroundColor={"white"}
+                    >
+                      {availableGender.map((item) => (
+                        <Select.Item
+                          label={item.label}
+                          value={item.value}
+                          key={item.value}
+                        />
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
 
-              <View style={[styles.inputContainer, { width: "100%" }]}>
-                <Text style={styles.inputTitle}>Biển số xe</Text>
+                {/* <View style={styles.inputContainer}>
+                <Text style={styles.inputTitle}>Ngày sinh</Text>
+                <DateTimePicker
+                  isVisible={showPicker}
+                  mode="date"
+                  display="spinner"
+                  value={dob}
+                  onConfirm={(date) => {
+                    setShowpicker(false);
+                    setDob(date);
+                    // dobRef.current.props.value = formatDate(date);
+                  }}
+                  onCancel={toggleDatepicker}
+                  date={dob ?? new Date()}
+                  // disabled={isSubmitted == true}
+                />
+                <View style={styles.inputBorder}>
+                  <Pressable
+                    // disabled={isSubmitted == true}
+                    onPress={toggleDatepicker}
+                  >
+                    <TextInput
+                      placeholder="Nhập ngày sinh"
+                      value={dob ? formatDate(dob) : ""}
+                      // onChangeText={setDob}
+                      ref={dobRef}
+                      style={styles.input}
+                      editable={false}
+                    />
+                  </Pressable>
+                </View>
+              </View> */}
+
+                <Box marginTop={3}>
+                  <FormControl>
+                    <FormControl.Label>Ngày sinh</FormControl.Label>
+                    <Pressable
+                      // disabled={isSubmitted == true}
+                      onPress={toggleDatepicker}
+                    >
+                      <TextInput
+                        placeholder="Nhập ngày sinh"
+                        value={dob ? formatDate(dob) : ""}
+                        // onChangeText={setDob}
+                        ref={dobRef}
+                        style={styles.input}
+                        editable={false}
+                      />
+                    </Pressable>
+                    {showPicker && (
+                      <RNDateTimePicker
+                        mode="date"
+                        onChange={(event, date) => {
+                          toggleDatepicker();
+                          setDob(date);
+                        }}
+                        value={dob}
+                        maximumDate={getMaximumDob()}
+                        negativeButton={{ label: "Hủy" }}
+                        positiveButton={{ label: "Xác nhận" }}
+                      />
+                    )}
+                  </FormControl>
+                </Box>
+
+                {/* <View style={styles.inputContainer}>
+                <Text style={styles.inputTitle}>Email</Text>
                 <View style={styles.inputBorder}>
                   <TextInput
-                    placeholder="72A-852.312"
-                    value={vehiclePlate}
-                    keyboardType="default"
-                    onChangeText={setVehiclePlate}
+                    placeholder="Nhập email"
+                    value={email}
+                    onChangeText={setEmail}
                     style={styles.input}
+                    autoComplete="email"
+                    keyboardType="email-address"
+                    textContentType="emailAddress"
                     // editable={isSubmitted == true}
                   />
                 </View>
-              </View>
-            </View>
-            <View style={styles.inputContainer}>
-              <Text
-                style={{
-                  marginBottom: 20,
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                Giấy đăng ký sử dụng xe
+              </View> */}
+                <Box marginTop={3}>
+                  <FormControl>
+                    <FormControl.Label>Địa chỉ email</FormControl.Label>
+                    <Input
+                      placeholder="Nhập địa chỉ email"
+                      value={email}
+                      autoComplete="email"
+                      keyboardType="email-address"
+                      textContentType="emailAddress"
+                      onChangeText={setEmail}
+                      isReadOnly={isSubmitted == true}
+                      // variant={"filled"}
+                      // style={{ backgroundColor: "white" }}
+                      style={styles.input}
+                    />
+                  </FormControl>
+                </Box>
+
+                {/* <View style={styles.inputContainer}>
+                  <Text
+                    style={{
+                      marginBottom: 10,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                  >
+                    CCCD / CMND
+                  </Text>
+                  <Text style={{ marginBottom: 20 }}>
+                Tải ảnh CCCD gắn chip lên để các thông tin được cập nhật chính
+                xác nhất
               </Text>
+                  <View style={{ ...vigoStyles.row, ...{ marginBottom: 20 } }}>
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("CCCD_Front", setIdFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            idFrontSide
+                              ? {
+                                  uri: idFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
 
-              <View style={[vigoStyles.row]}>
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
-                  <Pressable
-                    onPress={() =>
-                      handlePickImage("Vehicle_Front", setVehicleFrontSide)
-                    }
-                    // disabled={isSubmitted == true}
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("CCCD_Back", setIdBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            idBackSide
+                              ? {
+                                  uri: idBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                </View> */}
+
+                <Box marginTop={4}>
+                  <Heading size={"md"} marginBottom={2}>
+                    CCCD / CMND
+                  </Heading>
+                  <HStack
+                    justifyContent={"space-between"}
+                    paddingLeft={4}
+                    paddingRight={4}
                   >
-                    <Image
-                      source={
-                        vehicleFrontSide
-                          ? {
-                              uri: vehicleFrontSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
-                    />
-                  </Pressable>
-                </View>
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("CCCD_Front", setIdFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            idFrontSide
+                              ? {
+                                  uri: idFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Ảnh CCCD mặt trước"
+                        />
+                      </Pressable>
+                    </VStack>
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("CCCD_Back", setIdBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            idBackSide
+                              ? {
+                                  uri: idBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Ảnh CCCD mặt sau"
+                        />
+                      </Pressable>
+                    </VStack>
+                  </HStack>
+                </Box>
 
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
-                  <Pressable
-                    onPress={() =>
-                      handlePickImage("Vehicle_Back", setVehicleBackSide)
-                    }
-                    // disabled={isSubmitted == true}
+                {/* <View style={styles.inputContainer}>
+                  <Text
+                    style={{
+                      marginBottom: 20,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
                   >
-                    <Image
-                      source={
-                        vehicleBackSide
-                          ? {
-                              uri: vehicleBackSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
-                    />
-                  </Pressable>
-                </View>
-              </View>
-            </View>
+                    Phương tiện
+                  </Text>
 
-            <View style={styles.inputContainer}>
-              <Text
-                style={{
-                  marginBottom: 20,
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                Giấy phép lái xe
-              </Text>
+                  <View style={[styles.inputContainer, { width: "100%" }]}>
+                    <Text style={styles.inputTitle}>Loại phương tiện</Text>
 
-              <View style={vigoStyles.row}>
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
-                  <Pressable
-                    onPress={() =>
-                      handlePickImage("Driving_Front", setDrivingFrontSide)
-                    }
-                    // disabled={isSubmitted == true}
+                    <View style={styles.inputBorder}>
+                      <DropDownPicker
+                        open={vehicleTypesOpen}
+                        value={vehicleType}
+                        items={vehicleTypesDropdown}
+                        setOpen={setVehicleTypesOpen}
+                        setValue={setVehicleType}
+                        setItems={setVehicleTypesDropdown}
+                        zIndex={2000}
+                        zIndexInverse={2000}
+                        listMode="MODAL"
+                        // disabled={isSubmitted == true}
+                        // style={styles.input}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[styles.inputContainer, { width: "100%" }]}>
+                    <Text style={styles.inputTitle}>Biển số xe</Text>
+                    <View style={styles.inputBorder}>
+                      <TextInput
+                        placeholder="72A-852.312"
+                        value={vehiclePlate}
+                        keyboardType="default"
+                        onChangeText={setVehiclePlate}
+                        style={styles.input}
+                        // editable={isSubmitted == true}
+                      />
+                    </View>
+                  </View>
+                </View> */}
+
+                <Box marginTop={4}>
+                  <Heading size={"md"} marginBottom={2}>
+                    Phương tiện
+                  </Heading>
+                  <Box>
+                    <FormControl>
+                      <FormControl.Label>Loại phương tiện</FormControl.Label>
+                      <Select
+                        accessibilityLabel="Loại phương tiện"
+                        placeholder="Loại phương tiện"
+                        selectedValue={vehicleType}
+                        onValueChange={(vehicleTypeId) =>
+                          setVehicleType(vehicleTypeId)
+                        }
+                        // color={"white"}
+                        backgroundColor={"white"}
+                      >
+                        {vehicleTypesDropdown.map((item) => (
+                          <Select.Item
+                            label={item.label}
+                            value={item.value}
+                            key={item.value}
+                          />
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  <Box marginTop={3}>
+                    <FormControl>
+                      <FormControl.Label>Biển số xe</FormControl.Label>
+                      <Input
+                        placeholder="72A-852.312"
+                        value={vehiclePlate}
+                        keyboardType="default"
+                        onChangeText={setVehiclePlate}
+                        isReadOnly={isSubmitted == true}
+                        // variant={"filled"}
+                        // style={{ backgroundColor: "white" }}
+                        style={styles.input}
+                      />
+                    </FormControl>
+                  </Box>
+                </Box>
+
+                {/* <View style={styles.inputContainer}>
+                  <Text
+                    style={{
+                      marginBottom: 20,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
                   >
-                    <Image
-                      source={
-                        drivingFrontSide
-                          ? {
-                              uri: drivingFrontSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
-                    />
-                  </Pressable>
-                </View>
+                    Giấy đăng ký sử dụng xe
+                  </Text>
 
-                <View style={{ alignItems: "center" }}>
-                  <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
-                  <Pressable
-                    onPress={() =>
-                      handlePickImage("Driving_Back", setDrivingBackSide)
-                    }
-                    // disabled={isSubmitted == true}
+                  <View style={[vigoStyles.row]}>
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Vehicle_Front", setVehicleFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            vehicleFrontSide
+                              ? {
+                                  uri: vehicleFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
+
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Vehicle_Back", setVehicleBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            vehicleBackSide
+                              ? {
+                                  uri: vehicleBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                </View> */}
+
+                <Box marginTop={4}>
+                  <Heading size={"md"} marginBottom={2}>
+                    Giấy đăng ký sử dụng xe
+                  </Heading>
+                  <HStack
+                    justifyContent={"space-between"}
+                    paddingLeft={4}
+                    paddingRight={4}
                   >
-                    <Image
-                      source={
-                        drivingBackSide
-                          ? {
-                              uri: drivingBackSide,
-                            }
-                          : require("../../../assets/images/no-photo.jpg")
-                      }
-                      style={styles.licenseImage}
-                    />
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-      </View>
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Vehicle_Front", setVehicleFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            vehicleFrontSide
+                              ? {
+                                  uri: vehicleFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Giấy đăng ký sử dụng xe mặt trước"
+                        />
+                      </Pressable>
+                    </VStack>
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Vehicle_Back", setVehicleBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            vehicleBackSide
+                              ? {
+                                  uri: vehicleBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Giấy đăng ký sử dụng xe mặt sau"
+                        />
+                      </Pressable>
+                    </VStack>
+                  </HStack>
+                </Box>
 
-      <View style={styles.footer}>
-        <TouchableOpacity
+                {/* <View style={styles.inputContainer}>
+                  <Text
+                    style={{
+                      marginBottom: 20,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                  >
+                    Giấy phép lái xe
+                  </Text>
+
+                  <View style={vigoStyles.row}>
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Driving_Front", setDrivingFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            drivingFrontSide
+                              ? {
+                                  uri: drivingFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
+
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={{ marginBottom: 10 }}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Driving_Back", setDrivingBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            drivingBackSide
+                              ? {
+                                  uri: drivingBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                </View> */}
+
+                <Box marginTop={4}>
+                  <Heading size={"md"} marginBottom={2}>
+                    Giấy phép lái xe
+                  </Heading>
+                  <HStack
+                    justifyContent={"space-between"}
+                    paddingLeft={4}
+                    paddingRight={4}
+                  >
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt trước</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Driving_Front", setDrivingFrontSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            drivingFrontSide
+                              ? {
+                                  uri: drivingFrontSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Giấy phép lái xe mặt trước"
+                        />
+                      </Pressable>
+                    </VStack>
+                    <VStack alignItems={"center"}>
+                      <Text marginBottom={1}>Mặt sau</Text>
+                      <Pressable
+                        onPress={() =>
+                          handlePickImage("Driving_Back", setDrivingBackSide)
+                        }
+                        // disabled={isSubmitted == true}
+                      >
+                        <Image
+                          source={
+                            drivingBackSide
+                              ? {
+                                  uri: drivingBackSide,
+                                }
+                              : require("../../../assets/images/no-photo.jpg")
+                          }
+                          style={styles.licenseImage}
+                          alt="Giấy phép lái xe mặt sau"
+                        />
+                      </Pressable>
+                    </VStack>
+                  </HStack>
+                </Box>
+                {/* </View> */}
+              </Box>
+            </VStack>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Box>
+
+      <Box style={styles.footer}>
+        {/* <TouchableOpacity
           // activeOpacity={1}
           disabled={
             !(
@@ -800,8 +1146,30 @@ const NewDriverUpdateProfileScreen = () => {
           onPress={() => handleUpdateProfile()}
         >
           <Text style={{ color: "white", fontWeight: "bold" }}>Cập nhật</Text>
-        </TouchableOpacity>
-      </View>
+        </TouchableOpacity> */}
+        <Button
+          isDisabled={
+            !(
+              avatarSource &&
+              name &&
+              email &&
+              dob &&
+              idFrontSide &&
+              idBackSide &&
+              vehicleType &&
+              vehiclePlate &&
+              vehicleFrontSide &&
+              vehicleBackSide &&
+              drivingFrontSide &&
+              drivingBackSide
+            ) && !isSubmitted
+          }
+          style={styles.button}
+          leftIcon={<CheckIcon size={24} color="white" />}
+        >
+          Cập nhật
+        </Button>
+      </Box>
     </SafeAreaView>
   );
 };
