@@ -15,8 +15,12 @@ export const useNotificationHook = () => {
         paymentNotificationHandlers(remoteMessage.data, navigation);
       } else if (remoteMessage.data.action == "login") {
         // console.log("Recieved Message for login navigation");
-        setUser(null, (s) => navigation.navigate("Login"));
+        // setUser(null, (s) => {
+        //   navigation.navigate("Login");
+        //   console.log("Navigate to login");
+        // });
         // ;
+        navigation.navigate("Login");
       }
     });
 

@@ -62,6 +62,8 @@ export default function LoginScreen() {
   const [show, setShow] = useState(false);
   const eventEmitter = new NativeEventEmitter();
 
+  // console.log("Login screen");
+
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
     if (user) {
@@ -88,6 +90,7 @@ export default function LoginScreen() {
     // if (user) {
     //   navigation.navigate(determineDefaultScreen(user));
     // }
+    // console.log("Use Effect in login run");
   }, []);
 
   const handleLogin = async () => {
