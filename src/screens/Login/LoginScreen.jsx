@@ -1,12 +1,13 @@
 import { React, useState, useRef, useContext, useEffect } from "react";
 import {
   StyleSheet,
-
   TextInput,
   TouchableOpacity,
   Image,
   Alert,
   PermissionsAndroid,
+  DeviceEventEmitter,
+  NativeEventEmitter,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 // IMPORT THEME
@@ -25,9 +26,27 @@ import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { getString } from "../../utils/storageUtils";
 import { determineDefaultScreen } from "../../utils/navigationUtils";
 import EnterOtpCodeModal from "../../components/Modal/EnterOtpCodeModal";
-import { Box, CheckIcon, FormControl, Input, Select, View, Text, useToast, WarningOutlineIcon } from "native-base";
+import {
+  Box,
+  CheckIcon,
+  FormControl,
+  Input,
+  Select,
+  View,
+  Text,
+  useToast,
+  WarningOutlineIcon,
+  HStack,
+} from "native-base";
 // import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 import { EyeIcon, EyeSlashIcon } from "react-native-heroicons/solid";
+import { isPhoneNumber } from "../../utils/stringUtils";
+import { createToast, eventNames, handleError } from "../../utils/alertUtils";
+import ViGoAlert from "../../components/Alert/ViGoAlertProvider";
+// import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
+
+// const eventEmitter = new EventEmitter();
+
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +60,10 @@ export default function LoginScreen() {
   const [firebaseToken, setFirebaseToken] = useState(null);
   const recaptchaVerifier = useRef(null);
   const [show, setShow] = useState(false);
+  const eventEmitter = new NativeEventEmitter();
+
+  // console.log("Login screen");
+
   // Handle Login by Firebase
   const onAuthStateChanged = (user) => {
     if (user) {
@@ -64,27 +87,27 @@ export default function LoginScreen() {
     // auth().settings.forceRecaptchaFlowForTesting = true;
     // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     // return subscriber;
-    if (user) {
-      navigation.navigate("Home");
-    }
+    // if (user) {
+    //   navigation.navigate(determineDefaultScreen(user));
+    // }
+    // console.log("Use Effect in login run");
   }, []);
 
   const handleLogin = async () => {
     // console.log(firebaseToken);
-    const phoneRegex = /^0\d{9}$/;
-    const isValid = phoneRegex.test(phoneNumber);
-    if (!isValid || phoneNumber == "" && password == "") {
+    // const phoneRegex = /^0\d{9}$/;
+    const isValid = isPhoneNumber(phoneNumber);
+    if (!isValid || (phoneNumber == "" && password == "")) {
       if (password == "") {
-        setIsInputPasswordInvalid(true)
+        setIsInputPasswordInvalid(true);
       }
       setIsInputPhoneInvalid(true);
-
     } else {
       setIsLoading(true);
-      try {
-        const phone = `+84${phoneNumber.substring(1, 10)}`
-        console.log(phone)
-        login(phone, password).then(async (response) => {
+      const phone = `+84${phoneNumber.substring(1, 10)}`;
+      console.log(phone);
+      login(phone, password)
+        .then(async (response) => {
           setUser(response.user);
           // console.log("Token " + (await getString("token")));
 
@@ -101,7 +124,8 @@ export default function LoginScreen() {
               }
             );
 
-            console.log(response.user);
+            // console.log(response.user);
+            setIsLoading(false);
 
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
               await messaging().registerDeviceForRemoteMessages();
@@ -119,20 +143,64 @@ export default function LoginScreen() {
             //     },
             //   ]
             // );
-            navigation.navigate("Home");
+
+            // createToast("Đăng nhập thành công", "", "success", "top-right");
+
+            // <ViGoAlert
+            //   title="Đăng nhập thành công"
+            //   description=""
+            //   status="success"
+            //   placement="top-right"
+            // />;
+
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              title: "Đăng nhập thành công",
+              description: "",
+              status: "success",
+              placement: "top",
+            });
+
+            // eventEmitter.emit(eventNames.SHOW_TOAST, {
+            //   title: "Đăng nhập thành công",
+            //   description: "Hãy nhận chuyến xe đầu tiên của bạn nào!",
+            //   status: "success",
+            //   isDialog: true,
+            // });
+
+            if (response.user.status == "PENDING") {
+              navigation.navigate("NewDriverUpdateProfile");
+            } else {
+              navigation.navigate("Home");
+            }
           } catch (err) {
-            Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-            console.warn(err);
+            // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+            handleError("Có lỗi xảy ra", err);
+            // console.warn(err);
+            setIsLoading(false);
+          }
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          // console.error(err.response.status);
+          // const eventEmitter = new NativeEventEmitter();
+          if (err.response && err.response.status != 401) {
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              // title: "Đăng nhập không thành công",
+              description: err.response.data,
+              status: "error",
+              // placement: "top-right",
+              isDialog: true,
+            });
+          } else {
+            eventEmitter.emit(eventNames.SHOW_TOAST, {
+              title: "Đăng nhập không thành công",
+              description: "Vui lòng kiểm tra lại thông tin đăng nhập",
+              status: "error",
+              // placement: "top-right",
+            });
           }
         });
-      } catch (err) {
-        Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-      } finally {
-        setIsLoading(false);
-      }
     }
-
-
   };
 
   useEffect(() => {
@@ -141,7 +209,7 @@ export default function LoginScreen() {
     }
   }, [firebaseToken]);
 
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isInputPhoneInvalid, setIsInputPhoneInvalid] = useState(false);
   const [isInputPasswordInvalid, setIsInputPasswordInvalid] = useState(false);
   const handlePhoneChange = (text) => {
@@ -152,7 +220,6 @@ export default function LoginScreen() {
     setPassword(text);
     setIsInputPasswordInvalid(false); // Reset the input validation when the user starts typing again
   };
-
 
   const navigation = useNavigation();
 
@@ -165,41 +232,87 @@ export default function LoginScreen() {
         style={styles.image}
       />
       <Box alignItems="center">
-        <Box maxW="80" rounded="xl" overflow="hidden" borderColor="coolGray.200" borderWidth="2" _dark={{
-          borderColor: "coolGray.600",
-          backgroundColor: "gray.700"
-        }} _web={{
-          shadow: 8,
-          borderWidth: 0
-        }} _light={{
-          backgroundColor: "gray.50"
-        }}>
+        <Box
+          maxW="80"
+          rounded="xl"
+          overflow="hidden"
+          borderColor="coolGray.200"
+          borderWidth="2"
+          _dark={{
+            borderColor: "coolGray.600",
+            backgroundColor: "gray.700",
+          }}
+          _web={{
+            shadow: 8,
+            borderWidth: 0,
+          }}
+          _light={{
+            backgroundColor: "gray.50",
+          }}
+        >
           <Box p="4">
-            <Text fontSize="3xl" bold >Đăng nhập</Text>
-            <Text fontSize="xl" >Chào mừng bạn đến ViGo</Text>
+            <Text fontSize="3xl" bold>
+              Đăng nhập
+            </Text>
+            <Text fontSize="xl">Chào mừng bạn đến ViGo</Text>
             <Box alignItems="center" pt="4">
-              <FormControl style={styles.input} isInvalid={isInputPhoneInvalid} w="95%" maxW="500px">
-
-                <Input variant="unstyled" value={phoneNumber} onChangeText={handlePhoneChange} InputLeftElement={<Text fontSize="xs" bold>+84</Text>} placeholder="Nhập số điện thoại" />
+              <FormControl
+                style={styles.input}
+                isInvalid={isInputPhoneInvalid}
+                w="95%"
+                maxW="500px"
+              >
+                <Input
+                  variant="unstyled"
+                  value={phoneNumber}
+                  onChangeText={handlePhoneChange}
+                  keyboardType="phone-pad"
+                  InputLeftElement={
+                    <Text fontSize="xs" bold>
+                      +84
+                    </Text>
+                  }
+                  placeholder="Nhập số điện thoại"
+                />
                 {isInputPhoneInvalid && (
-                  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />} pb="2">
+                  <FormControl.ErrorMessage
+                    leftIcon={<WarningOutlineIcon size="xs" />}
+                    pb="2"
+                  >
                     Số điện thoại không hợp lệ
                   </FormControl.ErrorMessage>
                 )}
               </FormControl>
             </Box>
             <Box alignItems="center" pt="1">
-              <FormControl style={styles.input} isInvalid={isInputPasswordInvalid} w="95%" maxW="500px">
-
-                <Input variant="unstyled" value={password} onChangeText={handlePasswordChange} keyboardType="numeric" type={show ? "number" : "password"} InputLeftElement={<TouchableOpacity p="3" onPress={() => setShow(!show)}>
-                  {!show ? (
-                    <EyeIcon size={18} color="black" />
-                  ) : (
-                    <EyeSlashIcon name="eye-off" size={18} color="black" />
-                  )}
-                </TouchableOpacity>} placeholder="Mật khẩu" />
+              <FormControl
+                style={styles.input}
+                isInvalid={isInputPasswordInvalid}
+                w="95%"
+                maxW="500px"
+              >
+                <Input
+                  variant="unstyled"
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  // keyboardType="numeric"
+                  type={show ? "text" : "password"}
+                  InputLeftElement={
+                    <TouchableOpacity p="3" onPress={() => setShow(!show)}>
+                      {!show ? (
+                        <EyeIcon size={18} color="black" />
+                      ) : (
+                        <EyeSlashIcon name="eye-off" size={18} color="black" />
+                      )}
+                    </TouchableOpacity>
+                  }
+                  placeholder="Mật khẩu"
+                />
                 {isInputPasswordInvalid && (
-                  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />} pb="2">
+                  <FormControl.ErrorMessage
+                    leftIcon={<WarningOutlineIcon size="xs" />}
+                    pb="2"
+                  >
                     Bạn chưa nhập mật khẩu
                   </FormControl.ErrorMessage>
                 )}
@@ -216,12 +329,12 @@ export default function LoginScreen() {
           firebaseConfig={firebaseConfig}
         /> */}
 
-            <Text style={styles.registerText}>
-              Bạn chưa có tài khoản?{" "}
-              <TouchableOpacity onPress={() => navigation.navigate("Registration")}>
+            <HStack>
+              <Text style={styles.registerText}>Bạn chưa có tài khoản? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                 <Text style={styles.link}>Đăng ký</Text>
               </TouchableOpacity>
-            </Text>
+            </HStack>
           </Box>
         </Box>
       </Box>

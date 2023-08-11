@@ -1,6 +1,7 @@
 import axios from "axios";
-import { Alert } from "react-native";
+import { Alert, NativeEventEmitter } from "react-native";
 import { getString, setString } from "./storageUtils";
+import { eventNames, handleError } from "./alertUtils";
 
 const baseURL = "https://vigo-api.azurewebsites.net";
 const apiManager = axios.create({
@@ -16,40 +17,48 @@ const updateToken = async (newToken) => {
 };
 
 export const login = async (phone, password) => {
-  try {
-    const requestData = {
-      password: password,
-      phone: phone,
-      role: "DRIVER",
-    };
-    const response = await axios.post(
-      `${baseURL}/api/Authenticate/Mobile/Login`,
-      requestData
-    );
+  // try {
+  const requestData = {
+    password: password,
+    phone: phone,
+    role: "DRIVER",
+  };
+  const response = await axios.post(
+    `${baseURL}/api/Authenticate/Mobile/Login`,
+    requestData
+  );
 
-    if (response.data.user.role != "DRIVER") {
-      throw new Error("Người dùng không hợp lệ!");
-    }
-
-    const newToken = response.data.token;
-    updateToken(newToken); // Update the token value
-    // console.log("Login successful!");
-    return response.data;
-  } catch (error) {
-    console.error("Login failed:", error.response.data);
-    Alert.alert(
-      "Đăng nhập không thành công!",
-      "Chi tiết: " + (error.response ? error.response.data : error.message)
-    );
+  if (response.data.user.role != "DRIVER") {
+    throw new Error("Người dùng không hợp lệ!");
   }
+
+  const newToken = response.data.token;
+  updateToken(newToken); // Update the token value
+  // console.log("Login successful!");
+  return response.data;
+  // } catch (error) {
+  //   // console.error("Login failed:", error.response.data);
+  //   // handleError(null, error);
+  //   const eventEmitter = new NativeEventEmitter();
+  //   eventEmitter.emit(eventNames.SHOW_TOAST, {
+  //     title: "Đăng nhập không thành công",
+  //     description: "Vui lòng kiểm tra lại thông tin đăng nhập",
+  //     status: "error",
+  //     placement: "top-right",
+  //   });
+  //   // Alert.alert(
+  //   //   "Đăng nhập không thành công!",
+  //   //   "Chi tiết: " + (error.response ? error.response.data : error.message)
+  //   // );
+  // }
 };
 
-export const register = async (/*name, */ phone, firebaseUid) => {
+export const register = async (/*name, */ phone, password) => {
   try {
     const requestData = {
       // name: name,
       phone: phone,
-      firebaseUid: firebaseUid,
+      password: password,
       role: "DRIVER",
     };
 

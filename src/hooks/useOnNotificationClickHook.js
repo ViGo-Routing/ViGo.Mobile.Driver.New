@@ -41,6 +41,9 @@ export const useOnNotificationClickHook = () => {
     messaging().onNotificationOpenedApp((remoteMessage) => {
       if (remoteMessage.data.action == "payment") {
         paymentNotificationOnClickHandlers(remoteMessage.data, navigation);
+      } else if (remoteMessage.data.action == "login") {
+        setUser(null);
+        navigation.navigate("Login");
       }
     });
 
@@ -49,8 +52,15 @@ export const useOnNotificationClickHook = () => {
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
-          setInitialScreen("WalletTransactionDetail");
-          setInitialParams({ walletTransactionId: data.walletTransactionId });
+          if (remoteMessage.data.action == "payment") {
+            setInitialScreen("WalletTransactionDetail");
+            setInitialParams({
+              walletTransactionId: remoteMessage.data.walletTransactionId,
+            });
+          } else if (remoteMessage.data.action == "login") {
+            setUser(null);
+            navigation.navigate("Login");
+          }
         }
       });
   }, []);

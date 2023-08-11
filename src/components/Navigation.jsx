@@ -22,6 +22,7 @@ import NewDriverUpdateProfileScreen from "../screens/Profile/NewDriverUpdateProf
 import StartRouteScreen from "../screens/StartRoute/StartRouteScreen";
 import PickCusScreen from "../screens/StartRoute/PickCusScreen";
 import { CustomerDetailScreen } from "../screens/BookingDetail/CustomerDetailScreen";
+import TopupScreen from "../screens/Wallet/Topup/TopupScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +50,11 @@ const Navigation = () => {
         component={LoginScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
@@ -66,9 +71,21 @@ const Navigation = () => {
         component={EditProfileScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="PickCus" component={PickCusScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="StartRoute" component={StartRouteScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="PickCus"
+        component={PickCusScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="StartRoute"
+        component={StartRouteScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookingDetail"
+        component={BookingDetailScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Wallet"
         options={{ headerShown: false }}
@@ -86,6 +103,11 @@ const Navigation = () => {
         name="WalletTransactions"
         options={{ headerShown: false }}
         component={WalletTransactionsScreen}
+      />
+      <Stack.Screen
+        name="Topup"
+        options={{ headerShown: false }}
+        component={TopupScreen}
       />
       <Stack.Screen
         name="NewDriverUpdateProfile"
