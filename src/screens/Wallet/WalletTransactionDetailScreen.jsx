@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import Header from "../../components/Header/Header";
 import { vigoStyles } from "../../../assets/theme";
 import {
@@ -14,7 +14,7 @@ import { vndFormat } from "../../utils/numberUtils";
 import { renderPaymentMethod } from "../../utils/enumUtils/paymentMethodEnumUtils";
 import { toVnDateTimeString } from "../../utils/datetimeUtils";
 import Divider from "../../components/Divider/Divider";
-
+import { Box, HStack, Text, VStack } from "native-base";
 const WalletTransactionDetailScreen = ({ route }) => {
   // console.log(route);
   const { walletTransactionId } = route.params;
@@ -34,58 +34,58 @@ const WalletTransactionDetailScreen = ({ route }) => {
     if (transactionDetail) {
       return (
         <View>
-          <View style={vigoStyles.row}>
-            {renderTransacionType(transactionDetail, "details")}
-          </View>
-          <View
-            style={{
-              // ...vigoStyles.row,
-              ...styles.transactionDetailsAmountContainer,
-            }}
-          >
-            <Text
-              style={{ ...styles.transactionDetailsAmount }}
-            >{`${renderTransactionTypeOperator(
+          <HStack>{renderTransacionType(transactionDetail, "details")}</HStack>
+          <Box>
+            <Text bold fontSize={"3xl"}>{`${renderTransactionTypeOperator(
               transactionDetail.type
             )}${vndFormat(transactionDetail.amount)}`}</Text>
-          </View>
-          <View style={{ marginTop: 15 }}>
-            <View style={vigoStyles.row}>
+          </Box>
+          <Box marginTop={15}>
+            <HStack justifyContent={"space-between"} marginBottom={3}>
               <Text>Phương thức thanh toán</Text>
               <Text>
                 {renderPaymentMethod(transactionDetail.paymentMethod)}
               </Text>
-            </View>
-            <View style={vigoStyles.row}>
+            </HStack>
+            <HStack
+              justifyContent={"space-between"}
+              alignItems={"center"}
+              marginBottom={3}
+            >
               <Text>Trạng thái</Text>
               {renderTransactionStatus(transactionDetail.status, "details")}
-            </View>
-            <View style={vigoStyles.row}>
+            </HStack>
+            <HStack justifyContent={"space-between"} marginBottom={3}>
               <Text>Thời gian</Text>
               <Text>{toVnDateTimeString(transactionDetail.createdTime)}</Text>
-            </View>
-          </View>
+            </HStack>
+          </Box>
+
           <Divider style={{ marginTop: 10 }} />
-          <View style={{ marginTop: 15 }}>
-            <View style={vigoStyles.column}>
+
+          <Box marginTop={15}>
+            <VStack>
               <Text>Mã giao dịch</Text>
               <Text style={{ textAlign: "right" }}>{transactionDetail.id}</Text>
-            </View>
+            </VStack>
+            {/* <View style={vigoStyles.column}>
+              
+            </View> */}
             {transactionDetail.bookingDetailId && (
-              <View style={vigoStyles.column}>
+              <VStack>
                 <Text>Mã chuyến đi</Text>
                 <Text style={{ textAlign: "right" }}>
                   {transactionDetail.bookingDetailId}
                 </Text>
-              </View>
+              </VStack>
             )}
             {transactionDetail.bookingId && (
-              <View style={vigoStyles.column}>
+              <VStack>
                 <Text>Mã hành trình</Text>
                 <Text>{transactionDetail.bookingId}</Text>
-              </View>
+              </VStack>
             )}
-          </View>
+          </Box>
         </View>
       );
     }

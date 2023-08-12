@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { renderPaymentMethod } from "./paymentMethodEnumUtils";
 import {
   CheckCircleIcon,
@@ -6,6 +6,7 @@ import {
   ExclamationCircleIcon,
 } from "react-native-heroicons/solid";
 import { vigoStyles } from "../../../assets/theme";
+import { Text } from "native-base";
 export const renderTransactionTypeOperator = (transactionType) => {
   switch (transactionType) {
     case "TOPUP":
@@ -15,6 +16,14 @@ export const renderTransactionTypeOperator = (transactionType) => {
     case "TRIP_PAID":
       return "-";
     case "CANCEL_FEE":
+      return "-";
+    case "CANCEL_REFUND":
+      return "+";
+    case "BOOKING_PAID":
+      return "-";
+    case "TRIP_PICK":
+      return "-";
+    case "TRIP_PICK_REFUND":
       return "-";
   }
 };
@@ -68,8 +77,64 @@ export const renderTransacionType = (transaction, renderType) => {
             </Text>
           </>
         );
+      case "CANCEL_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionNameListItem}>
+              Hoàn tiền - Hủy chuyến đi
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {transaction.bookingId
+                ? `Hành trình: ${transaction.bookingId}`
+                : `Chuyến đi: ${transaction.bookingDetailId}`}
+            </Text>
+          </>
+        );
+      case "BOOKING_PAID":
+        return (
+          <>
+            <Text style={styles.transactionNameListItem}>
+              Phí đặt hành trình
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {transaction.bookingId
+                ? `Hành trình: ${transaction.bookingId}`
+                : `Không có dữ liệu`}
+            </Text>
+          </>
+        );
+      case "TRIP_PICK":
+        return (
+          <>
+            <Text style={styles.transactionNameListItem}>
+              Phí nhận chuyến đi
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {transaction.bookingDetailId
+                ? `Chuyến đi: ${transaction.bookingDetailId}`
+                : `Không có dữ liệu`}
+            </Text>
+          </>
+        );
+      case "TRIP_PICK_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionNameListItem}>
+              Hoàn phí nhận chuyến đi
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {transaction.bookingDetailId
+                ? `Chuyến đi: ${transaction.bookingDetailId}`
+                : `Không có dữ liệu`}
+            </Text>
+          </>
+        );
       default:
-        return "Khác";
+        return (
+          <>
+            <Text style={styles.transactionNameDetail}>Khác</Text>
+          </>
+        );
     }
   } else if (renderType == "details") {
     switch (transaction.type) {
@@ -99,6 +164,34 @@ export const renderTransacionType = (transaction, renderType) => {
         return (
           <>
             <Text style={styles.transactionNameDetail}>Phí hủy chuyến đi</Text>
+          </>
+        );
+      case "CANCEL_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionNameDetail}>
+              Hoàn tiền - Hủy chuyến đi
+            </Text>
+          </>
+        );
+      case "BOOKING_PAID":
+        return (
+          <>
+            <Text style={styles.transactionNameDetail}>Phí đặt hành trình</Text>
+          </>
+        );
+      case "TRIP_PICK":
+        return (
+          <>
+            <Text style={styles.transactionNameDetail}>Phí nhận chuyến đi</Text>
+          </>
+        );
+      case "TRIP_PICK_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionNameDetail}>
+              Hoàn phí nhận chuyến đi
+            </Text>
           </>
         );
       default:

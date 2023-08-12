@@ -1,7 +1,7 @@
 import {
-  FlatList,
+  // FlatList,
   SafeAreaView,
-  Text,
+  // Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -17,6 +17,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Divider from "../../components/Divider/Divider";
 import { vndFormat } from "../../utils/numberUtils";
+import { Text, FlatList, HStack, Box } from "native-base";
 
 const WalletTransactionsScreen = ({ route }) => {
   const { walletId } = route.params;
@@ -83,21 +84,19 @@ const WalletTransactionsScreen = ({ route }) => {
 
   const renderTransactionListItem = (transaction) => {
     return (
-      <View style={vigoStyles.row}>
-        <View style={{ ...vigoStyles.column, width: "10%" }}>
+      <HStack>
+        <Box width={"10%"}>
           {renderTransactionStatus(transaction.status, "list")}
-        </View>
-        <View style={{ ...vigoStyles.column, width: "70%" }}>
-          {renderTransacionType(transaction, "list")}
-        </View>
-        <View style={{ ...vigoStyles.column, width: "20%" }}>
+        </Box>
+        <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
+        <Box width={"30%"} paddingLeft={5}>
           <Text style={{ fontSize: 16 }}>
             {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
               transaction.amount
             )}`}
           </Text>
-        </View>
-      </View>
+        </Box>
+      </HStack>
     );
   };
 
@@ -114,6 +113,7 @@ const WalletTransactionsScreen = ({ route }) => {
       <View>
         <Header title="Lịch sử giao dịch" />
       </View>
+
       <View style={vigoStyles.body}>
         <FlatList
           style={vigoStyles.list}
