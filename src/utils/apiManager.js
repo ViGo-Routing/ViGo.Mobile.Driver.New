@@ -77,6 +77,8 @@ export const register = async (/*name, */ phone, password) => {
   }
 };
 
+
+
 apiManager.interceptors.request.use(
   async (config) => {
     config.headers.Authorization = `Bearer ${await getString("token")}`;

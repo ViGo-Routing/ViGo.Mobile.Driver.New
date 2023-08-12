@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { themeColors } from "../../../assets/theme";
 // import { Ionicons } from '@expo/vector-icons'
@@ -7,6 +7,9 @@ import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import StepIndicator from 'react-native-step-indicator';
 import { updateStatusBookingDetail } from "../../services/bookingDetailService";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+import Geolocation from "@react-native-community/geolocation";
+import SignalRService from "../../utils/signalRUtils"
+
 const time = new Date()
 const data = [
     {
@@ -57,9 +60,34 @@ const customStyles = {
 const PickCusScreen = () => {
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
+    const [driverLocation, setDriverLocation] = useState({
+        latitude: 0,
+        longitude: 0,
+    });
 
     const { response } = route.params;
     console.log("responseresponseresponse", response.data)
+
+    useEffect(() => {
+        const locationUpdateInterval = setInterval(() => {
+            Geolocation.getCurrentPosition(
+                position => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    SignalRService.sendLocationUpdate(response.data.id, latitude, longitude)
+
+                },
+                error => console.error(error),
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        }, 10000);
+
+        return () => {
+            clearInterval(locationUpdateInterval);
+        };
+    }, []);
+
     const handlArrivePickUp = async () => {
         setIsLoading(true);
         try {

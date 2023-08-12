@@ -68,6 +68,7 @@ const BookingDetailScreen = () => {
         formatted_address: item.endStation.formatted_address,
       }
       : null;
+
   const handleCustomerDetail = async () => {
     navigation.navigate("CustomerDetail")
   }
@@ -90,8 +91,6 @@ const BookingDetailScreen = () => {
             },
           ],
         );
-      } else {
-        Alert.alert("Xác nhận chuyến", "Lỗi: Không nhận được chuyến!");
       }
     } catch (error) {
       console.error("Driver Picking failed:", error);
@@ -242,7 +241,7 @@ const BookingDetailScreen = () => {
                 >
                   <TouchableOpacity
                     style={styles.assignButton}
-                    onPress={navigation.navigate("CustomerDetail")}
+                    onPress={() => navigation.navigate("CustomerDetail")}
                   >
                     <Text style={{ color: "white", fontWeight: "bold" }}>
                       Chi tiết

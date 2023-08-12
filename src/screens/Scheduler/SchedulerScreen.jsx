@@ -16,12 +16,21 @@ import { useNavigation } from "@react-navigation/native";
 const SchedulerScreen = () => {
   const { user } = useContext(UserContext);
   const [items, setItems] = useState({});
+  const [tripId, setId] = useState("");
   const navigation = useNavigation();
   useEffect(() => {
     const fetchData = async () => {
-      await getBookingDetailByDriverId(user.id).then((result) => {
+      console.log(user.id)
+      const currentDate = new Date();
+
+      // Get the previous date
+      const previousDate = new Date();
+      previousDate.setDate(currentDate.getDate() - 1);
+      const formattedPreviousDate = `${previousDate.getFullYear()}-${(previousDate.getMonth() + 1).toString().padStart(2, '0')}-${previousDate.getDate().toString().padStart(2, '0')}`;
+      await getBookingDetailByDriverId(user.id, formattedPreviousDate).then((result) => {
         const items = result.data.data
         const agendaItems = {};
+
         items.forEach((item) => {
 
           const { startStation, endStation, customerRouteRoutine } = item;
@@ -42,6 +51,9 @@ const SchedulerScreen = () => {
     };
     fetchData();
   }, []);
+
+
+
 
   const handelStartRoute = (item) => {
 

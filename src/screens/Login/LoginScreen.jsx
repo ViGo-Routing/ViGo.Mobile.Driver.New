@@ -43,6 +43,7 @@ import { EyeIcon, EyeSlashIcon } from "react-native-heroicons/solid";
 import { isPhoneNumber } from "../../utils/stringUtils";
 import { createToast, eventNames, handleError } from "../../utils/alertUtils";
 import ViGoAlert from "../../components/Alert/ViGoAlertProvider";
+import SignalRService from "../../utils/signalRUtils.js";
 // import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
 
 // const eventEmitter = new EventEmitter();
@@ -105,76 +106,54 @@ export default function LoginScreen() {
     } else {
       setIsLoading(true);
       const phone = `+84${phoneNumber.substring(1, 10)}`;
-      console.log(phone);
+
       login(phone, password)
         .then(async (response) => {
           setUser(response.user);
+          SignalRService.updateToken(response.token);
           // console.log("Token " + (await getString("token")));
-
           try {
-            const granted = await PermissionsAndroid.request(
+            const permissions = [
               PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-              {
-                title: "Cho phép ViGo gửi thông báo đến bạn",
-                message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
-              trong ngày và hơn thế nữa`,
-                buttonNeutral: "Hỏi lại sau",
-                buttonNegative: "Từ chối",
-                buttonPositive: "Đồng ý",
-              }
-            );
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            ];
 
-            // console.log(response.user);
+            const results = await PermissionsAndroid.requestMultiple(permissions, {
+              title: "Cho phép ViGo gửi thông báo đến bạn",
+              message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+            trong ngày và hơn thế nữa`,
+              buttonNeutral: "Hỏi lại sau",
+              buttonNegative: "Từ chối",
+              buttonPositive: "Đồng ý",
+            });
             setIsLoading(false);
-
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            if (
+              results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
+              PermissionsAndroid.RESULTS.GRANTED &&
+              results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
+              PermissionsAndroid.RESULTS.GRANTED
+            ) {
               await messaging().registerDeviceForRemoteMessages();
               const fcmToken = await messaging().getToken();
               await updateUserFcmToken(response.user.id, fcmToken);
+            } else {
+              console.log("Some permissions denied");
+              // Handle the case where one or both permissions are denied
             }
-
-            // Alert.alert(
-            //   "Đăng nhập thành công! Hãy nhận chuyến xe đầu tiên của bạn nào",
-            //   "",
-            //   [
-            //     {
-            //       text: "OK",
-            //       onPress: () => navigation.navigate("PickCus"),
-            //     },
-            //   ]
-            // );
-
-            // createToast("Đăng nhập thành công", "", "success", "top-right");
-
-            // <ViGoAlert
-            //   title="Đăng nhập thành công"
-            //   description=""
-            //   status="success"
-            //   placement="top-right"
-            // />;
-
             eventEmitter.emit(eventNames.SHOW_TOAST, {
               title: "Đăng nhập thành công",
               description: "",
               status: "success",
               placement: "top",
             });
-
-            // eventEmitter.emit(eventNames.SHOW_TOAST, {
-            //   title: "Đăng nhập thành công",
-            //   description: "Hãy nhận chuyến xe đầu tiên của bạn nào!",
-            //   status: "success",
-            //   isDialog: true,
-            // });
-
             if (response.user.status == "PENDING") {
               navigation.navigate("NewDriverUpdateProfile");
             } else {
               navigation.navigate("Home");
             }
-          } catch (err) {
+          } catch (error) {
             // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-            handleError("Có lỗi xảy ra", err);
+            handleError("Có lỗi xảy ra", error);
             // console.warn(err);
             setIsLoading(false);
           }
@@ -192,6 +171,7 @@ export default function LoginScreen() {
               isDialog: true,
             });
           } else {
+            console.log(err)
             eventEmitter.emit(eventNames.SHOW_TOAST, {
               title: "Đăng nhập không thành công",
               description: "Vui lòng kiểm tra lại thông tin đăng nhập",

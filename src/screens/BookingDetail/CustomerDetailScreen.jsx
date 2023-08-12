@@ -258,9 +258,9 @@ export const CustomerDetailScreen = () => {
                 </Box>
 
             </Flex>
-            <Box borderRadius={8} backgroundColor="#00A1A1" my={5} w="83%" alignSelf="center" alignItems="center">
-                <Button backgroundColor="#00A1A1">Nhận chuyến</Button>
-            </Box>
+            {/* <Box borderRadius={8} backgroundColor="#00A1A1" my={5} w="83%" alignSelf="center" alignItems="center">
+                <Button onPress={handlePickBooking} backgroundColor="#00A1A1">Nhận chuyến</Button>
+            </Box> */}
         </View>
 
     );
