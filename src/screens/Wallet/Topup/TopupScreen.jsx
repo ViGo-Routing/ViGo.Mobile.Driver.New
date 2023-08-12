@@ -1,11 +1,11 @@
 import {
   SafeAreaView,
   View,
-  Text,
+  // Text,
   StyleSheet,
-  FlatList,
+  // FlatList,
   TouchableOpacity,
-  Image,
+  // Image,
   NativeEventEmitter,
   Linking,
   Alert,
@@ -18,14 +18,16 @@ import TopupAmountModal from "./TopupAmountModal";
 import { UserContext } from "../../../context/UserContext";
 import { createTopupTransaction } from "../../../services/paymentService";
 
+import { Text, FlatList, Image, Heading, HStack } from "native-base";
 const TopupScreen = () => {
   const { user } = useContext(UserContext);
 
   const topupMethods = [
     {
       key: "VNPAY",
-      title: "Ví VNPAY",
+      title: "Ví VNPay",
       logo: require("../../../../assets/icons/vnpay.png"),
+      alt: "Ví VNPay",
     },
   ];
 
@@ -58,18 +60,19 @@ const TopupScreen = () => {
 
   const renderTopupMethod = (method) => {
     return (
-      <View style={{ ...vigoStyles.row }}>
-        <View style={vigoStyles.row}>
-          <View style={styles.paymentMethodContainer}>
-            <Image style={styles.paymentMethodLogo} source={method.logo} />
-          </View>
-          <Text style={{ marginLeft: 10 }}>{method.title}</Text>
-        </View>
-
-        <View style={vigoStyles.row}>
-          <ChevronRightIcon size={20} color={"#999"} />
-        </View>
-      </View>
+      <HStack justifyContent={"space-between"} alignItems="center">
+        <HStack alignItems="center">
+          <Image
+            size={"xs"}
+            resizeMode="contain"
+            alignSeft="center"
+            source={method.logo}
+            alt={method.alt}
+          />
+          <Text marginLeft={3}>{method.title}</Text>
+        </HStack>
+        <ChevronRightIcon size={20} color={"#999"} />
+      </HStack>
     );
   };
 
@@ -79,9 +82,10 @@ const TopupScreen = () => {
         <Header title="Nạp tiền vào ví" />
       </View>
       <View style={vigoStyles.body}>
-        <View style={vigoStyles.heading}>
+        {/* <View style={vigoStyles.heading}>
           <Text style={vigoStyles.h1}>Các phương thức nạp tiền</Text>
-        </View>
+        </View> */}
+        <Heading size={"lg"}>Các phương thức nạp tiền</Heading>
 
         <FlatList
           style={vigoStyles.list}

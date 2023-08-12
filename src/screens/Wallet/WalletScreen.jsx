@@ -1,10 +1,10 @@
 import {
-  FlatList,
-  Pressable,
+  // FlatList,
+  // Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
+  // Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -35,6 +35,16 @@ import {
   getWalletTransactions,
 } from "../../services/walletService";
 import { useNavigation } from "@react-navigation/native";
+import {
+  Box,
+  HStack,
+  Heading,
+  Text,
+  VStack,
+  Pressable,
+  Button,
+  FlatList,
+} from "native-base";
 
 const WalletScreen = () => {
   const navigation = useNavigation();
@@ -66,8 +76,19 @@ const WalletScreen = () => {
 
   const renderTransactionListItem = (transaction) => {
     return (
-      <View style={vigoStyles.row}>
-        <View style={{ ...vigoStyles.column, width: "10%" }}>
+      <HStack>
+        <Box width={"10%"}>
+          {renderTransactionStatus(transaction.status, "list")}
+        </Box>
+        <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
+        <Box width={"30%"} paddingLeft={5}>
+          <Text style={{ fontSize: 16 }}>
+            {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
+              transaction.amount
+            )}`}
+          </Text>
+        </Box>
+        {/* <View style={{ ...vigoStyles.column, width: "10%" }}>
           {renderTransactionStatus(transaction.status, "list")}
         </View>
         <View style={{ ...vigoStyles.column, width: "60%" }}>
@@ -79,18 +100,18 @@ const WalletScreen = () => {
               transaction.amount
             )}`}
           </Text>
-        </View>
-      </View>
+        </View> */}
+      </HStack>
     );
   };
 
-  // useEffect(() => {
-  //   getWallet();
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      getWallet();
+    });
 
-  navigation.addListener("focus", () => {
-    getWallet();
-  });
+    return unsubscribe;
+  }, []);
 
   return (
     <SafeAreaView style={vigoStyles.container}>
@@ -102,31 +123,44 @@ const WalletScreen = () => {
       <View style={vigoStyles.body}>
         <View style={styles.balanceContainer}>
           <View style={vigoStyles.textContainer}>
-            <Text style={styles.balance}>
+            <Text bold fontSize={"xl"}>
               Số dư: {vndFormat(walletBalance)}
             </Text>
           </View>
         </View>
-        <View style={{ flexDirection: "row-reverse", marginTop: 10 }}>
-          <TouchableOpacity
+        <Box flexDirection={"row-reverse"} marginTop={5}>
+          <Button
             style={vigoStyles.buttonWhite}
             onPress={() => navigation.navigate("Topup")}
-          >
-            <View style={{ ...vigoStyles.row, marginTop: 0 }}>
+            leftIcon={
               <PlusCircleIcon
+                style={{ ...vigoStyles.buttonWhiteText }}
+                size={15}
+              />
+            }
+          >
+            <Text style={vigoStyles.buttonWhiteText}>Nạp tiền</Text>
+          </Button>
+          {/* <TouchableOpacity
+            style={vigoStyles.buttonWhite}
+            
+          >
+          <HStack>
+          <PlusCircleIcon
                 style={{ ...vigoStyles.buttonWhiteText, marginRight: 5 }}
                 size={15}
               />
               <Text style={vigoStyles.buttonWhiteText}>Nạp tiền</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+          </HStack>
+          </TouchableOpacity> */}
+        </Box>
+
         <Divider style={vigoStyles.sectionDivider} />
 
-        <View>
-          <View style={vigoStyles.heading}>
-            <Text style={vigoStyles.h1}>Lịch sử giao dịch</Text>
-            {/* <EvilIcons name="arrow-right" size={30} color="black" /> */}
+        <Box>
+          <HStack justifyContent={"space-between"}>
+            <Heading size="lg">Lịch sử giao dịch</Heading>
+
             <Pressable
               onPress={() =>
                 navigation.navigate("WalletTransactions", {
@@ -136,7 +170,8 @@ const WalletScreen = () => {
             >
               <ArrowRightCircleIcon size={30} color="black" />
             </Pressable>
-          </View>
+          </HStack>
+
           <FlatList
             style={vigoStyles.list}
             data={walletTransacions}
@@ -156,7 +191,7 @@ const WalletScreen = () => {
               );
             }}
           />
-        </View>
+        </Box>
         {/* </ScrollView> */}
       </View>
     </SafeAreaView>
