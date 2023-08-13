@@ -51,29 +51,29 @@ const BookingDetailScreen = () => {
   const pickupPosition =
     item?.startStation?.latitude && item?.startStation?.longitude
       ? {
-          geometry: {
-            location: {
-              lat: item.startStation.latitude,
-              lng: item.startStation.longitude,
-            },
+        geometry: {
+          location: {
+            lat: item.startStation.latitude,
+            lng: item.startStation.longitude,
           },
-          name: item.startStation.name,
-          formatted_address: item.startStation.formatted_address,
-        }
+        },
+        name: item.startStation.name,
+        formatted_address: item.startStation.formatted_address,
+      }
       : null;
 
   const destinationPosition =
     item?.endStation?.latitude && item?.endStation?.longitude
       ? {
-          geometry: {
-            location: {
-              lat: item.endStation.latitude,
-              lng: item.endStation.longitude,
-            },
+        geometry: {
+          location: {
+            lat: item.endStation.latitude,
+            lng: item.endStation.longitude,
           },
-          name: item.endStation.name,
-          formatted_address: item.endStation.formatted_address,
-        }
+        },
+        name: item.endStation.name,
+        formatted_address: item.endStation.formatted_address,
+      }
       : null;
 
   const handleCustomerDetail = async () => {
@@ -138,7 +138,7 @@ const BookingDetailScreen = () => {
         {isBottomSheetVisible && (
           <Animated.View
             position="absolute"
-            bottom="50%"
+            bottom="40%"
             width="100%"
             style={[styles.container, { transform: [{ translateY }] }]}
           >
@@ -156,7 +156,7 @@ const BookingDetailScreen = () => {
                     onPress={toggleBottomSheet}
                     style={styles.closeButton}
                   >
-                    <MinusIcon size={40} color="#00A1A1" />
+                    <MinusIcon size={20} color="#00A1A1" />
                   </TouchableOpacity>
                 </Center>
                 <HStack alignItems="center" justifyContent="center">
@@ -172,7 +172,7 @@ const BookingDetailScreen = () => {
                         <Text
                           style={{
                             paddingLeft: 5,
-                            paddingBottom: 5,
+                            paddingBottom: 1,
                             fontSize: 15,
                             fontWeight: "bold",
                           }}

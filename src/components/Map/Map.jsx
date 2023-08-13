@@ -78,7 +78,13 @@ const Map = ({ pickupPosition, destinationPosition, sendRouteId }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <MapView style={{ flex: 1 }} region={region}>
+      <MapView style={{ flex: 1 }}
+        initialRegion={{
+          latitude: pickupPosition.geometry.location.lat,
+          longitude: pickupPosition.geometry.location.lng,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}>
         {pickupPosition && (
           <Marker
             coordinate={{
