@@ -66,12 +66,10 @@ const RegisterScreen = () => {
     if (text.length == 0) {
       setIsInputPasswordInvalid(true);
       setPasswordInvalidMessage("Mật khẩu không được bỏ trống!");
-    }
-    if (text.length > 20) {
+    } else if (text.length > 20) {
       setIsInputPasswordInvalid(true);
       setPasswordInvalidMessage("Mật khẩu không được vượt quá 20 kí tự!");
-    }
-    if (text != confirmPassword) {
+    } else if (text != confirmPassword) {
       setIsInputPasswordConfirmInvalid(true);
     } else {
       setIsInputPasswordConfirmInvalid(false);
@@ -263,7 +261,7 @@ const RegisterScreen = () => {
                   await updateUserFcmToken(response.user.id, fcmToken);
                 }
               } catch (err) {
-                console.warn(err);
+                handleError("Có lỗi xảy ra khi đăng ký", err);
               }
 
               if (response.user.status == "PENDING") {
