@@ -89,7 +89,7 @@ const WalletTransactionsScreen = ({ route }) => {
           {renderTransactionStatus(transaction.status, "list")}
         </Box>
         <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
-        <Box width={"30%"} paddingLeft={5}>
+        <Box width={"30%"} paddingLeft={5} alignItems="flex-end">
           <Text style={{ fontSize: 16 }}>
             {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
               transaction.amount
@@ -101,12 +101,11 @@ const WalletTransactionsScreen = ({ route }) => {
   };
 
   useEffect(() => {
-    getTransacions(walletId);
+    const unsubsribe = navigation.addListener("focus", () => {
+      getTransacions(walletId);
+    });
+    return unsubsribe;
   }, []);
-
-  navigation.addListener("focus", () => {
-    getTransacions(walletId);
-  });
 
   return (
     <SafeAreaView style={vigoStyles.container}>

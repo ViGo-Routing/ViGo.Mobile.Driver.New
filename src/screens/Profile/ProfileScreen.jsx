@@ -14,6 +14,7 @@ import { themeColors } from "../../../assets/theme/index.jsx";
 import { getProfile } from "../../services/userService.jsx";
 import {
   ArrowLeftOnRectangleIcon,
+  BellAlertIcon,
   ClipboardDocumentListIcon,
   DocumentCheckIcon,
   PencilSquareIcon,
@@ -64,6 +65,11 @@ const ProfileSreen = () => {
       icon: <WalletIcon size={24} color={themeColors.primary} />,
       label: "Ví của tôi",
       navigator: "Wallet",
+    },
+    {
+      icon: <BellAlertIcon size={24} color={themeColors.primary} />,
+      label: "Thông báo của tôi",
+      navigator: "MyNotification",
     },
     {
       icon: <QuestionMarkCircleIcon size={24} color={themeColors.primary} />,

@@ -19,6 +19,19 @@ export const handleError = (alertTitle: string, error: any) => {
   });
 };
 
+export const getErrorMessage = (error: any) => {
+  if (error.response && error.response.data) {
+    const data = error.response.data;
+    console.log(data);
+    if (data.errors) {
+      return "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại các thông tin";
+    }
+    return data;
+  } else {
+    return error.message ? error.message : error;
+  }
+};
+
 export const handleWarning = (title: string, message: string) => {
   const eventEmitter = new NativeEventEmitter();
 

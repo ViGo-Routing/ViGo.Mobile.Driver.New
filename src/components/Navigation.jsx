@@ -23,6 +23,7 @@ import StartRouteScreen from "../screens/StartRoute/StartRouteScreen";
 import PickCusScreen from "../screens/StartRoute/PickCusScreen";
 import { CustomerDetailScreen } from "../screens/BookingDetail/CustomerDetailScreen";
 import TopupScreen from "../screens/Wallet/Topup/TopupScreen";
+import MyNotifcationScreen from "../screens/Notification/MyNotificationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -118,6 +119,12 @@ const Navigation = () => {
         name="CustomerDetail"
         options={{ headerShown: false }}
         component={CustomerDetailScreen}
+      />
+
+      <Stack.Screen
+        name="MyNotification"
+        options={{ headerShown: false }}
+        component={MyNotifcationScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>

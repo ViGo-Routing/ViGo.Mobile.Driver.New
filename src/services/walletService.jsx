@@ -15,7 +15,9 @@ export const getWalletByUserId = async (id) => {
 export const getWalletTransactions = async (walletId, pageSize, pageNumber) => {
   try {
     const response = await apiManager.get(
-      `api/WalletTransaction/Wallet/${walletId}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `api/WalletTransaction/Wallet/${walletId}
+      ?pageNumber=${pageNumber}&pageSize=${pageSize}
+      &orderBy=createdTime desc`
     );
     // console.log(response);
     return response.data;

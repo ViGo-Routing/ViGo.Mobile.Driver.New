@@ -81,7 +81,7 @@ const WalletScreen = () => {
           {renderTransactionStatus(transaction.status, "list")}
         </Box>
         <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
-        <Box width={"30%"} paddingLeft={5}>
+        <Box width={"30%"} paddingLeft={5} alignItems="flex-end">
           <Text style={{ fontSize: 16 }}>
             {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
               transaction.amount
