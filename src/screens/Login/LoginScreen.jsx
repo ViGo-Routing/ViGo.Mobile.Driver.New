@@ -118,20 +118,23 @@ export default function LoginScreen() {
               PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
             ];
 
-            const results = await PermissionsAndroid.requestMultiple(permissions, {
-              title: "Cho phép ViGo gửi thông báo đến bạn",
-              message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+            const results = await PermissionsAndroid.requestMultiple(
+              permissions,
+              {
+                title: "Cho phép ViGo gửi thông báo đến bạn",
+                message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
             trong ngày và hơn thế nữa`,
-              buttonNeutral: "Hỏi lại sau",
-              buttonNegative: "Từ chối",
-              buttonPositive: "Đồng ý",
-            });
+                buttonNeutral: "Hỏi lại sau",
+                buttonNegative: "Từ chối",
+                buttonPositive: "Đồng ý",
+              }
+            );
             setIsLoading(false);
             if (
               results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
-              PermissionsAndroid.RESULTS.GRANTED &&
+                PermissionsAndroid.RESULTS.GRANTED &&
               results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
-              PermissionsAndroid.RESULTS.GRANTED
+                PermissionsAndroid.RESULTS.GRANTED
             ) {
               await messaging().registerDeviceForRemoteMessages();
               const fcmToken = await messaging().getToken();
@@ -147,7 +150,7 @@ export default function LoginScreen() {
               placement: "top",
             });
             if (response.user.status == "PENDING") {
-              navigation.navigate("NewDriverUpdateProfile");
+              navigation.replace("NewDriverUpdateProfile");
             } else {
               navigation.navigate("Home");
             }
@@ -171,7 +174,7 @@ export default function LoginScreen() {
               isDialog: true,
             });
           } else {
-            console.log(err)
+            console.log(err);
             eventEmitter.emit(eventNames.SHOW_TOAST, {
               title: "Đăng nhập không thành công",
               description: "Vui lòng kiểm tra lại thông tin đăng nhập",

@@ -26,10 +26,9 @@ const BottomNavigationBar = () => {
         <MapIcon size={24} color="white" />
         {/* <Ionicons name="git-branch" size={24} color="white" /> */}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Message")}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
         <ChatBubbleLeftRightIcon size={24} color="white" />
-        {/* <Ionicons name="chatbox-ellipses" size={24} color="white" /> */}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
         {/* <Ionicons name="person" size={24} color="white" /> */}
         <UserIcon size={24} color="white" />

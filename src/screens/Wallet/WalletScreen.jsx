@@ -69,9 +69,7 @@ const WalletScreen = () => {
   const getTransacions = async (walletId) => {
     const transactions = await getWalletTransactions(walletId, 3, 1);
     // console.log(transactions);
-    setWalletTransacions(
-      transactions.data.sort((a, b) => b.createdTime - a.createdTime)
-    );
+    setWalletTransacions(transactions.data);
   };
 
   const renderTransactionListItem = (transaction) => {
