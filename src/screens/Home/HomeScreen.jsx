@@ -54,8 +54,9 @@ const HomeScreen = () => {
       <ScrollView style={styles.body}>
         <View style={styles.header}>
           <WelcomeDriverHeader
-            title={`Chào mừng ${response && response.name ? response.name : ""
-              }`}
+            title={`Chào mừng ${
+              response && response.name ? response.name : ""
+            }`}
             subtitle="..."
             onBack={() => navigation.goBack()}
           />
@@ -66,7 +67,7 @@ const HomeScreen = () => {
             style={[
               styles.list,
               index === bookingDetailAvailable.length - 1 &&
-              styles.lastListItem,
+                styles.lastListItem,
             ]}
             key={item.id}
           >
@@ -74,12 +75,16 @@ const HomeScreen = () => {
               style={[styles.card, styles.shadowProp]}
               onPress={() => handelSendData(item)}
             >
-
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-
                 <VStack>
                   <Center>
-                    <Image p="1" size={"xs"} resizeMode="cover" source={require("../../../assets/icons/vigobike.png")} alt="Alternate Text" />
+                    <Image
+                      p="1"
+                      size={"xs"}
+                      resizeMode="cover"
+                      source={require("../../../assets/icons/vigobike.png")}
+                      alt="Alternate Text"
+                    />
                   </Center>
                   <View style={{ width: "100%", paddingRight: 15 }}>
                     <View
@@ -176,6 +181,7 @@ const HomeScreen = () => {
           </View>
         ))}
       </ScrollView>
+
       <View style={styles.footer}>
         <BottomNavigationBar />
       </View>

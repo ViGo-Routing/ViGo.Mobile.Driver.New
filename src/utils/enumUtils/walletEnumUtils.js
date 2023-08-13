@@ -7,6 +7,7 @@ import {
 } from "react-native-heroicons/solid";
 import { vigoStyles } from "../../../assets/theme";
 import { Text } from "native-base";
+import { toVnDateTimeString } from "../datetimeUtils";
 export const renderTransactionTypeOperator = (transactionType) => {
   switch (transactionType) {
     case "TOPUP":
@@ -40,6 +41,9 @@ export const renderTransacionType = (transaction, renderType) => {
             <Text style={styles.transactionSubtitle}>
               {renderPaymentMethod(transaction.paymentMethod)}
             </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
+            </Text>
           </>
         );
       case "TRIP_INCOME":
@@ -51,6 +55,9 @@ export const renderTransacionType = (transaction, renderType) => {
             <Text style={styles.transactionSubtitle}>
               Chuyến đi: {transaction.bookingDetailId}
             </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
+            </Text>
           </>
         );
       case "TRIP_PAID":
@@ -61,6 +68,9 @@ export const renderTransacionType = (transaction, renderType) => {
             </Text>
             <Text style={styles.transactionSubtitle}>
               Chuyến đi: {transaction.bookingDetailId}
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
             </Text>
           </>
         );
@@ -75,6 +85,9 @@ export const renderTransacionType = (transaction, renderType) => {
                 ? `Hành trình: ${transaction.bookingId}`
                 : `Chuyến đi: ${transaction.bookingDetailId}`}
             </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
+            </Text>
           </>
         );
       case "CANCEL_REFUND":
@@ -87,6 +100,9 @@ export const renderTransacionType = (transaction, renderType) => {
               {transaction.bookingId
                 ? `Hành trình: ${transaction.bookingId}`
                 : `Chuyến đi: ${transaction.bookingDetailId}`}
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
             </Text>
           </>
         );
@@ -101,6 +117,9 @@ export const renderTransacionType = (transaction, renderType) => {
                 ? `Hành trình: ${transaction.bookingId}`
                 : `Không có dữ liệu`}
             </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
+            </Text>
           </>
         );
       case "TRIP_PICK":
@@ -114,6 +133,9 @@ export const renderTransacionType = (transaction, renderType) => {
                 ? `Chuyến đi: ${transaction.bookingDetailId}`
                 : `Không có dữ liệu`}
             </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
+            </Text>
           </>
         );
       case "TRIP_PICK_REFUND":
@@ -126,6 +148,9 @@ export const renderTransacionType = (transaction, renderType) => {
               {transaction.bookingDetailId
                 ? `Chuyến đi: ${transaction.bookingDetailId}`
                 : `Không có dữ liệu`}
+            </Text>
+            <Text style={styles.transactionSubtitle}>
+              {toVnDateTimeString(transaction.createdTime)}
             </Text>
           </>
         );
