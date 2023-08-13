@@ -55,9 +55,10 @@ import { getMaximumDob } from "../../utils/datetimeUtils";
 import { CheckIcon } from "react-native-heroicons/solid";
 import { eventNames, handleError, handleWarning } from "../../utils/alertUtils";
 import ConfirmAlert from "../../components/Alert/ConfirmAlert";
+import { useNavigation } from "@react-navigation/native";
 
 const NewDriverUpdateProfileScreen = () => {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const [avatarSource, setAvatarSource] = useState(user.avatarUrl);
 
@@ -105,6 +106,8 @@ const NewDriverUpdateProfileScreen = () => {
   const toast = useToast();
 
   const eventEmitter = new NativeEventEmitter();
+
+  const navigation = useNavigation();
 
   const loadVehicleTypes = async () => {
     const response = await getVehicleTypes();
@@ -180,7 +183,7 @@ const NewDriverUpdateProfileScreen = () => {
               console.log(downloadUrl);
               toast.show({
                 description: "Tải ảnh lên thành công",
-                duration: 3000,
+                duration: 2000,
               });
             }
           });
@@ -265,6 +268,8 @@ const NewDriverUpdateProfileScreen = () => {
       });
 
       setIsSubmitted(true);
+
+      navigation.navigate("Login");
       // Alert.alert(
       //   "Tạo hồ sơ thành công",
       //   "Hồ sơ tài xế của bạn đã được gửi tới hệ thống ViGo thành công!"

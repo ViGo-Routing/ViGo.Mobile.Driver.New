@@ -38,9 +38,7 @@ const WalletTransactionsScreen = ({ route }) => {
 
       const transactions = await getWalletTransactions(walletId, pageSize, 1);
       // console.log(transactions);
-      setWalletTransacions(
-        transactions.data.sort((a, b) => b.createdTime - a.createdTime)
-      );
+      setWalletTransacions(transactions.data);
 
       if (transactions.hasNextPage == true) {
         setNextPageNumber(2);
@@ -60,7 +58,7 @@ const WalletTransactionsScreen = ({ route }) => {
 
     // console.log(nextPageNumber);
 
-    if (nextPageNumber) {
+    if (nextPageNumber > 1) {
       let moreTransactionsResponse = await getWalletTransactions(
         walletId,
         pageSize,
@@ -68,9 +66,9 @@ const WalletTransactionsScreen = ({ route }) => {
       );
 
       const moreTransactions = [
-        ...moreTransactionsResponse.data,
         ...walletTransacions,
-      ].sort((a, b) => b.createdTime - a.createdTime);
+        ...moreTransactionsResponse.data,
+      ];
 
       setWalletTransacions(moreTransactions);
 
