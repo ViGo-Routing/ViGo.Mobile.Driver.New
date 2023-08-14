@@ -90,7 +90,7 @@ const BookingDetailScreen = () => {
       if (response && response.data) {
         Alert.alert(
           "Xác nhận chuyến đi",
-          `Bạn vừa nhận chuyến ${bookingId} thành công!`,
+          `Bạn vừa nhận chuyến thành công!`,
           [
             {
               text: "OK",

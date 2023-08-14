@@ -13,6 +13,7 @@ class SignalRService {
         this.connection.start().catch(err => console.error(err));
     }
     updateToken(token) {
+        console.log("token", token)
         this.connection.stop(); // Dừng kết nối hiện tại
         this.connection = new HubConnectionBuilder()
             .withUrl("https://vigo-api.azurewebsites.net/vigoGpsTrackingHub", {
@@ -31,12 +32,8 @@ class SignalRService {
     async sendLocationUpdate(tripId, latitude, longitude) {
         console.log(tripId, latitude, longitude)
         const locationInfo = { latitude: latitude, longitude: longitude };
-        const response = await this.connection.invoke("SendLocation", tripId, locationInfo);
-        if (response) {
-            console.log("SendLocation was successful");
-        } else {
-            console.error("SendLocation failed");
-        }
+        this.connection.invoke("SendLocation", tripId, locationInfo);
+
     }
     sendMessage(message) {
         this.connection.invoke("SendMessage", message);

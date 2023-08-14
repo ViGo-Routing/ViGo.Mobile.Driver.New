@@ -132,9 +132,9 @@ export default function LoginScreen() {
             setIsLoading(false);
             if (
               results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
-                PermissionsAndroid.RESULTS.GRANTED &&
+              PermissionsAndroid.RESULTS.GRANTED &&
               results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
-                PermissionsAndroid.RESULTS.GRANTED
+              PermissionsAndroid.RESULTS.GRANTED
             ) {
               await messaging().registerDeviceForRemoteMessages();
               const fcmToken = await messaging().getToken();
