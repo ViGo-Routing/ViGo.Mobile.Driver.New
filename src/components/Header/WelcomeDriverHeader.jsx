@@ -13,9 +13,9 @@ const WelcomeDriverHeader = ({ title, subtitle, onBack }) => {
       </TouchableOpacity> */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle} numberOfLines={null}>
+        {/* <Text style={styles.subtitle} numberOfLines={null}>
           {subtitle}
-        </Text>
+        </Text> */}
       </View>
     </View>
   );

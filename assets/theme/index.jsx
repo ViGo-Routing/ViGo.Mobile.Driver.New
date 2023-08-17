@@ -1,10 +1,10 @@
+import { extendTheme } from "native-base";
 import { StyleSheet } from "react-native";
 
 export const themeColors = {
   primary: "#00A1A1",
   linear: "#E3F6F5",
 };
-
 export const vigoStyles = StyleSheet.create({
   container: {
     flexDirection: "column", // inner items will be added vertically

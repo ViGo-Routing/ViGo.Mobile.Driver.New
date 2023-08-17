@@ -61,7 +61,11 @@ const Navigation = () => {
         component={RegisterScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Schedule" component={SchedulerScreen} />
+      <Stack.Screen
+        name="Schedule"
+        options={{ headerShown: false }}
+        component={SchedulerScreen}
+      />
       <Stack.Screen
         name="Profile"
         component={ProfileSreen}
