@@ -7700,6 +7700,11 @@ react-native-swipe-gestures@^1.0.5:
   resolved "https://registry.npmjs.org/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz"
   integrity sha512-Ns7Bn9H/Tyw278+5SQx9oAblDZ7JixyzeOczcBK8dipQk2pD7Djkcfnf1nB/8RErAmMLL9iXgW0QHqiII8AhKw==
 
+react-native-swipe-up-down@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/react-native-swipe-up-down/-/react-native-swipe-up-down-1.2.0.tgz"
+  integrity sha512-pZa/EF3f85A/29thoLuVHHCNJO3GLN+zvuveW34qUgfJIvvx1Fh5dKMZlD2cHbOhhEvZaWds6MdrMQsoaTBRvw==
+
 react-native-vector-icons@*:
   version "10.0.0"
   resolved "https://registry.npmjs.org/react-native-vector-icons/-/react-native-vector-icons-10.0.0.tgz"
@@ -7716,7 +7721,7 @@ react-native-webview@^13.3.0, react-native-webview@>=10.0.0:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>= 0.62", "react-native@>= 0.64.3", react-native@>=0.50.0, react-native@>=0.57, react-native@>=0.60.0, react-native@>=0.65.0, react-native@0.72.3:
+react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>= 0.62", "react-native@>= 0.64.3", react-native@>=0.41.2, react-native@>=0.50.0, react-native@>=0.57, react-native@>=0.60.0, react-native@>=0.65.0, react-native@0.72.3:
   version "0.72.3"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.72.3.tgz"
   integrity sha512-QqISi+JVmCssNP2FlQ4MWhlc4O/I00MRE1/GClvyZ8h/6kdsyk/sOirkYdZqX3+DrJfI3q+OnyMnsyaXIQ/5tQ==

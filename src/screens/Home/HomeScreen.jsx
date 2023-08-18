@@ -247,7 +247,10 @@ const HomeScreen = () => {
     //   </TouchableOpacity>
     // );
     return (
-      <BookingDetailCard element={item} handleBookingDetailClick={() => {}} />
+      <BookingDetailCard
+        element={item}
+        handleBookingDetailClick={handelSendData}
+      />
     );
   };
 
