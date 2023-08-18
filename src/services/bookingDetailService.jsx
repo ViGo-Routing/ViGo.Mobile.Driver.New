@@ -38,22 +38,22 @@ export const pickBookingDetailById = async (bookingDetailId) => {
 };
 
 export const getBookingDetailByDriverId = async (driverId) => {
-  try {
-    const response = await apiManager.get(
-      `/api/BookingDetail/Driver/${driverId}`
-    );
-    return response;
-  } catch (error) {
-    if (error.response && error.response.data) {
-      // Assuming the error response has a 'data' property containing error details
-      const errorDetails = error.response.data;
-      Alert.alert(errorDetails);
-      return null;
-    } else {
-      console.log("Error response structure not recognized.");
-      return null;
-    }
-  }
+  // try {
+  const response = await apiManager.get(
+    `/api/BookingDetail/Driver/${driverId}`
+  );
+  return response;
+  // } catch (error) {
+  //   if (error.response && error.response.data) {
+  //     // Assuming the error response has a 'data' property containing error details
+  //     const errorDetails = error.response.data;
+  //     Alert.alert(errorDetails);
+  //     return null;
+  //   } else {
+  //     console.log("Error response structure not recognized.");
+  //     return null;
+  //   }
+  // }
 };
 export const updateStatusBookingDetail = async (bookingId, requestData) => {
   console.log(requestData);

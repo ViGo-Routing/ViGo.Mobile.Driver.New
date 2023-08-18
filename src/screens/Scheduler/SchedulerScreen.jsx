@@ -12,7 +12,7 @@ import { themeColors, vigoStyles } from "../../../assets/theme";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../../components/Header/Header";
 import InfoAlert from "../../components/Alert/InfoAlert";
-import { Box, ScrollView, Text } from "native-base";
+import { Box, HStack, ScrollView, Text } from "native-base";
 import moment from "moment";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
@@ -116,8 +116,9 @@ const SchedulerScreen = () => {
           item: item,
         };
         agendaItems[dateString].push(itemData);
-        setItems(agendaItems);
       });
+
+      setItems(agendaItems);
 
       // console.log(agendaItems);
       // console.log(items);
@@ -132,6 +133,7 @@ const SchedulerScreen = () => {
       // setMarkedDates(itemMarkedDates);
       // console.log(itemMarkedDates);
     } catch (error) {
+      console.log(error);
       setErrorMessage(getErrorMessage(error));
       setIsError(true);
     } finally {
@@ -214,31 +216,37 @@ const SchedulerScreen = () => {
   };
 
   return (
-    <SafeAreaView style={vigoStyles.container}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View>
         <Header title="Lịch trình của tôi" />
       </View>
-      <ViGoSpinner isLoading={isLoading} />
-      <View style={{ flex: 1 }}>
-        <ErrorAlert isError={isError} errorMessage={errorMessage}>
-          <Agenda
-            items={items}
-            // selected={new moment().format("YYYY-MM-DD")}
-            renderItem={(item) => renderItem(item)}
-            renderEmptyDate={() => renderEmptyDate()}
-            renderEmptyData={() => renderEmptyDate()}
-            theme={theme} // Apply the custom theme
-            showOnlySelectedDayItems
-            onRefresh={() => {
-              // console.log("Reloading Agenda...");
-              fetchData();
-            }}
-            refreshing={isLoading}
-            // markedDates={markedDates}
-            // refreshControl={<ViGoSpinner isLoading={isLoading} />}
-          />
-        </ErrorAlert>
-      </View>
+
+      {/* <Text>Phong</Text> */}
+      {/* <ViGoSpinner isLoading={isLoading} /> */}
+      <ErrorAlert isError={isError} errorMessage={errorMessage}>
+        <Agenda
+          items={items}
+          // selected={new moment().format("YYYY-MM-DD")}
+          renderItem={(item) => renderItem(item)}
+          // renderEmptyDate={() => renderEmptyDate()}
+          renderEmptyData={() => renderEmptyDate()}
+          theme={theme} // Apply the custom theme
+          showOnlySelectedDayItems
+          onRefresh={() => {
+            // console.log("Reloading Agenda...");
+            fetchData();
+          }}
+          refreshing={isLoading}
+          // markedDates={markedDates}
+          // refreshControl={<ViGoSpinner isLoading={isLoading} />}
+        />
+      </ErrorAlert>
+      {/* <Agenda
+          items={items}
+          renderItem={(item) => renderItem(item)}
+          renderEmptyDate={() => renderEmptyDate()}
+          theme={theme} // Apply the custom theme
+        /> */}
     </SafeAreaView>
   );
 };

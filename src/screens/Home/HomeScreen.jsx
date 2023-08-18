@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
+  SafeAreaView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -31,6 +32,7 @@ import ErrorAlert from "../../components/Alert/ErrorAlert";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
 import { vndFormat } from "../../utils/numberUtils";
 import InfoAlert from "../../components/Alert/InfoAlert";
+import BookingDetailCard from "../../components/Card/BookingDetailCard";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -128,168 +130,171 @@ const HomeScreen = () => {
   // }, []);
 
   const renderListItem = (item, index) => {
+    // return (
+    //   <TouchableOpacity
+    //     style={[styles.card, styles.shadowProp]}
+    //     onPress={() => handelSendData(item)}
+    //   >
+    //     <View style={{ flexDirection: "row", alignItems: "center" }}>
+    //       <VStack>
+    //         <Center>
+    //           <Image
+    //             p="1"
+    //             size={"xs"}
+    //             resizeMode="cover"
+    //             source={require("../../../assets/icons/vigobike.png")}
+    //             alt="Loại phương tiện"
+    //           />
+    //         </Center>
+    //         <View style={{ width: "100%", paddingRight: 15 }}>
+    //           <View
+    //             style={{
+    //               fontWeight: "bold",
+    //               fontSize: 15,
+    //             }}
+    //           >
+    //             <Text style={{ fontWeight: "bold" }}>Giờ đón</Text>
+    //             <Text>
+    //               {toVnTimeString(item.customerRouteRoutine.pickupTime)}
+    //             </Text>
+    //           </View>
+    //         </View>
+    //       </VStack>
+
+    //       <View
+    //         style={{
+    //           width: "80%",
+    //           borderLeftWidth: 1,
+    //           borderRightColor: "#000",
+    //           paddingLeft: 5,
+    //         }}
+    //       >
+    //         <View style={{ flexDirection: "row", alignItems: "center" }}>
+    //           <Text style={styles.cardHeader}>
+    //             {toVnDateString(item.customerRouteRoutine.routineDate)}
+    //           </Text>
+    //         </View>
+
+    //         <View
+    //           style={{
+    //             flexDirection: "row",
+    //             alignItems: "center",
+    //             paddingRight: 20,
+    //           }}
+    //         >
+    //           <View
+    //             style={{
+    //               flexDirection: "column",
+    //               alignItems: "flex-start",
+    //               marginVertical: 10,
+    //               marginLeft: 10,
+    //             }}
+    //           >
+    //             <View
+    //               style={{
+    //                 flexDirection: "row",
+    //                 alignItems: "center",
+    //                 width: 147,
+    //               }}
+    //             >
+    //               <Text
+    //                 style={{
+    //                   fontWeight: "bold",
+    //                   color: "grey",
+    //                   paddingLeft: 10,
+    //                 }}
+    //               >
+    //                 Điểm đón:{" "}
+    //               </Text>
+    //               <Text numberOfLines={1} ellipsizeMode="tail">
+    //                 {item.startStation.name}
+    //               </Text>
+    //             </View>
+    //             <View
+    //               style={{
+    //                 flexDirection: "row",
+    //                 alignItems: "center",
+    //                 width: 147,
+    //               }}
+    //             >
+    //               <Text
+    //                 style={{
+    //                   fontWeight: "bold",
+    //                   color: "grey",
+    //                   paddingLeft: 10,
+    //                 }}
+    //               >
+    //                 Điểm đến:{" "}
+    //               </Text>
+    //               <Text numberOfLines={1} ellipsizeMode="tail">
+    //                 {item.endStation.name}
+    //               </Text>
+    //             </View>
+    //           </View>
+    //         </View>
+    //         <View
+    //           style={{
+    //             flexDirection: "column",
+    //             alignItems: "flex-end",
+    //           }}
+    //         >
+    //           <Text paddingTop={5} style={styles.priceCart}>
+    //             {vndFormat(item.price)}
+    //           </Text>
+    //         </View>
+    //       </View>
+    //     </View>
+    //   </TouchableOpacity>
+    // );
     return (
-      <TouchableOpacity
-        style={[styles.card, styles.shadowProp]}
-        onPress={() => handelSendData(item)}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <VStack>
-            <Center>
-              <Image
-                p="1"
-                size={"xs"}
-                resizeMode="cover"
-                source={require("../../../assets/icons/vigobike.png")}
-                alt="Loại phương tiện"
-              />
-            </Center>
-            <View style={{ width: "100%", paddingRight: 15 }}>
-              <View
-                style={{
-                  fontWeight: "bold",
-                  fontSize: 15,
-                }}
-              >
-                <Text style={{ fontWeight: "bold" }}>Giờ đón</Text>
-                <Text>
-                  {toVnTimeString(item.customerRouteRoutine.pickupTime)}
-                </Text>
-              </View>
-            </View>
-          </VStack>
-
-          <View
-            style={{
-              width: "80%",
-              borderLeftWidth: 1,
-              borderRightColor: "#000",
-              paddingLeft: 5,
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={styles.cardHeader}>
-                {toVnDateString(item.customerRouteRoutine.routineDate)}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingRight: 20,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  marginVertical: 10,
-                  marginLeft: 10,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: 147,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "bold",
-                      color: "grey",
-                      paddingLeft: 10,
-                    }}
-                  >
-                    Điểm đón:{" "}
-                  </Text>
-                  <Text numberOfLines={1} ellipsizeMode="tail">
-                    {item.startStation.name}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: 147,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "bold",
-                      color: "grey",
-                      paddingLeft: 10,
-                    }}
-                  >
-                    Điểm đến:{" "}
-                  </Text>
-                  <Text numberOfLines={1} ellipsizeMode="tail">
-                    {item.endStation.name}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "flex-end",
-              }}
-            >
-              <Text paddingTop={5} style={styles.priceCart}>
-                {vndFormat(item.price)}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
+      <BookingDetailCard element={item} handleBookingDetailClick={() => {}} />
     );
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={vigoStyles.container}>
       {/* <ViGoSpinner isLoading={isLoading} /> */}
       {/* <View style={styles.header}><Header title="Thông tin tài khoản" /></View> */}
-      <View style={styles.body}>
-        <View style={styles.header}>
-          <WelcomeDriverHeader
-            title={`Chào mừng ${user && user.name ? user.name : ""}`}
-            // subtitle="..."
-            onBack={() => navigation.goBack()}
-          />
-        </View>
-        <Heading fontSize="2xl" marginTop="5" marginLeft="4">
+      <WelcomeDriverHeader
+        title={`Chào mừng ${user && user.name ? user.name : ""}`}
+        // subtitle="..."
+        onBack={() => navigation.goBack()}
+      />
+      <View style={vigoStyles.body}>
+        <Heading fontSize="2xl" marginTop="0" marginLeft="0">
           Các chuyến đi còn trống
         </Heading>
-        <ErrorAlert isError={isError} errorMessage={errorMessage}>
-          <Box marginTop="4">
-            <FlatList
-              style={vigoStyles.list}
-              px="3"
-              data={bookingDetailAvailable}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item, index }) => {
-                return <>{renderListItem(item, index)}</>;
-              }}
-              ListEmptyComponent={
-                <InfoAlert message="Không có chuyến đi nào trống" />
-              }
-              refreshing={isLoading}
-              onRefresh={() => fetchRouteData()}
-              onEndReached={loadMoreData}
-              onScroll={() => {
-                setOnScroll(true);
-              }}
-              onEndReachedThreshold={0.5}
-            />
-          </Box>
-        </ErrorAlert>
+        {/* <ErrorAlert isError={isError} errorMessage={errorMessage}>
+          <Box marginTop="4"> */}
+        <FlatList
+          // style={vigoStyles.list}
+          marginTop="3"
+          paddingBottom="5"
+          // px="3"
+          data={bookingDetailAvailable}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => {
+            return <>{renderListItem(item, index)}</>;
+          }}
+          ListEmptyComponent={
+            <InfoAlert message="Không có chuyến đi nào trống" />
+          }
+          refreshing={isLoading}
+          onRefresh={() => fetchRouteData()}
+          onEndReached={loadMoreData}
+          onScroll={() => {
+            setOnScroll(true);
+          }}
+          onEndReachedThreshold={0.5}
+        />
       </View>
+      {/* </Box>
+        </ErrorAlert> */}
 
-      <View style={styles.footer}>
+      <View>
         <BottomNavigationBar />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
