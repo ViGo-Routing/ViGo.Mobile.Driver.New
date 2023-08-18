@@ -19,6 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import Divider from "../../components/Divider/Divider";
 import { BellAlertIcon, BellIcon } from "react-native-heroicons/solid";
 import { toVnDateTimeString } from "../../utils/datetimeUtils";
+import InfoAlert from "../../components/Alert/InfoAlert";
 
 const MyNotifcationScreen = () => {
   const [notifications, setNotifications] = useState([]);
@@ -166,12 +167,16 @@ const MyNotifcationScreen = () => {
               return <>{renderNotificationListItem(item)}</>;
             }}
             ItemSeparatorComponent={<Divider style={vigoStyles.listDivider} />}
-            ListEmptyComponent={<Text>Chưa có thông báo nào!</Text>}
+            ListEmptyComponent={<InfoAlert message="Chưa có thông báo" />}
             refreshing={loading}
             onRefresh={() => getMyNotifications(user.id)}
             onEndReached={loadMoreNotifications}
             onScroll={() => setOnScroll(true)}
             onEndReachedThreshold={0.5}
+            contentContainerStyle={{
+              // paddingHorizontal: 20,
+              paddingBottom: 20,
+            }}
           ></FlatList>
         )}
       </View>

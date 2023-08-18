@@ -7,11 +7,19 @@ import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { Box, HStack, Text, VStack } from "native-base";
 import { TouchableOpacity } from "react-native";
 
-const Header = ({ title, isBackButtonShown = true }) => {
+const Header = ({
+  title,
+  isBackButtonShown = true,
+  onBackButtonPress = undefined,
+}) => {
   const navigation = useNavigation();
   const onBackPress = () => {
     navigation.goBack();
   };
+
+  if (onBackButtonPress === undefined) {
+    onBackButtonPress = onBackPress;
+  }
   return (
     // <View style={styles.container}>
     //   {isBackButtonShown && (
@@ -31,7 +39,10 @@ const Header = ({ title, isBackButtonShown = true }) => {
     >
       <HStack alignItems={"center"} paddingLeft={3}>
         {isBackButtonShown && (
-          <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={onBackButtonPress}
+          >
             <ArrowLeftIcon size={25} color="white" />
           </TouchableOpacity>
         )}

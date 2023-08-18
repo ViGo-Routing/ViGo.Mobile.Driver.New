@@ -272,7 +272,7 @@ const HomeScreen = () => {
         <FlatList
           // style={vigoStyles.list}
           marginTop="3"
-          paddingBottom="5"
+          // paddingBottom="5"
           // px="3"
           data={bookingDetailAvailable}
           keyExtractor={(item) => item.id}
@@ -289,6 +289,10 @@ const HomeScreen = () => {
             setOnScroll(true);
           }}
           onEndReachedThreshold={0.5}
+          contentContainerStyle={{
+            // paddingHorizontal: 20,
+            paddingVertical: 20,
+          }}
         />
       </View>
       {/* </Box>
