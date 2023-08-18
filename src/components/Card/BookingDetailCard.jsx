@@ -81,13 +81,13 @@ const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
                 <Text w={20} color="gray.500" bold fontSize={15}>
                   Bắt đầu:
                 </Text>
-                <Text>{element.endStation.name}</Text>
+                <Text>{element.startStation.name}</Text>
               </HStack>
               <HStack>
                 <Text w={20} color="gray.500" bold fontSize={15}>
                   Kết thúc:
                 </Text>
-                <Text>{element.startStation.name}</Text>
+                <Text>{element.endStation.name}</Text>
               </HStack>
             </VStack>
 
