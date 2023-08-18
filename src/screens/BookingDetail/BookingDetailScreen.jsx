@@ -39,28 +39,58 @@ import {
   PaperAirplaneIcon,
 } from "react-native-heroicons/solid";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils.js";
+import BookingDetailPanel, {
+  BookingDetailSmallPanel,
+} from "./BookingDetailPanel";
+import SwipeUpDown from "react-native-swipe-up-down";
+import { SwipeablePanel } from "../../components/SwipeablePanel/Panel";
+import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
+import ErrorAlert from "../../components/Alert/ErrorAlert";
+import { getBookingDetailCustomer } from "../../services/userService";
+import { getErrorMessage } from "../../utils/alertUtils";
+import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+// import { SwipeablePanel } from "react-native-swipe-up-panel";
 
 const BookingDetailScreen = () => {
-  const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
-
-  // Move this block below the 'isBottomSheetVisible' state declaration
-  const translateY = new Animated.Value(300);
-
-  React.useEffect(() => {
-    Animated.spring(translateY, {
-      toValue: isBottomSheetVisible ? 0 : 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isBottomSheetVisible]);
-  const toggleBottomSheet = () => {
-    setBottomSheetVisible(!isBottomSheetVisible);
-  };
-
   const navigation = useNavigation();
   const route = useRoute();
   const { item } = route.params;
   const { user } = route.params;
-  console.log(item);
+
+  const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
+  const { isError, setIsError, errorMessage, setErrorMessage } =
+    useErrorHandlingHook();
+  const [isLoading, setIsLoading] = useState(false);
+  // Move this block below the 'isBottomSheetVisible' state declaration
+  const translateY = new Animated.Value(400);
+
+  const [customer, setCustomer] = useState({});
+
+  const getCustomer = async () => {
+    setIsLoading(true);
+    try {
+      const customerResponse = await getBookingDetailCustomer(item.id);
+      setCustomer(customerResponse);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error));
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCustomer();
+
+    Animated.spring(translateY, {
+      toValue: isBottomSheetVisible ? 0 : 400,
+      useNativeDriver: true,
+    }).start();
+  }, [isBottomSheetVisible]);
+
+  const toggleBottomSheet = () => {
+    setBottomSheetVisible(!isBottomSheetVisible);
+  };
 
   const pickupPosition =
     item?.startStation?.latitude && item?.startStation?.longitude
@@ -93,27 +123,6 @@ const BookingDetailScreen = () => {
   const handleCustomerDetail = async () => {
     navigation.navigate("CustomerDetail");
   };
-  const handlePickBooking = async () => {
-    const bookingId = item.bookingId;
-    try {
-      const requestData = {
-        bookingId: item.bookingId,
-        driverId: user.id,
-      };
-      const response = await pickBookingDetailById(item.id);
-      if (response && response.data) {
-        Alert.alert("Xác nhận chuyến đi", `Bạn vừa nhận chuyến thành công!`, [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate("Schedule"),
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error("Driver Picking failed:", error);
-      Alert.alert("Driver Picking", "Error: Picking failed!");
-    }
-  };
 
   // console.log("pickupPosition:", pickupPosition);
   // console.log("destinationPosition:", destinationPosition);
@@ -128,229 +137,85 @@ const BookingDetailScreen = () => {
             destinationPosition={routeData.endStation}
           />
         )} */}
-        <Map
-          pickupPosition={pickupPosition}
-          destinationPosition={destinationPosition}
-          sendRouteId={(routeId) => console.log("Received Route ID:", routeId)}
-        />
-        {!isBottomSheetVisible && (
-          <Box
-            position="absolute"
-            bottom={5}
-            alignSelf="center"
-            alignItems="center"
-            bgColor={themeColors.primary}
-          >
-            <Button
-              backgroundColor={themeColors.primary}
-              onPress={toggleBottomSheet}
+        <ViGoSpinner isLoading={isLoading} />
+        <ErrorAlert isError={isError} errorMessage={errorMessage}>
+          <Map
+            pickupPosition={pickupPosition}
+            destinationPosition={destinationPosition}
+            sendRouteId={(routeId) =>
+              console.log("Received Route ID:", routeId)
+            }
+          />
+          {!isBottomSheetVisible && (
+            <Box
+              position="absolute"
+              bottom={5}
+              alignSelf="center"
+              alignItems="center"
+              bgColor={themeColors.primary}
             >
-              Chi tiết
-            </Button>
-          </Box>
-        )}
-
-        {isBottomSheetVisible && (
-          <Animated.View
-            position="absolute"
-            bottom="60%"
-            width="100%"
-            style={[styles.container, { transform: [{ translateY }] }]}
-          >
-            <View
-              style={{
-                position: "absolute",
-                alignSelf: "center",
-                top: "0%",
-                width: "90%",
-              }}
+              <Button
+                backgroundColor={themeColors.primary}
+                onPress={toggleBottomSheet}
+              >
+                Chi tiết
+              </Button>
+            </Box>
+          )}
+          {/* <BookingDetailPanel
+            item={item}
+            navigation={navigation}
+            toggleBottomSheet={toggleBottomSheet}
+          /> */}
+          {/* <SwipeUpDown
+            itemMini={(show) => (
+              <BookingDetailPanel
+                item={item}
+                navigation={navigation}
+                toggleBottomSheet={toggleBottomSheet}
+              />
+            )}
+            itemFull={(hide) => (
+              <BookingDetailPanel
+                item={item}
+                navigation={navigation}
+                toggleBottomSheet={toggleBottomSheet}
+              />
+            )}
+            animation="easeInEaseOut"
+            style={{ backgroundColor: "white" }}
+            iconColor={themeColors.primary}
+            iconSize={30}
+          /> */}
+          {isBottomSheetVisible && (
+            <SwipeablePanel
+              isActive={true}
+              fullWidth={true}
+              noBackgroundOpacity
+              // showCloseButton
+              allowTouchOutside
+              smallPanelItem={
+                <Box px="6">
+                  <BookingDetailSmallPanel
+                    item={item}
+                    navigation={navigation}
+                  />
+                </Box>
+              }
+              smallPanelHeight={360}
+              largePanelHeight={510}
             >
-              <View style={[styles.card, styles.shadowProp]}>
-                <Center>
-                  <TouchableOpacity
-                    onPress={toggleBottomSheet}
-                    style={styles.closeButton}
-                  >
-                    <MinusIcon size={20} color="#00A1A1" />
-                  </TouchableOpacity>
-                </Center>
-                <HStack alignItems="center" justifyContent="center">
-                  <Box style={[styles.cardInsideDateTime, styles.shadowProp]}>
-                    <HStack alignItems="center">
-                      <VStack alignItems="center" justifyContent="center">
-                        <CalendarDaysIcon size={25} color="#00A1A1" />
-                      </VStack>
-                      <VStack paddingLeft="3">
-                        <Text style={styles.title}>Ngày đón</Text>
-                        <Text
-                          style={{
-                            // paddingLeft: 5,
-                            paddingBottom: 1,
-                            fontSize: 15,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {toVnDateString(
-                            item.customerRouteRoutine.routineDate
-                          )}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                  <Box style={[styles.cardInsideDateTime, styles.shadowProp]}>
-                    <HStack alignItems="center">
-                      <VStack alignItems="center" justifyContent="center">
-                        {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-                        <ClockIcon size={25} color="#00A1A1" />
-                      </VStack>
-
-                      <VStack paddingLeft="3">
-                        <Text style={styles.title}>Giờ đón</Text>
-
-                        <Text
-                          style={{
-                            // paddingLeft: 5,
-                            paddingBottom: 5,
-                            fontSize: 15,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {toVnTimeString(item.customerRouteRoutine.pickupTime)}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                </HStack>
-                <HStack alignItems="center">
-                  <Box style={[styles.cardInsideLocation, styles.shadowProp]}>
-                    <HStack alignItems="center">
-                      <VStack alignItems="center">
-                        <MapPinIcon size={25} color="#00A1A1" />
-                      </VStack>
-
-                      <VStack paddingLeft="3">
-                        <Text style={styles.title}>Điểm đón</Text>
-
-                        <Text
-                          style={{
-                            // paddingLeft: 5,
-                            paddingBottom: 5,
-                            fontSize: 15,
-                          }}
-                          paddingRight="0.5"
-                          isTruncated
-                        >
-                          {`${item.startStation.name}, ${item.startStation.address}`}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                </HStack>
-                <HStack alignItems="center">
-                  <Box style={[styles.cardInsideLocation, styles.shadowProp]}>
-                    <HStack alignItems="center">
-                      <VStack alignItems="center">
-                        <MapPinIcon size={25} color="#00A1A1" />
-                      </VStack>
-
-                      <VStack paddingLeft="3">
-                        <Text style={styles.title}>Điểm đến</Text>
-                        <Text
-                          style={{
-                            // paddingLeft: 5,
-                            paddingBottom: 5,
-                            fontSize: 15,
-                          }}
-                          paddingRight="0.5"
-                          isTruncated
-                        >
-                          {`${item.endStation.name}, ${item.endStation.address}`}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                </HStack>
-                <HStack>
-                  <View
-                    style={[
-                      styles.cardInsideLocation,
-                      {
-                        backgroundColor: themeColors.primary,
-                        height: 40,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      },
-                      vigoStyles.buttonWhite,
-                    ]}
-                  >
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                      <HStack alignItems="center">
-                        <ArrowLeftIcon size={20} color={themeColors.primary} />
-                        <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
-                          Quay lại
-                        </Text>
-                      </HStack>
-                    </TouchableOpacity>
-                  </View>
-                  <View
-                    style={[
-                      styles.cardInsideLocation,
-                      {
-                        backgroundColor: themeColors.primary,
-                        height: 40,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      },
-                    ]}
-                  >
-                    <TouchableOpacity
-                      style={styles.assignButton}
-                      onPress={() => navigation.navigate("CustomerDetail")}
-                    >
-                      <HStack alignItems="center">
-                        <ListBulletIcon size={20} color={"white"} />
-                        <Text
-                          marginLeft={2}
-                          style={{ color: "white", fontWeight: "bold" }}
-                        >
-                          Chi tiết
-                        </Text>
-                      </HStack>
-                    </TouchableOpacity>
-                  </View>
-                </HStack>
-                <HStack>
-                  <View
-                    style={[
-                      styles.cardInsideLocation,
-                      {
-                        backgroundColor: themeColors.primary,
-                        height: 40,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      },
-                    ]}
-                  >
-                    <TouchableOpacity
-                      style={styles.assignButton}
-                      onPress={handlePickBooking}
-                    >
-                      <HStack alignItems="center">
-                        <PaperAirplaneIcon size={20} color={"white"} />
-                        <Text
-                          marginLeft={2}
-                          style={{ color: "white", fontWeight: "bold" }}
-                        >
-                          Nhận chuyến
-                        </Text>
-                      </HStack>
-                    </TouchableOpacity>
-                  </View>
-                </HStack>
-              </View>
-            </View>
-          </Animated.View>
-        )}
+              <Box px="6">
+                <BookingDetailPanel
+                  customer={customer}
+                  item={item}
+                  navigation={navigation}
+                  toggleBottomSheet={toggleBottomSheet}
+                />
+              </Box>
+            </SwipeablePanel>
+          )}
+        </ErrorAlert>
       </View>
 
       <View style={styles.footer}>{/* <BottomNavigationBar /> */}</View>

@@ -53,3 +53,10 @@ export const updateUserFcmToken = async (userId, fcmToken) => {
     }
   }
 };
+
+export const getBookingDetailCustomer = async (bookingDetailId) => {
+  const response = await apiManager.get(
+    `api/User/BookingDetail/${bookingDetailId}`
+  );
+  return response.data;
+};
