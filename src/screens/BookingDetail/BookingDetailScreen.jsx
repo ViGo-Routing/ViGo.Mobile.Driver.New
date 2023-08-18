@@ -1,48 +1,17 @@
 import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert,
-  Animated,
-} from "react-native";
+import { StyleSheet, View, Animated } from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
 
 // import { Ionicons } from "@expo/vector-icons";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
-import Header from "../../components/Header/Header.jsx";
-import { themeColors, vigoStyles } from "../../../assets/theme/index.jsx";
-import Map from "../../components/Map/Map.jsx";
-import { getRouteById } from "../../services/routeService.jsx";
-import { pickBookingDetailById } from "../../services/bookingDetailService.jsx";
-import {
-  CalendarDaysIcon,
-  ClockIcon,
-  MapPinIcon,
-} from "react-native-heroicons/outline";
-import { CustomBottomSheet } from "../../components/BottomSheet/BottomSheet.jsx";
-import {
-  Box,
-  Button,
-  Center,
-  HStack,
-  Pressable,
-  VStack,
-  Text,
-} from "native-base";
-import {
-  ArrowLeftIcon,
-  ListBulletIcon,
-  MinusIcon,
-  PaperAirplaneIcon,
-} from "react-native-heroicons/solid";
-import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils.js";
+import { themeColors, vigoStyles } from "../../../assets/theme/index";
+import Map from "../../components/Map/Map";
+import { Box, Button } from "native-base";
 import BookingDetailPanel, {
   BookingDetailSmallPanel,
 } from "./BookingDetailPanel";
-import SwipeUpDown from "react-native-swipe-up-down";
 import { SwipeablePanel } from "../../components/SwipeablePanel/Panel";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
 import ErrorAlert from "../../components/Alert/ErrorAlert";
