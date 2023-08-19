@@ -5,7 +5,7 @@ import Geolocation from "react-native-geolocation-service";
 import MapViewDirections from "react-native-maps-directions";
 import { createRoute } from "../../services/routeService";
 import { useNavigation } from "@react-navigation/native";
-import { Text } from "native-base";
+import { Image, Text } from "native-base";
 
 const Map = ({
   pickupPosition,
@@ -109,8 +109,16 @@ const Map = ({
               latitude: pickupPosition.geometry.location.lat,
               longitude: pickupPosition.geometry.location.lng,
             }}
-            icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-          />
+            // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+          >
+            <Image
+              size={"xs"}
+              resizeMode="contain"
+              alignSeft="center"
+              source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+              alt={"Điểm đi"}
+            />
+          </Marker>
         )}
         {destinationPosition && (
           <Marker
@@ -118,8 +126,16 @@ const Map = ({
               latitude: destinationPosition.geometry.location.lat,
               longitude: destinationPosition.geometry.location.lng,
             }}
-            image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-          />
+            // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+          >
+            <Image
+              size={"xs"}
+              resizeMode="contain"
+              alignSeft="center"
+              source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+              alt={"Điểm đến"}
+            />
+          </Marker>
         )}
         {pickupPosition && destinationPosition && (
           <MapViewDirections

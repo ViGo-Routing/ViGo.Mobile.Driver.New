@@ -22,33 +22,51 @@ import {
 import { pickBookingDetailById } from "../../services/bookingDetailService";
 import { toPercent, vndFormat } from "../../utils/numberUtils";
 import { UserContext } from "../../context/UserContext";
+import ConfirmAlert from "../../components/Alert/ConfirmAlert";
 
-const handlePickBooking = async (item, navigation, user) => {
-  const bookingId = item.bookingId;
-  // const { user } = useContext(UserContext);
+const PickBookingDetailConfirmAlert = ({
+  item,
+  pickingFee,
+  handleOkPress,
+  confirmOpen,
+  setConfirmOpen,
+  // key,
+}) => {
+  const description = () => {
+    return (
+      <VStack>
+        <Text>
+          Với việc nhận chuyến xe, bạn sẽ phải trả trước một khoản phí nhận
+          chuyến.
+        </Text>
+        <Text>
+          Sau khi hoàn thành chuyến đi, bạn sẽ được trả toàn bộ số tiền của
+          chuyến đi.
+        </Text>
+        <Text marginTop="2">
+          Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text>
+        </Text>
+      </VStack>
+    );
+  };
 
-  try {
-    const requestData = {
-      bookingId: item.bookingId,
-      driverId: user.id,
-    };
-    const response = await pickBookingDetailById(item.id);
-    if (response && response.data) {
-      Alert.alert("Xác nhận chuyến đi", `Bạn vừa nhận chuyến thành công!`, [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Schedule"),
-        },
-      ]);
-    }
-  } catch (error) {
-    console.error("Driver Picking failed:", error);
-    Alert.alert("Driver Picking", "Error: Picking failed!");
-  }
+  return (
+    <ConfirmAlert
+      title="Nhận chuyến xe"
+      description={description()}
+      okButtonText="Xác nhận"
+      cancelButtonText="Hủy"
+      onOkPress={() => handleOkPress()}
+      isOpen={confirmOpen}
+      setIsOpen={setConfirmOpen}
+      key={`confirm-booking-detail-alert`}
+    />
+  );
 };
 
 const BookingDetailPanel = ({
   item,
+  handlePickBooking,
   customer,
   navigation,
   // toggleBottomSheet,
@@ -258,7 +276,7 @@ const BookingDetailPanel = ({
                 paddingRight="0.5"
                 isTruncated
               >
-                {`${duration.toFixed(2)} phút`}
+                {`${Math.ceil(duration)} phút`}
               </Text>
             </VStack>
           </HStack>
@@ -341,7 +359,7 @@ const BookingDetailPanel = ({
         >
           <TouchableOpacity
             style={styles.assignButton}
-            onPress={() => handlePickBooking(item, navigation, user)}
+            onPress={() => handlePickBooking()}
           >
             <HStack alignItems="center">
               <PaperAirplaneIcon size={20} color={"white"} />
@@ -359,9 +377,9 @@ const BookingDetailPanel = ({
   );
 };
 
-const BookingDetailSmallPanel = ({ item, navigation }) => {
+const BookingDetailSmallPanel = ({ item, handlePickBooking, navigation }) => {
   const { user } = useContext(UserContext);
-
+  // console.log(item);
   return (
     <Box>
       <HStack alignItems="center" justifyContent="space-between">
@@ -498,7 +516,7 @@ const BookingDetailSmallPanel = ({ item, navigation }) => {
         >
           <TouchableOpacity
             style={styles.assignButton}
-            onPress={() => handlePickBooking(item, navigation, user)}
+            onPress={() => handlePickBooking()}
           >
             <HStack alignItems="center">
               <PaperAirplaneIcon size={20} color={"white"} />
@@ -599,5 +617,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export { BookingDetailSmallPanel };
+export { BookingDetailSmallPanel, PickBookingDetailConfirmAlert };
 export default BookingDetailPanel;

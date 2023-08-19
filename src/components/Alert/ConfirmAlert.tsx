@@ -1,5 +1,6 @@
 import { AlertDialog, Box, Button } from "native-base";
 import { useRef, ReactNode } from "react";
+import { themeColors } from "../../../assets/theme";
 
 interface ConfirmAlertProps {
   title: ReactNode;
@@ -56,7 +57,7 @@ const ConfirmAlert = ({
                 {cancelButtonText}
               </Button>
               <Button
-                colorScheme={"info"}
+                backgroundColor={themeColors.primary}
                 onPress={() => {
                   setIsOpen(false);
 
