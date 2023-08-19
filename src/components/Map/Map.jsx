@@ -109,7 +109,7 @@ const Map = ({
               latitude: pickupPosition.geometry.location.lat,
               longitude: pickupPosition.geometry.location.lng,
             }}
-            icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+            // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
           />
         )}
         {destinationPosition && (
@@ -118,7 +118,7 @@ const Map = ({
               latitude: destinationPosition.geometry.location.lat,
               longitude: destinationPosition.geometry.location.lng,
             }}
-            image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+            // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
           />
         )}
         {pickupPosition && destinationPosition && (
