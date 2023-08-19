@@ -7,12 +7,18 @@ import {
   CalendarDaysIcon,
   ClockIcon,
   ListBulletIcon,
+  MapIcon,
   MapPinIcon,
   MinusIcon,
   PaperAirplaneIcon,
 } from "react-native-heroicons/solid";
+import { ClockIcon as ClockOutlineIcon } from "react-native-heroicons/outline";
 import { themeColors, vigoStyles } from "../../../assets/theme";
-import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
+import {
+  calculateAge,
+  toVnDateString,
+  toVnTimeString,
+} from "../../utils/datetimeUtils";
 import { pickBookingDetailById } from "../../services/bookingDetailService";
 import { toPercent, vndFormat } from "../../utils/numberUtils";
 import { UserContext } from "../../context/UserContext";
@@ -45,7 +51,9 @@ const BookingDetailPanel = ({
   item,
   customer,
   navigation,
-  toggleBottomSheet,
+  // toggleBottomSheet,
+  duration,
+  distance,
 }) => {
   const { user } = useContext(UserContext);
   const translateY = new Animated.Value(300);
@@ -206,6 +214,57 @@ const BookingDetailPanel = ({
         </Box>
       </HStack>
 
+      <HStack alignItems="center">
+        <Box>
+          <HStack alignItems="center">
+            <VStack alignItems="center">
+              <MapIcon size={25} color="#00A1A1" />
+            </VStack>
+
+            <VStack paddingLeft="3">
+              <Text style={styles.title}>Khoảng cách</Text>
+              <Text
+                style={{
+                  // paddingLeft: 5,
+                  paddingBottom: 5,
+                  fontSize: 15,
+                }}
+                maxWidth="100%"
+                paddingRight="0.5"
+                isTruncated
+              >
+                {`${distance.toFixed(2)} km`}
+              </Text>
+            </VStack>
+          </HStack>
+        </Box>
+      </HStack>
+      <HStack alignItems="center">
+        <Box>
+          <HStack alignItems="center">
+            <VStack alignItems="center">
+              <ClockOutlineIcon size={25} color="#00A1A1" />
+            </VStack>
+
+            <VStack paddingLeft="3">
+              <Text style={styles.title}>Thời gian di chuyển (dự kiến)</Text>
+              <Text
+                style={{
+                  // paddingLeft: 5,
+                  paddingBottom: 5,
+                  fontSize: 15,
+                }}
+                maxWidth="100%"
+                paddingRight="0.5"
+                isTruncated
+              >
+                {`${duration.toFixed(2)} phút`}
+              </Text>
+            </VStack>
+          </HStack>
+        </Box>
+      </HStack>
+
       <HStack marginTop={5}>
         <Image
           source={
@@ -222,15 +281,30 @@ const BookingDetailPanel = ({
           <Text>
             Khách hàng <Text bold>{customer.name}</Text>
           </Text>
-          <Text>{customer.gender == true ? "Nam" : "Nữ"}</Text>
+          <HStack>
+            <Text>
+              {`${customer.gender == true ? "Nam" : "Nữ"}${
+                customer.dateOfBirth
+                  ? ` | ${calculateAge(customer.dateOfBirth)} tuổi`
+                  : ""
+              }`}
+            </Text>
+          </HStack>
           <Text>Tỉ lệ hủy chuyến: {toPercent(customer.canceledTripRate)}</Text>
         </VStack>
       </HStack>
-      <Box p="4" rounded="xl">
+      <HStack justifyContent="flex-end" marginTop="3">
+        <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
+          <Text fontSize="2xl" style={styles.titlePrice}>
+            {vndFormat(item.price)}
+          </Text>
+        </Box>
+      </HStack>
+      {/* <Box p="4" rounded="xl">
         <Text bold fontSize="2xl" textAlign="right" color={themeColors.primary}>
           {vndFormat(item.price)}
         </Text>
-      </Box>
+      </Box> */}
 
       <HStack>
         <View
@@ -516,6 +590,12 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: 10,
     fontSize: 20,
+  },
+  titlePrice: {
+    // fontSize: 15,
+    fontWeight: "bold",
+    color: themeColors.primary,
+    textAlign: "right",
   },
 });
 

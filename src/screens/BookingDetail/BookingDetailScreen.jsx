@@ -35,6 +35,9 @@ const BookingDetailScreen = () => {
 
   const [customer, setCustomer] = useState({});
 
+  const [duration, setDuration] = useState(0);
+  const [distance, setDistance] = useState(0);
+
   const getCustomer = async () => {
     setIsLoading(true);
     try {
@@ -114,6 +117,8 @@ const BookingDetailScreen = () => {
             sendRouteId={(routeId) =>
               console.log("Received Route ID:", routeId)
             }
+            setDistance={setDistance}
+            setDuration={setDuration}
           />
           {!isBottomSheetVisible && (
             <Box
@@ -172,14 +177,16 @@ const BookingDetailScreen = () => {
                 </Box>
               }
               smallPanelHeight={360}
-              largePanelHeight={510}
+              largePanelHeight={640}
             >
               <Box px="6">
                 <BookingDetailPanel
                   customer={customer}
                   item={item}
                   navigation={navigation}
-                  toggleBottomSheet={toggleBottomSheet}
+                  // toggleBottomSheet={toggleBottomSheet}
+                  duration={duration}
+                  distance={distance}
                 />
               </Box>
             </SwipeablePanel>

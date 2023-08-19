@@ -89,16 +89,16 @@ const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
                 </Text>
                 <Text>{element.endStation.name}</Text>
               </HStack>
+              <HStack alignItems="center">
+                <Text w={20} color="black" bold fontSize={15}>
+                  Giờ đón:
+                </Text>
+                <Text w={20} color="black" bold fontSize={15}>
+                  {toVnTimeString(element.customerRouteRoutine.pickupTime)}
+                </Text>
+              </HStack>
             </VStack>
-
-            <HStack pl={5} alignItems="center">
-              <Text w={20} color="black" bold fontSize={15}>
-                Giờ đón:
-              </Text>
-              <Text w={20} color="black" bold fontSize={15}>
-                {toVnTimeString(element.customerRouteRoutine.pickupTime)}
-              </Text>
-
+            <HStack justifyContent="flex-end">
               <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
                 <Text style={styles.titlePrice}>
                   {vndFormat(element.price)}
