@@ -63,13 +63,13 @@ interface SwipeablePanelState {
   currentHeight: number;
 }
 
-const AnimatedBox = Animated.createAnimatedComponent(Box);
-const animationProps = {
-  duration: 500,
-  easing: Easing.out(Easing.linear),
-  isInteraction: false,
-  useNativeDriver: true,
-};
+// const AnimatedBox = Animated.createAnimatedComponent(Box);
+// const animationProps = {
+//   duration: 500,
+//   easing: Easing.out(Easing.linear),
+//   isInteraction: false,
+//   useNativeDriver: true,
+// };
 
 class SwipeablePanel extends React.Component<
   React.PropsWithChildren<SwipeablePanelProps>,

@@ -1,5 +1,7 @@
-import { Alert, Box, Center, Text, VStack } from "native-base";
+import { useNavigation } from "@react-navigation/native";
+import { Alert, Box, Button, Center, Text, VStack } from "native-base";
 import { PropsWithChildren } from "react";
+import { HomeIcon } from "react-native-heroicons/outline";
 
 interface ErrorAlertProps {
   isError: boolean;
@@ -11,6 +13,8 @@ const ErrorAlert = ({
   errorMessage,
   children,
 }: PropsWithChildren<ErrorAlertProps>) => {
+  const navigation = useNavigation();
+
   return (
     <>
       {isError && (
@@ -42,6 +46,16 @@ const ErrorAlert = ({
                 >
                   <Text>{errorMessage}</Text>
                 </Box>
+                <Button
+                  marginTop="2"
+                  size="md"
+                  variant="subtle"
+                  colorScheme="error"
+                  onPress={() => navigation.navigate("Home")}
+                  leftIcon={<HomeIcon size={24} color={"#801E1E"} />}
+                >
+                  Quay về trang chủ
+                </Button>
               </VStack>
             </Alert>
           </Center>

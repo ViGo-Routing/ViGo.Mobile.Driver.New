@@ -7,7 +7,13 @@ import { createRoute } from "../../services/routeService";
 import { useNavigation } from "@react-navigation/native";
 import { Text } from "native-base";
 
-const Map = ({ pickupPosition, destinationPosition, sendRouteId }) => {
+const Map = ({
+  pickupPosition,
+  destinationPosition,
+  sendRouteId,
+  setDistance,
+  setDuration,
+}) => {
   const { latitude, longitude } = pickupPosition?.geometry?.location || {};
   const pickupPositionCoords =
     latitude && longitude ? { latitude, longitude } : null;
@@ -68,6 +74,15 @@ const Map = ({ pickupPosition, destinationPosition, sendRouteId }) => {
         address: destinationPosition.formatted_address,
       },
     };
+
+    console.log(result);
+
+    if (setDistance) {
+      setDistance(result.distance);
+    }
+    if (setDuration) {
+      setDuration(result.duration);
+    }
     // try {
     //   const response = await createRoute(requestData);
     //   console.log("response", response.data.id);
@@ -94,7 +109,7 @@ const Map = ({ pickupPosition, destinationPosition, sendRouteId }) => {
               latitude: pickupPosition.geometry.location.lat,
               longitude: pickupPosition.geometry.location.lng,
             }}
-            // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+            icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
           />
         )}
         {destinationPosition && (
@@ -103,7 +118,7 @@ const Map = ({ pickupPosition, destinationPosition, sendRouteId }) => {
               latitude: destinationPosition.geometry.location.lat,
               longitude: destinationPosition.geometry.location.lng,
             }}
-            // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+            image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
           />
         )}
         {pickupPosition && destinationPosition && (

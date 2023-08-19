@@ -84,7 +84,7 @@ const PickCusScreen = () => {
         (error) => console.error(error),
         { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
       );
-    }, 10000);
+    }, 5000);
 
     return () => {
       clearInterval(locationUpdateInterval);
