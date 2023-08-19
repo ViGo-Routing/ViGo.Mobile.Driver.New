@@ -2,7 +2,7 @@ import moment from "moment";
 import Moment from "moment";
 
 export const toVnDateTimeString = (datetime) => {
-  return Moment(datetime).format("hh:mm - DD-MM-YYYY");
+  return Moment(datetime).format("HH:mm - DD-MM-YYYY");
 };
 
 export const getMaximumDob = () => {
@@ -14,7 +14,7 @@ export const toVnDateString = (datetime) => {
 };
 
 export const toVnTimeString = (datetime) => {
-  return moment(datetime, "HH:mm:ss").format("hh:mm");
+  return moment(datetime, "HH:mm:ss").format("HH:mm");
 };
 
 export const calculateAge = (dateOfBirth) => {
