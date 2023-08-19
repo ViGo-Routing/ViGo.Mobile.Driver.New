@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Box, Center, HStack, Image, Text, VStack } from "native-base";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { Animated, View } from "react-native";
@@ -15,9 +15,12 @@ import { themeColors, vigoStyles } from "../../../assets/theme";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
 import { pickBookingDetailById } from "../../services/bookingDetailService";
 import { toPercent, vndFormat } from "../../utils/numberUtils";
+import { UserContext } from "../../context/UserContext";
 
-const handlePickBooking = async () => {
+const handlePickBooking = async (item, navigation, user) => {
   const bookingId = item.bookingId;
+  // const { user } = useContext(UserContext);
+
   try {
     const requestData = {
       bookingId: item.bookingId,
@@ -44,6 +47,7 @@ const BookingDetailPanel = ({
   navigation,
   toggleBottomSheet,
 }) => {
+  const { user } = useContext(UserContext);
   const translateY = new Animated.Value(300);
   // const [pan, setPat] = useState(new Animated.ValueXY({ x: 0, y: 400 }));
   // const [isOpen, setIsOpen] = useState(false);
@@ -263,7 +267,7 @@ const BookingDetailPanel = ({
         >
           <TouchableOpacity
             style={styles.assignButton}
-            onPress={handlePickBooking}
+            onPress={() => handlePickBooking(item, navigation, user)}
           >
             <HStack alignItems="center">
               <PaperAirplaneIcon size={20} color={"white"} />
@@ -282,6 +286,8 @@ const BookingDetailPanel = ({
 };
 
 const BookingDetailSmallPanel = ({ item, navigation }) => {
+  const { user } = useContext(UserContext);
+
   return (
     <Box>
       <HStack alignItems="center" justifyContent="space-between">
@@ -418,7 +424,7 @@ const BookingDetailSmallPanel = ({ item, navigation }) => {
         >
           <TouchableOpacity
             style={styles.assignButton}
-            onPress={handlePickBooking}
+            onPress={() => handlePickBooking(item, navigation, user)}
           >
             <HStack alignItems="center">
               <PaperAirplaneIcon size={20} color={"white"} />
