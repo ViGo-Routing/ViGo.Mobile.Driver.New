@@ -68,3 +68,15 @@ export const updateStatusBookingDetail = async (bookingId, requestData) => {
     return null;
   }
 };
+
+export const getBookingDetail = async (bookingDetailId) => {
+  const response = await apiManager.get(`api/BookingDetail/${bookingDetailId}`);
+  return response.data;
+};
+
+export const getBookingDetailPickFee = async (bookingDetailId) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/DriverFee/${bookingDetailId}`
+  );
+  return response.data;
+};
