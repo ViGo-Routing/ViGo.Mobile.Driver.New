@@ -6,17 +6,20 @@ import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 // import { Ionicons } from "@expo/vector-icons";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
-import Header from "../../components/Header/Header.jsx";
-import { themeColors } from "../../../assets/theme/index.jsx";
-import Map from "../../components/Map/Map.jsx";
-import { getRouteById } from "../../services/routeService.jsx";
-import { pickBookingDetailById, updateStatusBookingDetail } from "../../services/bookingDetailService.jsx";
+import Header from "../../components/Header/Header";
+import { themeColors } from "../../../assets/theme/index";
+import Map from "../../components/Map/Map";
+import { getRouteById } from "../../services/routeService";
+import {
+  pickBookingDetailById,
+  updateStatusBookingDetail,
+} from "../../services/bookingDetailService";
 import {
   CalendarDaysIcon,
   ClockIcon,
   MapPinIcon,
 } from "react-native-heroicons/outline";
-import { UserContext } from "../../context/UserContext.jsx";
+import { UserContext } from "../../context/UserContext";
 
 const StartRouteScreen = () => {
   const navigation = useNavigation();
@@ -29,41 +32,39 @@ const StartRouteScreen = () => {
   const pickupPosition =
     item?.startStation?.latitude && item?.startStation?.longitude
       ? {
-        geometry: {
-          location: {
-            lat: item.startStation.latitude,
-            lng: item.startStation.longitude,
+          geometry: {
+            location: {
+              lat: item.startStation.latitude,
+              lng: item.startStation.longitude,
+            },
           },
-        },
-        name: item.startStation.name,
-        formatted_address: item.startStation.formatted_address,
-      }
+          name: item.startStation.name,
+          formatted_address: item.startStation.formatted_address,
+        }
       : null;
 
   const destinationPosition =
     item?.endStation?.latitude && item?.endStation?.longitude
       ? {
-        geometry: {
-          location: {
-            lat: item.endStation.latitude,
-            lng: item.endStation.longitude,
+          geometry: {
+            location: {
+              lat: item.endStation.latitude,
+              lng: item.endStation.longitude,
+            },
           },
-        },
-        name: item.endStation.name,
-        formatted_address: item.endStation.formatted_address,
-      }
+          name: item.endStation.name,
+          formatted_address: item.endStation.formatted_address,
+        }
       : null;
 
   const handleStartRoute = async () => {
-
     try {
-
       const time = new Date();
 
       const requestData = {
         bookingDetailId: item.id,
         status: "GOING_TO_PICKUP",
-        time: time.toISOString()
+        time: time.toISOString(),
       };
       await updateStatusBookingDetail(item.id, requestData).then((response) => {
         if (response && response.data) {
@@ -73,21 +74,21 @@ const StartRouteScreen = () => {
             [
               {
                 text: "OK",
-                onPress: () => { navigation.navigate("PickCus", { response }) },
+                onPress: () => {
+                  navigation.navigate("PickCus", { response });
+                },
               },
-            ],
+            ]
           );
         } else {
           Alert.alert("Xác nhận chuyến", "Lỗi: Không bắt đầu được chuyến!");
         }
       });
-
     } catch (error) {
       console.error("Tài xế bắt đầu chuyến đi", error);
       Alert.alert("Tài xế bắt đầu", "Bắt đầu không thành công");
     }
   };
-
 
   // console.log("pickupPosition:", pickupPosition);
   // console.log("destinationPosition:", destinationPosition);
@@ -161,7 +162,7 @@ const StartRouteScreen = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {item.customerRouteRoutine.routineDate}
+                      {item.date}
                     </Text>
                   </View>
                 </View>
@@ -202,7 +203,7 @@ const StartRouteScreen = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {item.customerRouteRoutine.pickupTime}
+                      {item.customerDesiredPickupTime}
                     </Text>
                   </View>
                 </View>
@@ -308,11 +309,13 @@ const StartRouteScreen = () => {
                 </View>
               </View>
             </View>
-            <View style={{
-              flexDirection: "row",
-              flexGrow: 1,
-              justifyContent: "center",
-            }}>
+            <View
+              style={{
+                flexDirection: "row",
+                flexGrow: 1,
+                justifyContent: "center",
+              }}
+            >
               <View
                 style={[
                   styles.cardInsideLocation,
@@ -322,7 +325,6 @@ const StartRouteScreen = () => {
                     height: 40,
                     justifyContent: "center",
                     alignItems: "center",
-
                   },
                 ]}
               >
@@ -334,16 +336,14 @@ const StartRouteScreen = () => {
                     Bắt đầu chuyến đi
                   </Text>
                 </TouchableOpacity>
-
               </View>
             </View>
-
           </View>
         </View>
       </View>
 
       <View style={styles.footer}>{/* <BottomNavigationBar /> */}</View>
-    </View >
+    </View>
   );
 };
 

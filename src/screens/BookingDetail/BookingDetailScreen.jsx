@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, View, Animated, NativeEventEmitter } from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
@@ -8,7 +8,7 @@ import { StyleSheet, View, Animated, NativeEventEmitter } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { themeColors, vigoStyles } from "../../../assets/theme/index";
 import Map from "../../components/Map/Map";
-import { Box, Button } from "native-base";
+import { Box, Button, ScrollView } from "native-base";
 import BookingDetailPanel, {
   BookingDetailSmallPanel,
   PickBookingDetailConfirmAlert,
@@ -26,8 +26,10 @@ import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import {
   getBookingDetail,
   getBookingDetailPickFee,
+  getDriverSchedulesForPickingTrip,
   pickBookingDetailById,
 } from "../../services/bookingDetailService";
+import { generateMapPoint } from "../../utils/mapUtils";
 // import { SwipeablePanel } from "react-native-swipe-up-panel";
 
 const BookingDetailScreen = () => {
@@ -45,63 +47,94 @@ const BookingDetailScreen = () => {
 
   const [customer, setCustomer] = useState({});
 
-  const [duration, setDuration] = useState(0);
-  const [distance, setDistance] = useState(0);
+  const [duration, setDuration] = useState({});
+  const [distance, setDistance] = useState({});
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const [bookingDetail, setBookingDetail] = useState(null);
+  const [previousTrip, setPreviousTrip] = useState(null);
+  const [nextTrip, setNextTrip] = useState(null);
+
+  const [directions, setDirections] = useState(null);
+
   const [pickingFee, setPickingFee] = useState(0);
 
   const [pickupPosition, setPickupPosition] = useState(null);
   const [destinationPosition, setDestinationPosition] = useState(null);
 
+  const panelRef = useRef(null);
+
   const getBookingDetailData = async () => {
     setIsLoading(true);
     try {
       const bookingDetailId = item.id;
-      console.log(bookingDetailId);
+      // console.log(bookingDetailId);
       const bookingDetailResponse = await getBookingDetail(bookingDetailId);
-      console.log(bookingDetailResponse);
+      // console.log(bookingDetailResponse);
       setBookingDetail(bookingDetailResponse);
 
       setPickupPosition(
         bookingDetailResponse?.startStation?.latitude &&
           bookingDetailResponse?.startStation?.longitude
-          ? {
-              geometry: {
-                location: {
-                  lat: bookingDetailResponse.startStation.latitude,
-                  lng: bookingDetailResponse.startStation.longitude,
-                },
-              },
-              name: bookingDetailResponse.startStation.name,
-              formatted_address:
-                bookingDetailResponse.startStation.formatted_address,
-            }
+          ? generateMapPoint(bookingDetailResponse.startStation)
           : null
       );
 
       setDestinationPosition(
         bookingDetailResponse?.endStation?.latitude &&
           bookingDetailResponse?.endStation?.longitude
-          ? {
-              geometry: {
-                location: {
-                  lat: bookingDetailResponse.endStation.latitude,
-                  lng: bookingDetailResponse.endStation.longitude,
-                },
-              },
-              name: bookingDetailResponse.endStation.name,
-              formatted_address:
-                bookingDetailResponse.endStation.formatted_address,
-            }
+          ? generateMapPoint(bookingDetailResponse.endStation)
           : null
       );
 
       const customerResponse = await getBookingDetailCustomer(bookingDetailId);
       setCustomer(customerResponse);
+
+      const schedules = await getDriverSchedulesForPickingTrip(bookingDetailId);
+      setPreviousTrip(schedules.previousTrip);
+      setNextTrip(schedules.nextTrip);
+      // console.log(schedules);
+
+      let driverSchedules = [];
+      if (schedules.previousTrip) {
+        driverSchedules.push({
+          firstPosition: generateMapPoint(schedules.previousTrip.startStation),
+          secondPosition: generateMapPoint(schedules.previousTrip.endStation),
+          // strokeColor: "#00A1A1",
+          // strokeWidth: 3,
+          bookingDetailId: schedules.previousTrip.id,
+        });
+        // console.log("Previous Trip");
+      } else {
+        driverSchedules.push(null);
+      }
+      // console.log(driverSchedules);
+      driverSchedules.push({
+        firstPosition: generateMapPoint(bookingDetailResponse.startStation),
+        secondPosition: generateMapPoint(bookingDetailResponse.endStation),
+        // strokeColor: "#00A1A1",
+        // strokeWidth: 3,
+        bookingDetailId: bookingDetailResponse.id,
+      });
+      // console.log(driverSchedules);
+      if (schedules.nextTrip) {
+        // console.log("Next Trip");
+        driverSchedules.push({
+          firstPosition: generateMapPoint(schedules.nextTrip.startStation),
+          secondPosition: generateMapPoint(schedules.nextTrip.endStation),
+          // strokeColor: "#00A1A1",
+          // strokeWidth: 3,
+          bookingDetailId: schedules.nextTrip.id,
+        });
+      } else {
+        driverSchedules.push(null);
+      }
+      // console.log(driverSchedules);
+
+      setDirections(driverSchedules);
     } catch (error) {
+      console.error(error);
       setErrorMessage(getErrorMessage(error));
       setIsError(true);
     } finally {
@@ -222,15 +255,24 @@ const BookingDetailScreen = () => {
         )} */}
         <ViGoSpinner isLoading={isLoading} />
         <ErrorAlert isError={isError} errorMessage={errorMessage}>
-          {pickupPosition && destinationPosition && (
+          {pickupPosition && destinationPosition && directions && (
             <Map
-              pickupPosition={pickupPosition}
-              destinationPosition={destinationPosition}
-              sendRouteId={(routeId) =>
-                console.log("Received Route ID:", routeId)
-              }
+              // pickupPosition={pickupPosition}
+              // destinationPosition={destinationPosition}
+              // sendRouteId={(routeId) =>
+              //   console.log("Received Route ID:", routeId)
+              // }
+              directions={directions}
               setDistance={setDistance}
+              distance={distance}
+              duration={duration}
               setDuration={setDuration}
+              isPickingSchedules={true}
+              onCurrentTripPress={() => {
+                panelRef.current.openLargePanel();
+                // console.log("Current PRessed!");
+              }}
+              setIsLoading={setIsLoading}
             />
           )}
           {/* {!isBottomSheetVisible && (
@@ -292,7 +334,9 @@ const BookingDetailScreen = () => {
                 </Box>
               }
               smallPanelHeight={360}
-              largePanelHeight={640}
+              // openLarge={openLargePanel}
+              ref={panelRef}
+              // largePanelHeight={680}
             >
               <Box px="6">
                 <BookingDetailPanel

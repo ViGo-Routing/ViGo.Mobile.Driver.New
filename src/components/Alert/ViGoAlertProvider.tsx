@@ -15,6 +15,7 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
 import { eventNames } from "../../utils/alertUtils";
 import { NativeEventEmitter, NativeModules } from "react-native";
+import { ThemeComponentSizeType } from "native-base/lib/typescript/components/types";
 
 interface ViGoAlertProps {
   title: ReactNode;
@@ -30,6 +31,9 @@ interface ViGoAlertProps {
   isDialog: boolean;
   duration: number;
   avoidKeyboard: boolean;
+  primaryButtonText: string;
+  displayCloseButton: boolean;
+  size: ThemeComponentSizeType<"AlertDialog">;
   // isCancelDisplayed: boolean;
   // cancelButtonText: string;
   // onCancelPress: () => void;
@@ -75,6 +79,11 @@ const ViGoAlertProvider = (/*{
   // const [okButtonText, setOkButtonText] = useState("OK");
   // const [onOkPress, setOnOkPress] = useState(() => {});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [primaryButtonText, setPrimaryButtonText] = useState("Đã hiểu");
+  const [displayCloseButton, setDisplayCloseButton] = useState(true);
+  const [size, setSize] = useState(
+    "md" as ThemeComponentSizeType<"AlertDialog">
+  );
 
   const cancelRef = useRef(null);
 
@@ -88,6 +97,9 @@ const ViGoAlertProvider = (/*{
     isDialog = false,
     duration = 5000,
     avoidKeyboard = true,
+    primaryButtonText = "Đã hiểu",
+    displayCloseButton = true,
+    size = "md",
   }: //   isCancelDisplayed = true,
   // cancelButtonText = "Hủy",
   // onCancelPress = () => {},
@@ -125,12 +137,14 @@ const ViGoAlertProvider = (/*{
                       {title}
                     </Text>
                   </HStack>
-                  <IconButton
-                    variant={"unstyled"}
-                    icon={<CloseIcon size="3" />}
-                    _icon={{ color: "darkText" }}
-                    onPress={() => Toast.close(id)}
-                  />
+                  {displayCloseButton && (
+                    <IconButton
+                      variant={"unstyled"}
+                      icon={<CloseIcon size="3" />}
+                      _icon={{ color: "darkText" }}
+                      onPress={() => Toast.close(id)}
+                    />
+                  )}
                 </HStack>
                 {description && (
                   <Text px="6" color={"darkText"}>
@@ -154,6 +168,9 @@ const ViGoAlertProvider = (/*{
       setDescription(description);
       setStatus(status);
       setIsDialogOpen(true);
+      setPrimaryButtonText(primaryButtonText);
+      setDisplayCloseButton(displayCloseButton);
+      setSize(size);
     }
   };
   useEffect(() => {
@@ -174,9 +191,10 @@ const ViGoAlertProvider = (/*{
       leastDestructiveRef={cancelRef}
       isOpen={isDialogOpen}
       onClose={() => setIsDialogOpen(false)}
+      size={size}
     >
       <AlertDialog.Content>
-        <AlertDialog.CloseButton />
+        {displayCloseButton && <AlertDialog.CloseButton />}
         {title && <AlertDialog.Header>{title}</AlertDialog.Header>}
         <AlertDialog.Body>
           {description}
@@ -188,7 +206,7 @@ const ViGoAlertProvider = (/*{
                   setIsDialogOpen(false);
                 }}
               >
-                {"Đã hiểu"}
+                {primaryButtonText}
               </Button>
             </Button.Group>
           </Box>

@@ -24,6 +24,7 @@ import PickCusScreen from "../screens/StartRoute/PickCusScreen";
 import { CustomerDetailScreen } from "../screens/BookingDetail/CustomerDetailScreen";
 import TopupScreen from "../screens/Wallet/Topup/TopupScreen";
 import MyNotifcationScreen from "../screens/Notification/MyNotificationScreen";
+import ScheduleInDateScreen from "../screens/Scheduler/ScheduleInDateScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -129,6 +130,11 @@ const Navigation = () => {
         name="MyNotification"
         options={{ headerShown: false }}
         component={MyNotifcationScreen}
+      />
+      <Stack.Screen
+        name="ScheduleInDate"
+        options={{ headerShown: false }}
+        component={ScheduleInDateScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>

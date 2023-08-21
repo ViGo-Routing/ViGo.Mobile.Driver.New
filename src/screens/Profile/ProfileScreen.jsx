@@ -110,10 +110,14 @@ const ProfileSreen = () => {
   ];
 
   const logout = async () => {
-    await removeItem("token");
     setUser(null);
+    await removeItem("token");
 
-    navigation.navigate("Login");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
+    // navigation.navigate("Login");
   };
 
   return (

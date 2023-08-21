@@ -8,6 +8,7 @@ import {
 } from "../../utils/enumUtils/bookingEnumUtils";
 import { ArrowRightIcon } from "react-native-heroicons/solid";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
+import { memo } from "react";
 
 const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
   return (
@@ -60,7 +61,7 @@ const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
               <VStack>
                 <HStack alignItems="start">
                   <Text style={styles.title}>
-                    {toVnDateString(element.customerRouteRoutine.routineDate)}
+                    {toVnDateString(element.date)}
                   </Text>
                 </HStack>
               </VStack>
@@ -94,7 +95,7 @@ const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
                   Giờ đón:
                 </Text>
                 <Text w={20} color="black" bold fontSize={15}>
-                  {toVnTimeString(element.customerRouteRoutine.pickupTime)}
+                  {toVnTimeString(element.customerDesiredPickupTime)}
                 </Text>
               </HStack>
             </VStack>
@@ -149,4 +150,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookingDetailCard;
+export default memo(BookingDetailCard);

@@ -12,13 +12,14 @@ import { themeColors, vigoStyles } from "../../../assets/theme";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../../components/Header/Header";
 import InfoAlert from "../../components/Alert/InfoAlert";
-import { Box, HStack, ScrollView, Text } from "native-base";
+import { Box, Fab, HStack, ScrollView, Text } from "native-base";
 import moment from "moment";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
 import { getErrorMessage } from "../../utils/alertUtils";
 import ErrorAlert from "../../components/Alert/ErrorAlert";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+import { MapIcon } from "react-native-heroicons/solid";
 
 LocaleConfig.locales["vn"] = {
   monthNames: [
@@ -75,35 +76,48 @@ const SchedulerScreen = () => {
   const { isError, setErrorMessage, setIsError, errorMessage } =
     useErrorHandlingHook();
 
+  const formattedCurrentDate = moment().format("YYYY-MM-DD").toString();
+
+  const [displayFab, setDisplayFab] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(formattedCurrentDate);
+
   const fetchData = async () => {
     setIsError(false);
     setIsLoading(true);
     // console.log(user.id);
     try {
-      const currentDate = new Date();
+      // const currentDate = new Date();
 
       // Get the previous date
-      const previousDate = new Date();
-      previousDate.setDate(currentDate.getDate() - 1);
-      const formattedPreviousDate = `${previousDate.getFullYear()}-${(
-        previousDate.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, "0")}-${previousDate
-        .getDate()
-        .toString()
-        .padStart(2, "0")}`;
+      // const previousDate = new Date();
+      // previousDate.setDate(currentDate.getDate() - 1);
+      // const formattedPreviousDate = `${previousDate.getFullYear()}-${(
+      //   previousDate.getMonth() + 1
+      // )
+      //   .toString()
+      //   .padStart(2, "0")}-${previousDate
+      //   .getDate()
+      //   .toString()
+      //   .padStart(2, "0")}`;
+
       const tripsResponse = await getBookingDetailByDriverId(
-        user.id /*, formattedPreviousDate*/
+        user.id,
+        formattedCurrentDate,
+        null,
+        "ASSIGNED",
+        -1,
+        1 /*, formattedPreviousDate*/
       );
+
       const responseItems = tripsResponse.data.data;
+      // console.log(responseItems);
       const agendaItems = {};
 
       // const itemMarkedDates = {};
 
       responseItems.forEach((item) => {
         const { startStation, endStation, customerRouteRoutine } = item;
-        const dateString = customerRouteRoutine.routineDate;
+        const dateString = moment(item.date).format("YYYY-MM-DD");
         if (!agendaItems[dateString]) {
           agendaItems[dateString] = [];
         }
@@ -111,14 +125,21 @@ const SchedulerScreen = () => {
         const itemData = {
           title: `${startStation.name} - ${endStation.name}`,
           time: `${toVnTimeString(
-            customerRouteRoutine.pickupTime
-          )} - ${toVnDateString(customerRouteRoutine.routineDate)}`,
+            item.customerDesiredPickupTime
+          )} - ${toVnDateString(item.date)}`,
           item: item,
         };
         agendaItems[dateString].push(itemData);
       });
 
       setItems(agendaItems);
+
+      if (
+        !agendaItems[formattedCurrentDate] ||
+        agendaItems[formattedCurrentDate].length == 0
+      ) {
+        setDisplayFab(false);
+      }
 
       // console.log(agendaItems);
       // console.log(items);
@@ -159,7 +180,7 @@ const SchedulerScreen = () => {
 
     // Filter the events that match the selected day
     items.forEach((item) => {
-      const date = item.customerRouteRoutine.routineDate;
+      const date = item.date;
       const eventDate = new Date(date);
       const dateString = eventDate.toISOString().split("T")[0];
 
@@ -215,10 +236,26 @@ const SchedulerScreen = () => {
     // Add more style customizations as needed
   };
 
+  const onDatePress = (day) => {
+    const dateString = day.dateString;
+    setSelectedDate(dateString);
+
+    const schedules = items[dateString];
+    if (!schedules || schedules.length == 0) {
+      setDisplayFab(false);
+    } else {
+      setDisplayFab(true);
+    }
+    // console.log(date);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View>
-        <Header title="Lịch trình của tôi" />
+        <Header
+          title="Lịch trình của tôi"
+          onBackButtonPress={() => navigation.navigate("Home")}
+        />
       </View>
 
       {/* <Text>Phong</Text> */}
@@ -236,11 +273,28 @@ const SchedulerScreen = () => {
             // console.log("Reloading Agenda...");
             fetchData();
           }}
+          minDate={formattedCurrentDate}
           refreshing={isLoading}
+          onDayPress={onDatePress}
           // markedDates={markedDates}
           // refreshControl={<ViGoSpinner isLoading={isLoading} />}
         />
+        {displayFab && (
+          <Fab
+            renderInPortal={false}
+            shadow={2}
+            size="sm"
+            backgroundColor={themeColors.primary}
+            icon={<MapIcon color="white" size={24} />}
+            onPress={() =>
+              navigation.navigate("ScheduleInDate", {
+                date: selectedDate,
+              })
+            }
+          />
+        )}
       </ErrorAlert>
+
       {/* <Agenda
           items={items}
           renderItem={(item) => renderItem(item)}

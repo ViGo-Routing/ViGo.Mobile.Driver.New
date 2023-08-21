@@ -9,7 +9,7 @@ import {
   TextInput,
 } from "react-native";
 import { vigoStyles } from "../../../../assets/theme";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { vndFormat } from "../../../utils/numberUtils";
 import {
   Box,
@@ -30,6 +30,8 @@ const TopupAmountModal = ({
   const [amount, setAmount] = useState(null);
 
   const [isAmountInvalid, setIsAmountInvalid] = useState(false);
+
+  const initialRef = useRef(null);
 
   const handleAmountChange = (newAmount) => {
     if (!newAmount || newAmount < 1000) {
@@ -54,7 +56,7 @@ const TopupAmountModal = ({
         setModalVisible(!modalVisible);
       }}
       size={"xl"}
-      // avoidKeyboard={true}
+      avoidKeyboard={true}
       // justifyContent="flex-end"
       // onRequestClose={() => {
       //   // onModalClose(amount);
@@ -65,6 +67,7 @@ const TopupAmountModal = ({
       // onDismiss={() => {
       //   // onModalClose(amount);
       // }}
+      initialFocusRef={initialRef}
     >
       <Modal.Content>
         <Modal.CloseButton />
@@ -93,6 +96,7 @@ const TopupAmountModal = ({
                   onChangeText={handleAmountChange}
                   defaultValue={amount ? amount : null}
                   placeholder="Nhập số tiền muốn nạp"
+                  ref={initialRef}
                 />
                 <InputRightAddon width="20%" children={"đồng"} />
               </InputGroup>
