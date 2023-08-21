@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Button,
+  // Button,
   SafeAreaView,
   StyleSheet,
   TextInput,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { UserContext } from "../../context/UserContext";
-import { getBookingDetailByUserId } from "../../services/bookingDetailService";
+import { getAvailableBookingDetails } from "../../services/bookingDetailService";
 import { themeColors, vigoStyles } from "../../../assets/theme";
 import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -24,6 +24,9 @@ import {
   Heading,
   Box,
   FlatList,
+  Popover,
+  Button,
+  Pressable,
 } from "native-base";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
@@ -52,7 +55,7 @@ const HomeScreen = () => {
     setIsError(false);
     setIsLoading(true);
     try {
-      const detailsResponse = await getBookingDetailByUserId(
+      const detailsResponse = await getAvailableBookingDetails(
         user.id,
         pageSize,
         1
@@ -81,7 +84,7 @@ const HomeScreen = () => {
     }
 
     if (nextPageNumber > 1) {
-      let moreDataResponse = await getBookingDetailByUserId(
+      let moreDataResponse = await getAvailableBookingDetails(
         user.id,
         pageSize,
         nextPageNumber
@@ -155,7 +158,7 @@ const HomeScreen = () => {
     //           >
     //             <Text style={{ fontWeight: "bold" }}>Giờ đón</Text>
     //             <Text>
-    //               {toVnTimeString(item.customerRouteRoutine.pickupTime)}
+    //               {toVnTimeString(item.customerDesiredPickupTime)}
     //             </Text>
     //           </View>
     //         </View>
@@ -171,7 +174,7 @@ const HomeScreen = () => {
     //       >
     //         <View style={{ flexDirection: "row", alignItems: "center" }}>
     //           <Text style={styles.cardHeader}>
-    //             {toVnDateString(item.customerRouteRoutine.routineDate)}
+    //             {toVnDateString(item.date)}
     //           </Text>
     //         </View>
 
@@ -269,6 +272,7 @@ const HomeScreen = () => {
         </Heading>
         {/* <ErrorAlert isError={isError} errorMessage={errorMessage}>
           <Box marginTop="4"> */}
+
         <FlatList
           // style={vigoStyles.list}
           marginTop="3"

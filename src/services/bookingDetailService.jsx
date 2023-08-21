@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import apiManager from "../utils/apiManager";
 
-export const getBookingDetailByUserId = async (
+export const getAvailableBookingDetails = async (
   driverId,
   pageSize,
   pageNumber
@@ -19,28 +19,9 @@ export const getBookingDetailByUserId = async (
 
 export const pickBookingDetailById = async (bookingDetailId) => {
   console.log(bookingDetailId);
-  try {
-    const response = await apiManager.post(
-      `/api/BookingDetail/Driver/Pick/${bookingDetailId}`
-    );
-    return response;
-  } catch (error) {
-    if (error.response && error.response.data) {
-      // Assuming the error response has a 'data' property containing error details
-      const errorDetails = error.response.data;
-      Alert.alert(errorDetails);
-      return null;
-    } else {
-      console.log("Error response structure not recognized.");
-      return null;
-    }
-  }
-};
-
-export const getBookingDetailByDriverId = async (driverId) => {
   // try {
-  const response = await apiManager.get(
-    `/api/BookingDetail/Driver/${driverId}`
+  const response = await apiManager.post(
+    `/api/BookingDetail/Driver/Pick/${bookingDetailId}`
   );
   return response;
   // } catch (error) {
@@ -55,6 +36,42 @@ export const getBookingDetailByDriverId = async (driverId) => {
   //   }
   // }
 };
+
+export const getBookingDetailByDriverId = async (
+  driverId,
+  minDate = null,
+  maxDate = null,
+  status = "",
+  pageSize = 10,
+  pageNumber = 1
+) => {
+  // try {
+  let endpoint = `/api/BookingDetail/Driver/${driverId}?pageSize=${pageSize}&pageNumber=${pageNumber}`;
+  if (minDate != null) {
+    endpoint += `&minDate=${minDate}`;
+  }
+  if (maxDate != null) {
+    endpoint += `&maxDate=${maxDate}`;
+  }
+  if (status) {
+    endpoint += `&status=${status}`;
+  }
+
+  const response = await apiManager.get(endpoint);
+  return response;
+  // } catch (error) {
+  //   if (error.response && error.response.data) {
+  //     // Assuming the error response has a 'data' property containing error details
+  //     const errorDetails = error.response.data;
+  //     Alert.alert(errorDetails);
+  //     return null;
+  //   } else {
+  //     console.log("Error response structure not recognized.");
+  //     return null;
+  //   }
+  // }
+};
+
 export const updateStatusBookingDetail = async (bookingId, requestData) => {
   console.log(requestData);
   try {
@@ -67,4 +84,23 @@ export const updateStatusBookingDetail = async (bookingId, requestData) => {
     console.error("Driver Pick Booking Detail By Id failed:", error);
     return null;
   }
+};
+
+export const getBookingDetail = async (bookingDetailId) => {
+  const response = await apiManager.get(`api/BookingDetail/${bookingDetailId}`);
+  return response.data;
+};
+
+export const getBookingDetailPickFee = async (bookingDetailId) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/DriverFee/${bookingDetailId}`
+  );
+  return response.data;
+};
+
+export const getDriverSchedulesForPickingTrip = async (bookingDetailId) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/Driver/PickSchedules/${bookingDetailId}`
+  );
+  return response.data;
 };

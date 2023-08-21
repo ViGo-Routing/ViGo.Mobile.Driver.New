@@ -12,7 +12,7 @@ export const useNotificationHook = () => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       // console.log(remoteMessage);
       if (remoteMessage.data.action == "payment") {
-        paymentNotificationHandlers(remoteMessage.data, navigation);
+        // paymentNotificationHandlers(remoteMessage.data, navigation);
       } else if (remoteMessage.data.action == "login") {
         // console.log("Recieved Message for login navigation");
         // setUser(null, (s) => {

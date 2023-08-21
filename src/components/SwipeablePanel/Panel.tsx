@@ -240,6 +240,10 @@ class SwipeablePanel extends React.Component<
       this._animateTo(this.state.status);
   }
 
+  public openLargePanel = () => {
+    this._animateTo(STATUS.LARGE);
+  };
+
   _animateTo = (newStatus = 0) => {
     let newY = 0;
 

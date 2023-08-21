@@ -1,5 +1,14 @@
 import { useContext, useState } from "react";
-import { Box, Center, HStack, Image, Text, VStack } from "native-base";
+import {
+  Badge,
+  Box,
+  Center,
+  HStack,
+  Image,
+  ScrollView,
+  Text,
+  VStack,
+} from "native-base";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { Animated, View } from "react-native";
 import {
@@ -22,41 +31,64 @@ import {
 import { pickBookingDetailById } from "../../services/bookingDetailService";
 import { toPercent, vndFormat } from "../../utils/numberUtils";
 import { UserContext } from "../../context/UserContext";
+import ConfirmAlert from "../../components/Alert/ConfirmAlert";
+import {
+  TripBasicInformation,
+  TripFullInformation,
+} from "../../components/TripInformation/TripInformation";
 
-const handlePickBooking = async (item, navigation, user) => {
-  const bookingId = item.bookingId;
-  // const { user } = useContext(UserContext);
+const PickBookingDetailConfirmAlert = ({
+  item,
+  pickingFee,
+  handleOkPress,
+  confirmOpen,
+  setConfirmOpen,
+  // key,
+}) => {
+  const description = () => {
+    return (
+      <VStack>
+        <Text>
+          Với việc nhận chuyến xe, bạn sẽ phải trả trước một khoản phí nhận
+          chuyến.
+        </Text>
+        <Text>
+          Sau khi hoàn thành chuyến đi, bạn sẽ được trả toàn bộ số tiền của
+          chuyến đi.
+        </Text>
+        <Text marginTop="2">
+          Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text>
+        </Text>
+      </VStack>
+    );
+  };
 
-  try {
-    const requestData = {
-      bookingId: item.bookingId,
-      driverId: user.id,
-    };
-    const response = await pickBookingDetailById(item.id);
-    if (response && response.data) {
-      Alert.alert("Xác nhận chuyến đi", `Bạn vừa nhận chuyến thành công!`, [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Schedule"),
-        },
-      ]);
-    }
-  } catch (error) {
-    console.error("Driver Picking failed:", error);
-    Alert.alert("Driver Picking", "Error: Picking failed!");
-  }
+  return (
+    <ConfirmAlert
+      title="Nhận chuyến xe"
+      description={description()}
+      okButtonText="Xác nhận"
+      cancelButtonText="Hủy"
+      onOkPress={() => handleOkPress()}
+      isOpen={confirmOpen}
+      setIsOpen={setConfirmOpen}
+      key={`confirm-booking-detail-alert`}
+    />
+  );
 };
 
 const BookingDetailPanel = ({
   item,
+  handlePickBooking = undefined,
   customer,
   navigation,
   // toggleBottomSheet,
   duration,
   distance,
+  displayButtons = true,
 }) => {
   const { user } = useContext(UserContext);
-  const translateY = new Animated.Value(300);
+  // const translateY = new Animated.Value(300);
   // const [pan, setPat] = useState(new Animated.ValueXY({ x: 0, y: 400 }));
   // const [isOpen, setIsOpen] = useState(false);
 
@@ -116,353 +148,73 @@ const BookingDetailPanel = ({
 
   return (
     <Box>
-      <HStack alignItems="center" justifyContent="space-between">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              <CalendarDaysIcon size={25} color="#00A1A1" />
-            </VStack>
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Ngày đón</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 1,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnDateString(item.customerRouteRoutine.routineDate)}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-              <ClockIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Giờ đón</Text>
-
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnTimeString(item.customerRouteRoutine.pickupTime)}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-
-      <HStack alignItems="center">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Điểm đón</Text>
-
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="100%"
-                paddingRight="0.5"
-                isTruncated
-              >
-                {`${item.startStation.name}, ${item.startStation.address}`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-      <HStack alignItems="center" width="100%">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Điểm đến</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="100%"
-                paddingRight="0.5"
-                isTruncated
-              >
-                {`${item.endStation.name}, ${item.endStation.address}`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-
-      <HStack alignItems="center">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Khoảng cách</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="100%"
-                paddingRight="0.5"
-                isTruncated
-              >
-                {`${distance.toFixed(2)} km`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-      <HStack alignItems="center">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <ClockOutlineIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Thời gian di chuyển (dự kiến)</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="100%"
-                paddingRight="0.5"
-                isTruncated
-              >
-                {`${duration.toFixed(2)} phút`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-
-      <HStack marginTop={5}>
-        <Image
-          source={
-            customer.avatarUrl
-              ? { uri: customer.avatarUrl }
-              : require("../../../assets/images/no-image.jpg")
-          }
-          // style={styles.image}
-          alt="Ảnh đại diện"
-          size={60}
-          borderRadius={100}
-        />
-        <VStack paddingLeft={5}>
-          <Text>
-            Khách hàng <Text bold>{customer.name}</Text>
-          </Text>
-          <HStack>
-            <Text>
-              {`${customer.gender == true ? "Nam" : "Nữ"}${
-                customer.dateOfBirth
-                  ? ` | ${calculateAge(customer.dateOfBirth)} tuổi`
-                  : ""
-              }`}
-            </Text>
-          </HStack>
-          <Text>Tỉ lệ hủy chuyến: {toPercent(customer.canceledTripRate)}</Text>
-        </VStack>
-      </HStack>
-      <HStack justifyContent="flex-end" marginTop="3">
-        <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
-          <Text fontSize="2xl" style={styles.titlePrice}>
-            {vndFormat(item.price)}
-          </Text>
-        </Box>
-      </HStack>
-      {/* <Box p="4" rounded="xl">
-        <Text bold fontSize="2xl" textAlign="right" color={themeColors.primary}>
-          {vndFormat(item.price)}
-        </Text>
-      </Box> */}
-
-      <HStack>
-        <View
-          style={[
-            styles.cardInsideLocation,
-            {
-              backgroundColor: themeColors.primary,
-              height: 40,
-              justifyContent: "center",
-              alignItems: "center",
-            },
-            vigoStyles.buttonWhite,
-          ]}
-        >
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <HStack alignItems="center">
-              <ArrowLeftIcon size={20} color={themeColors.primary} />
-              <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
-                Quay lại
-              </Text>
-            </HStack>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={[
-            styles.cardInsideLocation,
-            {
-              backgroundColor: themeColors.primary,
-              height: 40,
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.assignButton}
-            onPress={() => handlePickBooking(item, navigation, user)}
+      <TripFullInformation
+        item={item}
+        distance={distance}
+        duration={duration}
+        customer={customer}
+      />
+      {displayButtons && (
+        <HStack>
+          <View
+            style={[
+              styles.cardInsideLocation,
+              {
+                backgroundColor: themeColors.primary,
+                height: 40,
+                justifyContent: "center",
+                alignItems: "center",
+              },
+              vigoStyles.buttonWhite,
+            ]}
           >
-            <HStack alignItems="center">
-              <PaperAirplaneIcon size={20} color={"white"} />
-              <Text
-                marginLeft={2}
-                style={{ color: "white", fontWeight: "bold" }}
-              >
-                Nhận chuyến
-              </Text>
-            </HStack>
-          </TouchableOpacity>
-        </View>
-      </HStack>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <HStack alignItems="center">
+                <ArrowLeftIcon size={20} color={themeColors.primary} />
+                <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
+                  Quay lại
+                </Text>
+              </HStack>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={[
+              styles.cardInsideLocation,
+              {
+                backgroundColor: themeColors.primary,
+                height: 40,
+                justifyContent: "center",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.assignButton}
+              onPress={() => handlePickBooking()}
+            >
+              <HStack alignItems="center">
+                <PaperAirplaneIcon size={20} color={"white"} />
+                <Text
+                  marginLeft={2}
+                  style={{ color: "white", fontWeight: "bold" }}
+                >
+                  Nhận chuyến
+                </Text>
+              </HStack>
+            </TouchableOpacity>
+          </View>
+        </HStack>
+      )}
     </Box>
   );
 };
 
-const BookingDetailSmallPanel = ({ item, navigation }) => {
+const BookingDetailSmallPanel = ({ item, handlePickBooking, navigation }) => {
   const { user } = useContext(UserContext);
-
+  // console.log(item);
   return (
     <Box>
-      <HStack alignItems="center" justifyContent="space-between">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              <CalendarDaysIcon size={25} color="#00A1A1" />
-            </VStack>
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Ngày đón</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 1,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnDateString(item.customerRouteRoutine.routineDate)}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-              <ClockIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Giờ đón</Text>
-
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnTimeString(item.customerRouteRoutine.pickupTime)}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-
-      <HStack alignItems="center">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Điểm đón</Text>
-
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="100%"
-                paddingRight="0.5"
-                isTruncated
-              >
-                {`${item.startStation.name}, ${item.startStation.address}`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-      <HStack alignItems="center" width="100%">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
-
-            <VStack paddingLeft="3">
-              <Text style={styles.title}>Điểm đến</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                width="100%"
-                paddingRight="0.5"
-                maxWidth="100%"
-                isTruncated
-              >
-                {`${item.endStation.name}, ${item.endStation.address}`}
-              </Text>
-            </VStack>
-          </HStack>
-        </Box>
-      </HStack>
-
+      <TripBasicInformation item={item} />
       <HStack>
         <View
           style={[
@@ -498,7 +250,7 @@ const BookingDetailSmallPanel = ({ item, navigation }) => {
         >
           <TouchableOpacity
             style={styles.assignButton}
-            onPress={() => handlePickBooking(item, navigation, user)}
+            onPress={() => handlePickBooking()}
           >
             <HStack alignItems="center">
               <PaperAirplaneIcon size={20} color={"white"} />
@@ -515,6 +267,7 @@ const BookingDetailSmallPanel = ({ item, navigation }) => {
     </Box>
   );
 };
+
 const styles = StyleSheet.create({
   card: {
     flexGrow: 1,
@@ -584,7 +337,6 @@ const styles = StyleSheet.create({
     color: themeColors.primary,
     fontSize: 16,
     fontWeight: "bold",
-    paddingTop: 10,
     // paddingLeft: 10,
   },
   list: {
@@ -599,5 +351,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export { BookingDetailSmallPanel };
+export { BookingDetailSmallPanel, PickBookingDetailConfirmAlert };
 export default BookingDetailPanel;

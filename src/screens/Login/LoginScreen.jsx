@@ -44,6 +44,7 @@ import { isPhoneNumber } from "../../utils/stringUtils";
 import { createToast, eventNames, handleError } from "../../utils/alertUtils";
 import ViGoAlert from "../../components/Alert/ViGoAlertProvider";
 import SignalRService from "../../utils/signalRUtils.js";
+import { isValidToken } from "../../utils/tokenUtils";
 // import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
 
 // const eventEmitter = new EventEmitter();
@@ -92,6 +93,16 @@ export default function LoginScreen() {
     //   navigation.navigate(determineDefaultScreen(user));
     // }
     // console.log("Use Effect in login run");
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (user && isValidToken()) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Home" }],
+        });
+      }
+    });
+
+    return unsubscribe;
   }, []);
 
   const handleLogin = async () => {
@@ -151,9 +162,17 @@ export default function LoginScreen() {
               duration: 3000,
             });
             if (response.user.status == "PENDING") {
-              navigation.replace("NewDriverUpdateProfile");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "NewDriverUpdateProfile" }],
+              });
+              // navigation.replace("NewDriverUpdateProfile");
             } else {
-              navigation.navigate("Home");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Home" }],
+              });
+              // navigation.navigate("Home");
             }
           } catch (error) {
             // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);

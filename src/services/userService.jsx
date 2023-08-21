@@ -1,5 +1,6 @@
 import { Alert } from "react-native";
 import apiManager from "../utils/apiManager";
+import { getErrorMessage } from "../utils/alertUtils";
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjVmOTRkZDg2LTM3YjItNDNhMy05NjJiLTAzNmEzYzAzZDNjOSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFETUlOIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiYWRtaW5AZ21haWwuY29tIiwianRpIjoiZjVlNjFhOTQtZDE4OC00Y2FmLTgxZmUtMGJkNDRiZThjM2UzIiwiZXhwIjoxNjg4Mzk4NTgzLCJpc3MiOiJodHRwczovL3ZpZ28tYXBpLmF6dXJld2Vic2l0ZXMubmV0LyIsImF1ZCI6Imh0dHBzOi8vdmlnby1hcGkuYXp1cmV3ZWJzaXRlcy5uZXQvIn0.lScZHYYE9SDFkuvhVXDbHW-xSe5YUAci0586xf8aMew";
 
@@ -30,7 +31,7 @@ export const getProfile = async (id) => {
     // console.log("aaaaaaas", response.data);
     return response.data;
   } catch (error) {
-    console.error("Get Profile failed:", error);
+    console.error("Get Profile failed:", getErrorMessage(error));
   }
 };
 
