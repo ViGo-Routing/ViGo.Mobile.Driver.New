@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Animated, NativeEventEmitter } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Animated,
+  NativeEventEmitter,
+  TouchableOpacity,
+} from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
 
@@ -8,7 +14,7 @@ import { StyleSheet, View, Animated, NativeEventEmitter } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { themeColors, vigoStyles } from "../../../assets/theme/index";
 import Map from "../../components/Map/Map";
-import { Box, Button, ScrollView } from "native-base";
+import { Box, Button, ScrollView, HStack, Text } from "native-base";
 import BookingDetailPanel, {
   BookingDetailSmallPanel,
   PickBookingDetailConfirmAlert,
@@ -30,6 +36,7 @@ import {
   pickBookingDetailById,
 } from "../../services/bookingDetailService";
 import { generateMapPoint } from "../../utils/mapUtils";
+import { PaperAirplaneIcon } from "react-native-heroicons/solid";
 // import { SwipeablePanel } from "react-native-swipe-up-panel";
 
 const BookingDetailScreen = () => {
@@ -243,6 +250,34 @@ const BookingDetailScreen = () => {
   // console.log("pickupPosition:", pickupPosition);
   // console.log("destinationPosition:", destinationPosition);
 
+  const renderActionButton = () => {
+    return (
+      <View
+        style={[
+          styles.cardInsideLocation,
+          {
+            backgroundColor: themeColors.primary,
+            height: 40,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.assignButton}
+          onPress={() => openConfirmPickBooking()}
+        >
+          <HStack alignItems="center">
+            <PaperAirplaneIcon size={20} color={"white"} />
+            <Text marginLeft={2} style={{ color: "white", fontWeight: "bold" }}>
+              Nhận chuyến
+            </Text>
+          </HStack>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* <View style={styles.header}><Header title="Thông tin lịch trình" /></View> */}
@@ -329,7 +364,8 @@ const BookingDetailScreen = () => {
                   <BookingDetailSmallPanel
                     item={bookingDetail}
                     navigation={navigation}
-                    handlePickBooking={openConfirmPickBooking}
+                    actionButton={renderActionButton()}
+                    // handlePickBooking={openConfirmPickBooking}
                   />
                 </Box>
               }
@@ -346,7 +382,8 @@ const BookingDetailScreen = () => {
                   // toggleBottomSheet={toggleBottomSheet}
                   duration={duration}
                   distance={distance}
-                  handlePickBooking={openConfirmPickBooking}
+                  // handlePickBooking={openConfirmPickBooking}
+                  actionButton={renderActionButton()}
                 />
               </Box>
             </SwipeablePanel>

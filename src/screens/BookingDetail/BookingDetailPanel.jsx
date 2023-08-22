@@ -79,7 +79,7 @@ const PickBookingDetailConfirmAlert = ({
 
 const BookingDetailPanel = ({
   item,
-  handlePickBooking = undefined,
+  actionButton = undefined,
   customer,
   navigation,
   // toggleBottomSheet,
@@ -177,7 +177,8 @@ const BookingDetailPanel = ({
               </HStack>
             </TouchableOpacity>
           </View>
-          <View
+          {actionButton && actionButton}
+          {/* <View
             style={[
               styles.cardInsideLocation,
               {
@@ -202,14 +203,14 @@ const BookingDetailPanel = ({
                 </Text>
               </HStack>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </HStack>
       )}
     </Box>
   );
 };
 
-const BookingDetailSmallPanel = ({ item, handlePickBooking, navigation }) => {
+const BookingDetailSmallPanel = ({ item, actionButton, navigation }) => {
   const { user } = useContext(UserContext);
   // console.log(item);
   return (
@@ -237,7 +238,8 @@ const BookingDetailSmallPanel = ({ item, handlePickBooking, navigation }) => {
             </HStack>
           </TouchableOpacity>
         </View>
-        <View
+        {actionButton && actionButton}
+        {/* <View
           style={[
             styles.cardInsideLocation,
             {
@@ -262,7 +264,7 @@ const BookingDetailSmallPanel = ({ item, handlePickBooking, navigation }) => {
               </Text>
             </HStack>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </HStack>
     </Box>
   );

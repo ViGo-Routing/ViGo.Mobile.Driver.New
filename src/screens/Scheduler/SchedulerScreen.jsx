@@ -104,6 +104,8 @@ const SchedulerScreen = () => {
         user.id,
         formattedCurrentDate,
         null,
+        // moment().format("HH:mm:ss"),
+        null,
         "ASSIGNED",
         -1,
         1 /*, formattedPreviousDate*/
@@ -118,6 +120,16 @@ const SchedulerScreen = () => {
       responseItems.forEach((item) => {
         const { startStation, endStation, customerRouteRoutine } = item;
         const dateString = moment(item.date).format("YYYY-MM-DD");
+
+        if (dateString === formattedCurrentDate) {
+          if (
+            moment(item.customerDesiredPickupTime, "HH:mm:ss").isBefore(
+              moment()
+            )
+          ) {
+            return;
+          }
+        }
         if (!agendaItems[dateString]) {
           agendaItems[dateString] = [];
         }

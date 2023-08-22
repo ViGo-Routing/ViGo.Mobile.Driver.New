@@ -56,6 +56,7 @@ interface MapProps {
   setDuration: React.Dispatch<React.SetStateAction<{}>>;
   // duration: {};
   isPickingSchedules: boolean;
+  isViewToStartTrip: boolean;
   onCurrentTripPress: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -66,8 +67,9 @@ const mapDirectionLine = {
     stroke: 5,
   },
   dashed: {
-    color: "#95B1B0",
-    stroke: 3,
+    // color: "#95B1B0",
+    color: "#F97B22",
+    stroke: 3.5,
   },
   secondary: {
     color: "#5DD8D8",
@@ -82,6 +84,7 @@ const Map = ({
   setDuration,
   // duration,
   isPickingSchedules = false,
+  isViewToStartTrip = false,
   onCurrentTripPress = () => {},
   setIsLoading,
 }: MapProps) => {
@@ -117,6 +120,8 @@ const Map = ({
       longitudeDelta: 0.0421,
     } as Region;
   };
+
+  const dashPattern = [5, 5];
 
   const initialRegion = getRegion();
 
@@ -337,160 +342,6 @@ const Map = ({
               distance={distances[`${index}`]}
               duration={durations[`${index}`]}
             />
-            // <ScrollView>
-            //   <HStack alignItems="center" justifyContent="space-between">
-            //     <Box>
-            //       <HStack alignItems="center">
-            //         <VStack alignItems="center" justifyContent="center">
-            //           <CalendarDaysIcon size={25} color="#00A1A1" />
-            //         </VStack>
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Ngày đón</Text>
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 1,
-            //               fontSize: 15,
-            //               fontWeight: "bold",
-            //             }}
-            //           >
-            //             {toVnDateString(
-            //               bookingDetailResponse.date
-            //             )}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //     <Box>
-            //       <HStack alignItems="center">
-            //         <VStack alignItems="center" justifyContent="center">
-            //           {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-            //           <ClockIcon size={25} color="#00A1A1" />
-            //         </VStack>
-
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Giờ đón</Text>
-
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 5,
-            //               fontSize: 15,
-            //               fontWeight: "bold",
-            //             }}
-            //           >
-            //             {toVnTimeString(
-            //               bookingDetailResponse.customerDesiredPickupTime
-            //             )}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //   </HStack>
-
-            //   <HStack alignItems="center" marginTop={3}>
-            //     <Box>
-            //       <HStack>
-            //         <VStack alignItems="center">
-            //           <MapPinIcon size={25} color="#00A1A1" />
-            //         </VStack>
-
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Điểm đón</Text>
-
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 5,
-            //               fontSize: 15,
-            //             }}
-            //             maxWidth="95%"
-            //             paddingRight="0.5"
-            //             // isTruncated
-            //           >
-            //             {`${bookingDetailResponse.startStation.name}, ${bookingDetailResponse.startStation.address}`}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //   </HStack>
-            //   <HStack width="100%" marginTop={3}>
-            //     <Box>
-            //       <HStack>
-            //         <VStack alignItems="center">
-            //           <MapPinIcon size={25} color="#00A1A1" />
-            //         </VStack>
-
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Điểm đến</Text>
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 5,
-            //               fontSize: 15,
-            //             }}
-            //             width="95%"
-            //             paddingRight="0.5"
-            //             maxWidth="95%"
-            //             // isTruncated
-            //           >
-            //             {`${bookingDetailResponse.endStation.name}, ${bookingDetailResponse.endStation.address}`}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //   </HStack>
-            //   <HStack alignItems="center">
-            //     <Box>
-            //       <HStack paddingTop={3} alignItems="center">
-            //         <VStack alignItems="center">
-            //           <MapIcon size={25} color="#00A1A1" />
-            //         </VStack>
-
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Khoảng cách</Text>
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 5,
-            //               fontSize: 15,
-            //             }}
-            //             maxWidth="100%"
-            //             paddingRight="0.5"
-            //             // isTruncated
-            //           >
-            //             {`${distances[`${index}`].toFixed(2)} km`}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //   </HStack>
-            //   <HStack alignItems="center">
-            //     <Box>
-            //       <HStack paddingTop={3} alignItems="center">
-            //         <VStack alignItems="center">
-            //           <ClockOutlineIcon size={25} color="#00A1A1" />
-            //         </VStack>
-
-            //         <VStack paddingLeft="3">
-            //           <Text bold>Thời gian di chuyển (dự kiến)</Text>
-            //           <Text
-            //             style={{
-            //               // paddingLeft: 5,
-            //               paddingBottom: 5,
-            //               fontSize: 15,
-            //             }}
-            //             maxWidth="100%"
-            //             paddingRight="0.5"
-            //             // isTruncated
-            //           >
-            //             {`${Math.ceil(durations[`${index}`])} phút`}
-            //           </Text>
-            //         </VStack>
-            //       </HStack>
-            //     </Box>
-            //   </HStack>
-            // </ScrollView>
           ),
           status: "info",
           // placement: "top-right",
@@ -624,7 +475,7 @@ const Map = ({
                     handleDirectionsReady(result, "previous-dashed")
                   }
                   key={`maps-directions-previous-dashed`}
-                  lineDashPattern={[10, 15, 10, 10]}
+                  lineDashPattern={dashPattern}
                   tappable={true}
                   onPress={() => {
                     // console.log("Directions Press!");
@@ -682,7 +533,7 @@ const Map = ({
                     handleDirectionsReady(result, "next-dashed")
                   }
                   key={`maps-directions-previous-dashed`}
-                  lineDashPattern={[10, 15, 10, 10]}
+                  lineDashPattern={dashPattern}
                   tappable={true}
                   onPress={() => {
                     // console.log("Directions Press!");
@@ -695,6 +546,37 @@ const Map = ({
                 />
               </>
             )}
+          </Box>
+        )
+      );
+    } else if (isViewToStartTrip) {
+      const currentTrip = directions[0];
+      return (
+        currentTrip &&
+        currentTrip.firstPosition &&
+        currentTrip.secondPosition && (
+          <Box key={`directions-view-bookingdetails`}>
+            <MapViewDirections
+              origin={{
+                latitude: currentTrip.firstPosition.geometry.location.lat,
+                longitude: currentTrip.firstPosition.geometry.location.lng,
+              }}
+              destination={{
+                latitude: currentTrip.secondPosition.geometry.location.lat,
+                longitude: currentTrip.secondPosition.geometry.location.lng,
+              }}
+              apikey={googleMapsApi}
+              strokeWidth={mapDirectionLine.primary.stroke}
+              strokeColor={mapDirectionLine.primary.color}
+              mode="DRIVING"
+              onReady={(result) => handleDirectionsReady(result, "current")}
+              key={`maps-directions-curent`}
+              // lineDashPattern={[5, 5, 5, 5, 5]}
+              tappable={true}
+              onPress={() => {
+                onCurrentTripPress();
+              }}
+            />
           </Box>
         )
       );
@@ -769,7 +651,7 @@ const Map = ({
                     handleDirectionsReady(result, `previous-dashed-${index}`)
                   }
                   key={`maps-directions-previous-dashed-${index}`}
-                  lineDashPattern={[10, 15, 10, 10]}
+                  lineDashPattern={dashPattern}
                   tappable={true}
                   onPress={() => {
                     // console.log("Directions Press!");
