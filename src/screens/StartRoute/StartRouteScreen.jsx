@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
@@ -11,6 +11,7 @@ import { themeColors } from "../../../assets/theme/index";
 import Map from "../../components/Map/Map";
 import { getRouteById } from "../../services/routeService";
 import {
+  getBookingDetail,
   pickBookingDetailById,
   updateStatusBookingDetail,
 } from "../../services/bookingDetailService";
@@ -20,42 +21,111 @@ import {
   MapPinIcon,
 } from "react-native-heroicons/outline";
 import { UserContext } from "../../context/UserContext";
+import { generateMapPoint } from "../../utils/mapUtils";
+import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
+import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
+import ErrorAlert from "../../components/Alert/ErrorAlert";
+import { SwipeablePanel } from "../../components/SwipeablePanel";
+import BookingDetailPanel, {
+  BookingDetailSmallPanel,
+} from "../BookingDetail/BookingDetailPanel";
+import { getErrorMessage } from "../../utils/alertUtils";
+import { Box, HStack } from "native-base";
+import { getBookingDetailCustomer } from "../../services/userService";
+import { PaperAirplaneIcon } from "react-native-heroicons/solid";
+import StartRouteConfirmAlert from "./StartRouteAlerts";
 
 const StartRouteScreen = () => {
   const navigation = useNavigation();
   const [isViewVisible, setViewVisible] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const { isError, setIsError, errorMessage, setErrorMessage } =
+    useErrorHandlingHook();
+
   const route = useRoute();
   const { item } = route.params;
   const { user } = useContext(UserContext);
-  console.log(item);
-  const pickupPosition =
-    item?.startStation?.latitude && item?.startStation?.longitude
-      ? {
-          geometry: {
-            location: {
-              lat: item.startStation.latitude,
-              lng: item.startStation.longitude,
-            },
-          },
-          name: item.startStation.name,
-          formatted_address: item.startStation.formatted_address,
-        }
-      : null;
 
-  const destinationPosition =
-    item?.endStation?.latitude && item?.endStation?.longitude
-      ? {
-          geometry: {
-            location: {
-              lat: item.endStation.latitude,
-              lng: item.endStation.longitude,
-            },
-          },
-          name: item.endStation.name,
-          formatted_address: item.endStation.formatted_address,
-        }
-      : null;
+  const [customer, setCustomer] = useState({});
+  const [duration, setDuration] = useState({});
+  const [distance, setDistance] = useState({});
+
+  const [bookingDetail, setBookingDetail] = useState(null);
+  const panelRef = useRef(null);
+
+  // const pickupPosition =
+  //   item?.startStation?.latitude && item?.startStation?.longitude
+  //     ? generateMapPoint(item.startStation)
+  //     : null;
+
+  // const destinationPosition =
+  //   item?.endStation?.latitude && item?.endStation?.longitude
+  //     ? generateMapPoint(item.endStation)
+  //     : null;
+
+  // const directions = [
+  //   {
+  //     firstPosition: pickupPosition,
+  //     secondPosition: destinationPosition,
+  //     bookingDetailId: item.id,
+  //   },
+  // ];
+
+  const [directions, setDirections] = useState(null);
+
+  const [pickupPosition, setPickupPosition] = useState(null);
+  const [destinationPosition, setDestinationPosition] = useState(null);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  const getBookingDetailData = async () => {
+    setIsLoading(true);
+    try {
+      const bookingDetailId = item.id;
+      // console.log(bookingDetailId);
+      const bookingDetailResponse = await getBookingDetail(bookingDetailId);
+      // console.log(bookingDetailResponse);
+      setBookingDetail(bookingDetailResponse);
+
+      setPickupPosition(generateMapPoint(bookingDetailResponse.startStation));
+
+      setDestinationPosition(
+        generateMapPoint(bookingDetailResponse.endStation)
+      );
+
+      const customerResponse = await getBookingDetailCustomer(bookingDetailId);
+      setCustomer(customerResponse);
+
+      let driverSchedules = [
+        {
+          firstPosition: generateMapPoint(bookingDetailResponse.startStation),
+          secondPosition: generateMapPoint(bookingDetailResponse.endStation),
+          bookingDetailId: bookingDetailId,
+        },
+      ];
+
+      setDirections(driverSchedules);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(getErrorMessage(error));
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   getBookingDetailData();
+
+  //   Animated.spring(translateY, {
+  //     toValue: isBottomSheetVisible ? 0 : 400,
+  //     useNativeDriver: true,
+  //   }).start();
+  // }, [isBottomSheetVisible]);
+  useEffect(() => {
+    getBookingDetailData();
+  }, []);
 
   const handleStartRoute = async () => {
     try {
@@ -90,6 +160,48 @@ const StartRouteScreen = () => {
     }
   };
 
+  const openConfirmStartTrip = async () => {
+    try {
+      setIsLoading(true);
+      // const bookingDetailId = bookingDetail.id;
+      // const pickingFee = await getBookingDetailPickFee(bookingDetailId);
+      // setPickingFee(pickingFee);
+      setIsConfirmOpen(true);
+    } catch (error) {
+      handleError("Có lỗi xảy ra", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderActionButton = () => {
+    return (
+      <View
+        style={[
+          styles.cardInsideLocation,
+          {
+            backgroundColor: themeColors.primary,
+            height: 40,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.assignButton}
+          onPress={() => openConfirmStartTrip()}
+        >
+          <HStack alignItems="center">
+            <PaperAirplaneIcon size={20} color={"white"} />
+            <Text marginLeft={2} style={{ color: "white", fontWeight: "bold" }}>
+              Bắt đầu chuyến đi
+            </Text>
+          </HStack>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   // console.log("pickupPosition:", pickupPosition);
   // console.log("destinationPosition:", destinationPosition);
 
@@ -97,252 +209,84 @@ const StartRouteScreen = () => {
     <View style={styles.container}>
       {/* <View style={styles.header}><Header title="Thông tin lịch trình" /></View> */}
       <View style={styles.body}>
-        {/* {routeData && (
+        <ViGoSpinner isLoading={isLoading} />
+        <ErrorAlert isError={isError} errorMessage={errorMessage}>
+          {/* {routeData && (
           <Map
             pickupPosition={routeData.startStation}
             destinationPosition={routeData.endStation}
           />
         )} */}
-        <Map
-          pickupPosition={pickupPosition}
-          destinationPosition={destinationPosition}
-          sendRouteId={(routeId) => console.log("Received Route ID:", routeId)}
-        />
-        <View
-          style={{
-            position: "absolute",
-            alignSelf: "center",
-            top: "0%",
-            width: "90%",
-          }}
-        >
-          <View style={[styles.card, styles.shadowProp]}>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
+          {pickupPosition && destinationPosition && directions && (
+            <Map
+              // pickupPosition={pickupPosition}
+              // destinationPosition={destinationPosition}
+              // sendRouteId={(routeId) => console.log("Received Route ID:", routeId)}
+              directions={directions}
+              isPickingSchedules={false}
+              setIsLoading={setIsLoading}
+              isViewToStartTrip={true}
+              setDistance={setDistance}
+              setDuration={setDuration}
+              distance={distance}
+              duration={duration}
+              onCurrentTripPress={() => {
+                panelRef.current.openLargePanel();
+                // console.log("Current PRessed!");
               }}
+            />
+          )}
+
+          {bookingDetail && (
+            <SwipeablePanel
+              isActive={true}
+              fullWidth={true}
+              noBackgroundOpacity
+              // showCloseButton
+              allowTouchOutside
+              smallPanelItem={
+                <Box px="6">
+                  <BookingDetailSmallPanel
+                    item={bookingDetail}
+                    navigation={navigation}
+                    // handlePickBooking={openConfirmPickBooking}
+                    actionButton={renderActionButton()}
+                  />
+                </Box>
+              }
+              smallPanelHeight={360}
+              // openLarge={openLargePanel}
+              ref={panelRef}
+              // largePanelHeight={680}
             >
-              <View style={[styles.cardInsideDateTime, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons
-                      name="calendar-outline"
-                      size={25}
-                      color="#00A1A1"
-                    /> */}
-                    <CalendarDaysIcon size={25} color="#00A1A1" />
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={styles.title}>Ngày đón</Text>
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {item.date}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <View style={[styles.cardInsideDateTime, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-                    <ClockIcon size={25} color="#00A1A1" />
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text style={styles.title}>Giờ đón</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {item.customerDesiredPickupTime}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={[styles.cardInsideLocation, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons name="locate-outline" size={25} color="#00A1A1" /> */}
-                    <MapPinIcon size={25} color="#00A1A1" />
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <Text style={styles.title}>Điểm đón</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                      }}
-                    >
-                      {item.startStation.name}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={[styles.cardInsideLocation, styles.shadowProp]}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexGrow: 1,
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    {/* <Ionicons
-                      name="location-outline"
-                      size={25}
-                      color="#00A1A1"
-                    /> */}
-                    <MapPinIcon size={25} color="#00A1A1" />
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      flexGrow: 1,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <Text style={styles.title}>Điểm đến</Text>
-
-                    <Text
-                      style={{
-                        paddingLeft: 10,
-                        paddingBottom: 10,
-                        fontSize: 15,
-                      }}
-                    >
-                      {item.endStation.name}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                flexGrow: 1,
-                justifyContent: "center",
-              }}
-            >
-              <View
-                style={[
-                  styles.cardInsideLocation,
-                  styles.shadowProp,
-                  {
-                    backgroundColor: themeColors.primary,
-                    height: 40,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  },
-                ]}
-              >
-                <TouchableOpacity
-                  style={styles.assignButton}
-                  onPress={handleStartRoute}
-                >
-                  <Text style={{ color: "white", fontWeight: "bold" }}>
-                    Bắt đầu chuyến đi
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
+              <Box px="6">
+                <BookingDetailPanel
+                  customer={customer}
+                  item={bookingDetail}
+                  navigation={navigation}
+                  // toggleBottomSheet={toggleBottomSheet}
+                  duration={duration}
+                  distance={distance}
+                  // handlePickBooking={openConfirmPickBooking}
+                  actionButton={renderActionButton()}
+                />
+              </Box>
+            </SwipeablePanel>
+          )}
+        </ErrorAlert>
       </View>
-
-      <View style={styles.footer}>{/* <BottomNavigationBar /> */}</View>
+      {bookingDetail && duration && (
+        <StartRouteConfirmAlert
+          key={"start-route-screen"}
+          confirmOpen={isConfirmOpen}
+          setConfirmOpen={setIsConfirmOpen}
+          // item={bookingDetail}
+          handleOkPress={() => {}}
+          // pickingFee={pickingFee}
+          pickupTime={bookingDetail.customerDesiredPickupTime}
+          duration={duration}
+        />
+      )}
     </View>
   );
 };

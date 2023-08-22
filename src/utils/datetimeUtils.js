@@ -25,3 +25,12 @@ export const calculateAge = (dateOfBirth) => {
   );
   return years;
 };
+
+export const getDifference = (startTime, endTime) => {
+  const first = moment(startTime);
+  const second = moment(endTime);
+  const diffDays = second.diff(first, "days");
+  const diffHours = second.diff(first, "hours");
+  const diffMinutes = second.diff(first, "minutes");
+  return { diffDays, diffHours, diffMinutes };
+};

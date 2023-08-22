@@ -41,6 +41,7 @@ export const getBookingDetailByDriverId = async (
   driverId,
   minDate = null,
   maxDate = null,
+  minPickupTime = null,
   status = "",
   pageSize = 10,
   pageNumber = 1
@@ -52,6 +53,9 @@ export const getBookingDetailByDriverId = async (
   }
   if (maxDate != null) {
     endpoint += `&maxDate=${maxDate}`;
+  }
+  if (minPickupTime != null) {
+    endpoint += `&minPickupTime=${minPickupTime}`;
   }
   if (status) {
     endpoint += `&status=${status}`;
