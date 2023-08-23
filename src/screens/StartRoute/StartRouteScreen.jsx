@@ -228,8 +228,8 @@ const StartRouteScreen = () => {
               isViewToStartTrip={true}
               setDistance={setDistance}
               setDuration={setDuration}
-              distance={distance}
-              duration={duration}
+              // distance={distance}
+              // duration={duration}
               onCurrentTripPress={() => {
                 panelRef.current.openLargePanel();
                 // console.log("Current PRessed!");

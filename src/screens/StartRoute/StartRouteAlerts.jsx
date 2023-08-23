@@ -24,8 +24,8 @@ const StartRouteConfirmAlert = ({
       moment()
     );
 
-    console.log(diffHours);
-    console.log(diffMinutes);
+    // console.log(diffHours);
+    // console.log(diffMinutes);
 
     if (diffMinutes > duration + 20) {
       let differenceString = "";

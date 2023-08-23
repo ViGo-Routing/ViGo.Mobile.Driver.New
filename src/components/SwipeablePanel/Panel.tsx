@@ -331,7 +331,7 @@ class SwipeablePanel extends React.Component<
               ? "rgba(0,0,0,0)"
               : "rgba(0,0,0,0.5)",
             height: allowTouchOutside ? currentHeight : deviceHeight,
-            width: deviceWidth,
+            width: deviceWidth - 20,
           },
         ]}
       >
@@ -353,7 +353,7 @@ class SwipeablePanel extends React.Component<
           style={[
             SwipeablePanelStyles.panel,
             {
-              width: this.props.fullWidth ? deviceWidth : deviceWidth - 50,
+              width: this.props.fullWidth ? deviceWidth - 20 : deviceWidth - 50,
               height: panelHeight,
             },
             { transform: this.state.pan.getTranslateTransform() },
@@ -391,6 +391,8 @@ const SwipeablePanelStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
+    marginLeft: 10,
+    marginRight: 10,
   },
   panel: {
     position: "absolute",
@@ -401,8 +403,8 @@ const SwipeablePanelStyles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: "white",
     bottom: 0,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     overflow: "hidden",

@@ -39,7 +39,7 @@ interface ViGoAlertProps {
   // onCancelPress: () => void;
   // isOkDisplayed: boolean;
   // okButtonText: string;
-  // onOkPress: () => void;
+  onOkPress: () => void;
 }
 
 // const emitter = new EventEmitter();
@@ -85,7 +85,11 @@ const ViGoAlertProvider = (/*{
     "md" as ThemeComponentSizeType<"AlertDialog">
   );
 
+  // const defaultOkButtonPress = () => {setIsDialogOpen(false);};
+  // const [okButtonPress, setOkButtonPress] = useState(defaultOkButtonPress);
+
   const cancelRef = useRef(null);
+  // const okButtonRef = useRef(null);
 
   // const toast = useToast();
 
@@ -100,7 +104,8 @@ const ViGoAlertProvider = (/*{
     primaryButtonText = "Đã hiểu",
     displayCloseButton = true,
     size = "md",
-  }: //   isCancelDisplayed = true,
+  }: // onOkPress = () => {},
+  //   isCancelDisplayed = true,
   // cancelButtonText = "Hủy",
   // onCancelPress = () => {},
   // isOkDisplayed = true,
@@ -171,6 +176,19 @@ const ViGoAlertProvider = (/*{
       setPrimaryButtonText(primaryButtonText);
       setDisplayCloseButton(displayCloseButton);
       setSize(size);
+      // if (okButtonRef != null) {
+      //   okButtonRef.current.setNativeProps({
+      //     onPress: () => {
+      //       setIsDialogOpen(false);
+      //       onOkPress();
+      //     },
+      //   });
+      // }
+      // const okPress = () => {
+      //   setIsDialogOpen(false);
+      //   onOkPress();
+      // };
+      // setOkButtonPress(okPress);
     }
   };
   useEffect(() => {
@@ -204,7 +222,9 @@ const ViGoAlertProvider = (/*{
                 colorScheme={status}
                 onPress={() => {
                   setIsDialogOpen(false);
+                  // onOkPress
                 }}
+                // ref={okButtonRef}
               >
                 {primaryButtonText}
               </Button>

@@ -141,7 +141,7 @@ const BookingDetailScreen = () => {
 
       setDirections(driverSchedules);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       setErrorMessage(getErrorMessage(error));
       setIsError(true);
     } finally {
@@ -407,48 +407,48 @@ const BookingDetailScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    flexGrow: 1,
-    backgroundColor: "white",
-    borderRadius: 8,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    width: "100%",
-    marginVertical: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
+  // card: {
+  //   flexGrow: 1,
+  //   backgroundColor: "white",
+  //   borderRadius: 8,
+  //   paddingVertical: 5,
+  //   paddingHorizontal: 15,
+  //   width: "100%",
+  //   marginVertical: 10,
+  //   shadowColor: "#000",
+  //   shadowOffset: {
+  //     width: 0,
+  //     height: 2,
+  //   },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3.84,
+  //   elevation: 5,
+  // },
   container: {
     flexDirection: "column", // inner items will be added vertically
     flexGrow: 1, // all the available vertical space will be occupied by it
     justifyContent: "space-between", // will create the gutter between body and footer
   },
-  cardInsideDateTime: {
-    flexGrow: 1,
-    backgroundColor: "white",
-    borderRadius: 8,
+  // cardInsideDateTime: {
+  //   flexGrow: 1,
+  //   backgroundColor: "white",
+  //   borderRadius: 8,
 
-    paddingHorizontal: 15,
-    width: "40%",
-    marginVertical: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    flexDirection: "row",
-    flexGrow: 1,
-    margin: 5,
-  },
+  //   paddingHorizontal: 15,
+  //   width: "40%",
+  //   marginVertical: 10,
+  //   shadowColor: "#000",
+  //   shadowOffset: {
+  //     width: 0,
+  //     height: 2,
+  //   },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3.84,
+  //   elevation: 5,
+  //   flexDirection: "row",
+  //   flexGrow: 1,
+  //   margin: 5,
+  // },
   cardInsideLocation: {
     flexGrow: 1,
     backgroundColor: "white",
@@ -471,17 +471,17 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
-  title: {
-    color: themeColors.primary,
-    fontSize: 16,
-    fontWeight: "bold",
-    paddingTop: 10,
-    // paddingLeft: 10,
-  },
-  list: {
-    paddingTop: 10,
-    fontSize: 20,
-  },
+  // title: {
+  //   color: themeColors.primary,
+  //   fontSize: 16,
+  //   fontWeight: "bold",
+  //   paddingTop: 10,
+  //   // paddingLeft: 10,
+  // },
+  // list: {
+  //   paddingTop: 10,
+  //   fontSize: 20,
+  // },
 });
 
 export default BookingDetailScreen;
