@@ -108,3 +108,19 @@ export const getDriverSchedulesForPickingTrip = async (bookingDetailId) => {
   );
   return response.data;
 };
+
+export const getUpcomingTrip = async (driverId) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/Upcoming/${driverId}`
+  );
+
+  return response.status == 204 ? null : response.data;
+};
+
+export const getCurrentTrip = async (driverId) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/Current/${driverId}`
+  );
+
+  return response.status == 204 ? null : response.data;
+};

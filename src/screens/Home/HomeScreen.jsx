@@ -9,7 +9,11 @@ import {
 } from "react-native";
 import { Agenda } from "react-native-calendars";
 import { UserContext } from "../../context/UserContext";
-import { getAvailableBookingDetails } from "../../services/bookingDetailService";
+import {
+  getAvailableBookingDetails,
+  getCurrentTrip,
+  getUpcomingTrip,
+} from "../../services/bookingDetailService";
 import { themeColors, vigoStyles } from "../../../assets/theme";
 import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -36,6 +40,7 @@ import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
 import { vndFormat } from "../../utils/numberUtils";
 import InfoAlert from "../../components/Alert/InfoAlert";
 import BookingDetailCard from "../../components/Card/BookingDetailCard";
+import HomeTripInformationCard from "../../components/Card/HomeTripInformationCard";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -45,6 +50,9 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [onScroll, setOnScroll] = useState(false);
   const [nextPageNumber, setNextPageNumber] = useState(1);
+
+  const [currentTrip, setCurrentTrip] = useState(null);
+  const [upcomingTrip, setUpcomingTrip] = useState(null);
 
   const { isError, setIsError, errorMessage, setErrorMessage } =
     useErrorHandlingHook();
@@ -63,12 +71,20 @@ const HomeScreen = () => {
       const details = detailsResponse.data.data;
 
       setListBookingDetailAvailable(details);
-      console.log(details.length);
+      // console.log(details.length);
 
       if (detailsResponse.data.hasNextPage == true) {
         setNextPageNumber(2);
       } else {
         setNextPageNumber(null);
+      }
+
+      const currentTrip = await getCurrentTrip(user.id);
+      setCurrentTrip(currentTrip);
+      if (currentTrip == null) {
+        // Has no Current trip
+        const upcomingTrip = await getUpcomingTrip(user.id);
+        setUpcomingTrip(upcomingTrip);
       }
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
@@ -106,11 +122,11 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchRouteData();
-    });
+    // const unsubscribe = navigation.addListener("focus", () => {
+    fetchRouteData();
+    // });
 
-    return unsubscribe;
+    // return unsubscribe;
   }, []);
 
   handelSendData = (item) => {
@@ -301,7 +317,11 @@ const HomeScreen = () => {
       </View>
       {/* </Box>
         </ErrorAlert> */}
-
+      <HomeTripInformationCard
+        currentTrip={currentTrip}
+        upcomingTrip={upcomingTrip}
+        navigation={navigation}
+      />
       <View>
         <BottomNavigationBar />
       </View>

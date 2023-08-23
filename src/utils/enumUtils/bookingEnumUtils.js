@@ -1,8 +1,8 @@
-export const checkStatus = (inputStatus) => {
+export const getBookingDetailStatusString = (inputStatus) => {
   if (inputStatus === "PENDING_ASSIGN") {
     return "Tài xế chưa nhận";
   } else if (inputStatus === "ASSIGNED") {
-    return "Đang đi";
+    return "Đang chờ tài xế bắt đầu chuyến đi";
   } else if (inputStatus === "GOING_TO_PICKUP") {
     return "Đang rước";
   } else if (inputStatus === "ARRIVE_AT_PICKUP") {
@@ -20,7 +20,7 @@ export const checkStatus = (inputStatus) => {
   }
 };
 
-export const getStatusColor = (inputStatus) => {
+export const getBookingDetailStatusColor = (inputStatus) => {
   switch (inputStatus) {
     case "PENDING_ASSIGN":
       return styles.pendingColor;

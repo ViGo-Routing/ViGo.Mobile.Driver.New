@@ -55,8 +55,8 @@ interface MapProps {
   // distance: {};
   setDuration: React.Dispatch<React.SetStateAction<{}>>;
   // duration: {};
-  isPickingSchedules: boolean;
-  isViewToStartTrip: boolean;
+  isPickingSchedules: boolean | null;
+  isViewToStartTrip: boolean | null;
   onCurrentTripPress: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -341,6 +341,7 @@ const Map = ({
               item={bookingDetailResponse}
               distance={distances[`${index}`]}
               duration={durations[`${index}`]}
+              customer={null}
             />
           ),
           status: "info",

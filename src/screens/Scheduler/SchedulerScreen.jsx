@@ -175,15 +175,16 @@ const SchedulerScreen = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchData();
-    });
+    // const unsubscribe = navigation.addListener("focus", () => {
+    fetchData();
+    // });
 
-    return unsubscribe;
+    // return unsubscribe;
   }, []);
 
   const handelStartRoute = (item) => {
-    navigation.navigate("StartRoute", { item });
+    // navigation.navigate("StartRoute", { item });
+    navigation.navigate("CurrentStartingTrip", { bookingDetailId: item.id });
   };
 
   const loadItems = (day, items) => {

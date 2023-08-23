@@ -3,8 +3,8 @@ import { vndFormat } from "../../utils/numberUtils";
 import { themeColors } from "../../../assets/theme";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import {
-  checkStatus,
-  getStatusColor,
+  getBookingDetailStatusString,
+  getBookingDetailStatusColor,
 } from "../../utils/enumUtils/bookingEnumUtils";
 import { ArrowRightIcon } from "react-native-heroicons/solid";
 import { toVnDateString, toVnTimeString } from "../../utils/datetimeUtils";
@@ -74,8 +74,8 @@ const BookingDetailCard = ({ element, handleBookingDetailClick }) => {
                 <Text w={20} color="gray.500" bold fontSize={15}>
                   Trạng thái:
                 </Text>
-                <Text style={[getStatusColor(element.status)]}>
-                  {checkStatus(element.status)}
+                <Text style={[getBookingDetailStatusColor(element.status)]}>
+                  {getBookingDetailStatusString(element.status)}
                 </Text>
               </HStack>
               <HStack>

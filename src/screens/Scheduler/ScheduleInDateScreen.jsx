@@ -34,6 +34,7 @@ const ScheduleInDateScreen = () => {
         user.id,
         formattedDate,
         formattedDate,
+        null,
         "ASSIGNED",
         -1,
         1 /*, formattedPreviousDate*/
