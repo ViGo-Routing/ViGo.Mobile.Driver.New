@@ -14,14 +14,14 @@ import storage from "@react-native-firebase/storage";
 
 // IMPORT COMPONENTS
 
-import CustomButton from "../../components/Button/CustomButton.jsx";
-import Profile from "../../components/Profile/Profile.jsx";
-import { themeColors } from "../../../assets/theme/index.jsx";
-import Header from "../../components/Header/Header.jsx";
-import { editProfile } from "../../services/userService.jsx";
+import CustomButton from "../../components/Button/CustomButton";
+import Profile from "../../components/Profile/Profile";
+import { themeColors } from "../../../assets/theme/index";
+import Header from "../../components/Header/Header";
+import { editProfile } from "../../services/userService";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { months } from "moment/moment.js";
+import { months } from "moment/moment";
 import { useNavigation } from "@react-navigation/native";
 
 const EditProfileScreen = ({ route }) => {
