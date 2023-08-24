@@ -41,11 +41,13 @@ import { vndFormat } from "../../utils/numberUtils";
 import InfoAlert from "../../components/Alert/InfoAlert";
 import BookingDetailCard from "../../components/Card/BookingDetailCard";
 import HomeTripInformationCard from "../../components/Card/HomeTripInformationCard";
+import { getAvailableBookings } from "../../services/bookingService";
+import BookingCard from "../../components/Card/BookingCard";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { user } = useContext(UserContext);
-  const [bookingDetailAvailable, setListBookingDetailAvailable] = useState([]);
+  const [bookingsAvailable, setBookingsAvailable] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [onScroll, setOnScroll] = useState(false);
@@ -63,17 +65,18 @@ const HomeScreen = () => {
     setIsError(false);
     setIsLoading(true);
     try {
-      const detailsResponse = await getAvailableBookingDetails(
+      const availableBookings = await getAvailableBookings(
         user.id,
         pageSize,
         1
       );
-      const details = detailsResponse.data.data;
+      const bookings = availableBookings.data;
+      console.log(availableBookings);
 
-      setListBookingDetailAvailable(details);
+      setBookingsAvailable(bookings);
       // console.log(details.length);
 
-      if (detailsResponse.data.hasNextPage == true) {
+      if (availableBookings.data.hasNextPage == true) {
         setNextPageNumber(2);
       } else {
         setNextPageNumber(null);
@@ -100,18 +103,15 @@ const HomeScreen = () => {
     }
 
     if (nextPageNumber > 1) {
-      let moreDataResponse = await getAvailableBookingDetails(
+      let moreDataResponse = await getAvailableBookings(
         user.id,
         pageSize,
         nextPageNumber
       );
 
-      const moreData = [
-        ...bookingDetailAvailable,
-        ...moreDataResponse.data.data,
-      ];
+      const moreData = [...bookingsAvailable, ...moreDataResponse.data];
 
-      setListBookingDetailAvailable(moreData);
+      setBookingsAvailable(moreData);
 
       if (moreDataResponse.data.hasNextPage == true) {
         setNextPageNumber(nextPageNumber + 1);
@@ -129,9 +129,10 @@ const HomeScreen = () => {
     // return unsubscribe;
   }, []);
 
-  handelSendData = (item) => {
-    navigation.navigate("BookingDetail", { item, user });
-    console.log(item);
+  handleSendData = (item) => {
+    // navigation.navigate("DetailBooking", { item, user });
+    navigation.navigate("DetailBooking", { bookingId: item.id });
+    // console.log(item);
   };
 
   // const [response, setResponse] = useState(null);
@@ -266,10 +267,11 @@ const HomeScreen = () => {
     //   </TouchableOpacity>
     // );
     return (
-      <BookingDetailCard
-        element={item}
-        handleBookingDetailClick={handelSendData}
-      />
+      // <BookingDetailCard
+      //   element={item}
+      //   handleBookingDetailClick={handelSendData}
+      // />
+      <BookingCard element={item} handleBookingClick={handleSendData} />
     );
   };
 
@@ -284,7 +286,7 @@ const HomeScreen = () => {
       />
       <View style={vigoStyles.body}>
         <Heading fontSize="2xl" marginTop="0" marginLeft="0">
-          Các chuyến đi còn trống
+          Các hành trình còn trống
         </Heading>
         {/* <ErrorAlert isError={isError} errorMessage={errorMessage}>
           <Box marginTop="4"> */}
@@ -294,13 +296,13 @@ const HomeScreen = () => {
           marginTop="3"
           // paddingBottom="5"
           // px="3"
-          data={bookingDetailAvailable}
+          data={bookingsAvailable}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => {
             return <>{renderListItem(item, index)}</>;
           }}
           ListEmptyComponent={
-            <InfoAlert message="Không có chuyến đi nào trống" />
+            <InfoAlert message="Không có hành trình nào còn trống" />
           }
           refreshing={isLoading}
           onRefresh={() => fetchRouteData()}
@@ -311,7 +313,8 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.5}
           contentContainerStyle={{
             // paddingHorizontal: 20,
-            paddingVertical: 20,
+            paddingVertical: 10,
+            paddingBottom: 40,
           }}
         />
       </View>

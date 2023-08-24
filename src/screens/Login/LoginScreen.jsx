@@ -53,14 +53,14 @@ export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const { user, setUser } = useContext(UserContext);
-  const [enterOtpModalVisible, setEnterOtpModalVisible] = useState(false);
+  // const [enterOtpModalVisible, setEnterOtpModalVisible] = useState(false);
 
   // const recaptchaVerifier = useRef(null);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [confirm, setConfirm] = useState(null);
+  // const [confirm, setConfirm] = useState(null);
   const [firebaseToken, setFirebaseToken] = useState(null);
-  const recaptchaVerifier = useRef(null);
+  // const recaptchaVerifier = useRef(null);
   const [show, setShow] = useState(false);
   const eventEmitter = new NativeEventEmitter();
 
@@ -118,91 +118,91 @@ export default function LoginScreen() {
       setIsLoading(true);
       const phone = `+84${phoneNumber.substring(1, 10)}`;
 
-      login(phone, password)
-        .then(async (response) => {
-          setUser(response.user);
-          SignalRService.updateToken(response.token);
-          // console.log("Token " + (await getString("token")));
-          try {
-            const permissions = [
-              PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            ];
+      try {
+        const response = await login(phone, password);
+        // .then(async (response) => {
+        setUser(response.user);
+        SignalRService.updateToken(response.token);
+        // console.log("Token " + (await getString("token")));
+        // try {
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ];
 
-            const results = await PermissionsAndroid.requestMultiple(
-              permissions,
-              {
-                title: "Cho phép ViGo gửi thông báo đến bạn",
-                message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
+        const results = await PermissionsAndroid.requestMultiple(permissions, {
+          title: "Cho phép ViGo gửi thông báo đến bạn",
+          message: `Nhận thông báo về trạng thái giao dịch, nhắc nhở chuyến đi 
             trong ngày và hơn thế nữa`,
-                buttonNeutral: "Hỏi lại sau",
-                buttonNegative: "Từ chối",
-                buttonPositive: "Đồng ý",
-              }
-            );
-            setIsLoading(false);
-            if (
-              results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
-                PermissionsAndroid.RESULTS.GRANTED &&
-              results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
-                PermissionsAndroid.RESULTS.GRANTED
-            ) {
-              await messaging().registerDeviceForRemoteMessages();
-              const fcmToken = await messaging().getToken();
-              await updateUserFcmToken(response.user.id, fcmToken);
-            } else {
-              console.log("Some permissions denied");
-              // Handle the case where one or both permissions are denied
-            }
-            eventEmitter.emit(eventNames.SHOW_TOAST, {
-              title: "Đăng nhập thành công",
-              description: "",
-              status: "success",
-              placement: "top",
-              duration: 3000,
-            });
-            if (response.user.status == "PENDING") {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "NewDriverUpdateProfile" }],
-              });
-              // navigation.replace("NewDriverUpdateProfile");
-            } else {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Home" }],
-              });
-              // navigation.navigate("Home");
-            }
-          } catch (error) {
-            // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
-            handleError("Có lỗi xảy ra", error);
-            // console.warn(err);
-            setIsLoading(false);
-          }
-        })
-        .catch((err) => {
-          setIsLoading(false);
-          // console.error(err.response.status);
-          // const eventEmitter = new NativeEventEmitter();
-          if (err.response && err.response.status != 401) {
-            eventEmitter.emit(eventNames.SHOW_TOAST, {
-              // title: "Đăng nhập không thành công",
-              description: err.response.data,
-              status: "error",
-              // placement: "top-right",
-              isDialog: true,
-            });
-          } else {
-            console.log(err);
-            eventEmitter.emit(eventNames.SHOW_TOAST, {
-              title: "Đăng nhập không thành công",
-              description: "Vui lòng kiểm tra lại thông tin đăng nhập",
-              status: "error",
-              // placement: "top-right",
-            });
-          }
+          buttonNeutral: "Hỏi lại sau",
+          buttonNegative: "Từ chối",
+          buttonPositive: "Đồng ý",
         });
+        // setIsLoading(false);
+        if (
+          results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
+            PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          await messaging().registerDeviceForRemoteMessages();
+          const fcmToken = await messaging().getToken();
+          await updateUserFcmToken(response.user.id, fcmToken);
+        } else {
+          console.log("Some permissions denied");
+          // Handle the case where one or both permissions are denied
+        }
+        eventEmitter.emit(eventNames.SHOW_TOAST, {
+          title: "Đăng nhập thành công",
+          description: "",
+          status: "success",
+          placement: "top",
+          duration: 3000,
+        });
+        if (response.user.status == "PENDING") {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "NewDriverUpdateProfile" }],
+          });
+          // navigation.replace("NewDriverUpdateProfile");
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Home" }],
+          });
+          // navigation.navigate("Home");
+        }
+        // } catch (error) {
+        //   // Alert.alert("Có lỗi xảy ra", "Chi tiết: " + err.message);
+        //   handleError("Có lỗi xảy ra", error);
+        //   // console.warn(err);
+        //   setIsLoading(false);
+        // }
+        // }
+      } catch (err) {
+        setIsLoading(false);
+        // console.error(err.response.status);
+        // const eventEmitter = new NativeEventEmitter();
+        if (err.response && err.response.status != 401) {
+          eventEmitter.emit(eventNames.SHOW_TOAST, {
+            // title: "Đăng nhập không thành công",
+            description: err.response.data,
+            status: "error",
+            // placement: "top-right",
+            isDialog: true,
+          });
+        } else {
+          // console.log(err);
+          eventEmitter.emit(eventNames.SHOW_TOAST, {
+            title: "Đăng nhập không thành công",
+            description: "Vui lòng kiểm tra lại thông tin đăng nhập",
+            status: "error",
+            // placement: "top-right",
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

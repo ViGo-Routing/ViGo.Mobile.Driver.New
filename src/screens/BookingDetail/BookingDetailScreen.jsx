@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -37,13 +37,14 @@ import {
 } from "../../services/bookingDetailService";
 import { generateMapPoint } from "../../utils/mapUtils";
 import { PaperAirplaneIcon } from "react-native-heroicons/solid";
+import { UserContext } from "../../context/UserContext";
 // import { SwipeablePanel } from "react-native-swipe-up-panel";
 
 const BookingDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { item } = route.params;
-  const { user } = route.params;
+  const { user } = useContext(UserContext);
 
   const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
   const { isError, setIsError, errorMessage, setErrorMessage } =

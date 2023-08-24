@@ -34,3 +34,23 @@ export const getDifference = (startTime, endTime) => {
   const diffMinutes = second.diff(first, "minutes");
   return { diffDays, diffHours, diffMinutes };
 };
+
+export const getDayOfWeek = (date) => {
+  const dayOfWeek = moment(date, "YYYY-MM-DD").day();
+  switch (dayOfWeek) {
+    case 0:
+      return "CN";
+    case 1:
+      return "T2";
+    case 2:
+      return "T3";
+    case 3:
+      return "T4";
+    case 4:
+      return "T5";
+    case 5:
+      return "T6";
+    case 6:
+      return "T7";
+  }
+};

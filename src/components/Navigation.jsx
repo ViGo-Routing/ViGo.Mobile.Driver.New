@@ -26,6 +26,7 @@ import TopupScreen from "../screens/Wallet/Topup/TopupScreen";
 import MyNotifcationScreen from "../screens/Notification/MyNotificationScreen";
 import ScheduleInDateScreen from "../screens/Scheduler/ScheduleInDateScreen";
 import CurrentStartingTripScreen from "../screens/StartRoute/CurrentStartingTripScreen";
+import DetailBookingScreen from "../screens/Booking/DetailBookingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -141,6 +142,11 @@ const Navigation = () => {
         name="CurrentStartingTrip"
         options={{ headerShown: false }}
         component={CurrentStartingTripScreen}
+      />
+      <Stack.Screen
+        name="DetailBooking"
+        options={{ headerShown: false }}
+        component={DetailBookingScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>
