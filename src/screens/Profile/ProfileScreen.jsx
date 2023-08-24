@@ -6,12 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import Header from "../../components/Header/Header.jsx";
+import Header from "../../components/Header/Header";
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
-import ProfileCard from "../../components/Card/ProfileCard.jsx";
+import ProfileCard from "../../components/Card/ProfileCard";
 // import { Ionicons } from '@expo/vector-icons'
-import { themeColors } from "../../../assets/theme/index.jsx";
-import { getProfile } from "../../services/userService.jsx";
+import { themeColors } from "../../../assets/theme/index";
+import { getProfile } from "../../services/userService";
 import {
   ArrowLeftOnRectangleIcon,
   BellAlertIcon,
@@ -25,8 +25,8 @@ import {
   WalletIcon,
 } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
-import { removeItem } from "../../utils/storageUtils.js";
-import { UserContext } from "../../context/UserContext.jsx";
+import { removeItem } from "../../utils/storageUtils";
+import { UserContext } from "../../context/UserContext";
 
 const ProfileSreen = () => {
   const navigation = useNavigation();

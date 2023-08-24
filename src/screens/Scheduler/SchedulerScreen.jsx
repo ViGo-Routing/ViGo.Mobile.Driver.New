@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   View,
+  BackHandler,
 } from "react-native";
 import { Agenda, LocaleConfig } from "react-native-calendars";
 import { getBookingDetailByDriverId } from "../../services/bookingDetailService";
@@ -180,6 +181,12 @@ const SchedulerScreen = () => {
     // });
 
     // return unsubscribe;
+    const hardwareBackPress = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => navigation.navigate("Home")
+    );
+
+    return () => hardwareBackPress.remove();
   }, []);
 
   const handelStartRoute = (item) => {

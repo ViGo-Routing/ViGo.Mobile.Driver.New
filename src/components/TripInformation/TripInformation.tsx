@@ -14,6 +14,7 @@ import { StyleSheet } from "react-native";
 import { themeColors } from "../../../assets/theme";
 import { toPercent, vndFormat } from "../../utils/numberUtils";
 import { ClockIcon as ClockOutlineIcon } from "react-native-heroicons/outline";
+import CustomerInformationCard from "../Card/CustomerInformationCard";
 
 interface TripBasicInformationProps {
   item: any;
@@ -200,38 +201,8 @@ const TripFullInformation = ({
           </Box>
         </HStack>
 
-        {customer && (
-          <HStack marginTop={5}>
-            <Image
-              source={
-                customer.avatarUrl
-                  ? { uri: customer.avatarUrl }
-                  : require("../../../assets/images/no-image.jpg")
-              }
-              // style={styles.image}
-              alt="Ảnh đại diện"
-              size={60}
-              borderRadius={100}
-            />
-            <VStack paddingLeft={5}>
-              <Text>
-                Khách hàng <Text bold>{customer.name}</Text>
-              </Text>
-              <HStack>
-                <Text>
-                  {`${customer.gender == true ? "Nam" : "Nữ"}${
-                    customer.dateOfBirth
-                      ? ` | ${calculateAge(customer.dateOfBirth)} tuổi`
-                      : ""
-                  }`}
-                </Text>
-              </HStack>
-              <Text>
-                Tỉ lệ hủy chuyến: {toPercent(customer.canceledTripRate)}
-              </Text>
-            </VStack>
-          </HStack>
-        )}
+        <CustomerInformationCard displayCustomerText customer={customer} />
+
         <HStack justifyContent="flex-end" marginTop="3">
           <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
             <Text fontSize="2xl" style={styles.titlePrice}>

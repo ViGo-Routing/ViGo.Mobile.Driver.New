@@ -17,6 +17,18 @@ export const getAvailableBookingDetails = async (
   // }
 };
 
+export const getAvailableBookingDetailsByBooking = async (
+  driverId,
+  bookingId,
+  pageSize = -1,
+  pageNumber = 1
+) => {
+  const response = await apiManager.get(
+    `api/BookingDetail/Driver/Available/${driverId}/${bookingId}?pageSize=${pageSize}&pageNumber=${pageNumber}`
+  );
+  return response.data;
+};
+
 export const pickBookingDetailById = async (bookingDetailId) => {
   console.log(bookingDetailId);
   // try {
