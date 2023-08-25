@@ -61,7 +61,7 @@ interface MapProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const mapDirectionLine = {
+export const mapDirectionLine = {
   primary: {
     color: themeColors.primary,
     stroke: 5,
@@ -91,22 +91,12 @@ const Map = ({
   const eventEmitter = new NativeEventEmitter();
   const navigation = useNavigation();
 
-  // const { latitude, longitude } = pickupPosition?.geometry?.location || {};
-  // const pickupPositionCoords =
-  //   latitude && longitude ? { latitude, longitude } : null;
-
-  // const { latitude: destLat, longitude: destLng } =
-  //   destinationPosition?.geometry?.location || {};
-  // const destinationPositionCoords =
-  //   destLat && destLng ? { latitude: destLat, longitude: destLng } : null;
   const getRegion = () => {
     const currentPoint = isPickingSchedules ? directions[1] : directions[0];
     // const lastPoint = directions[-1];
 
     const { lat: currentLat, lng: currentLong } =
       currentPoint.firstPosition?.geometry?.location || {};
-    // console.log(currentPoint.firstPosition?.geometry?.location);
-    // const {latitude: lastLat, longitude: lastLong} = lastPoint.secondPosition?.geometry?.location || {};
     const currentCoords =
       currentLat && currentLong
         ? { latitude: currentLat, longitude: currentLong }
@@ -129,8 +119,8 @@ const Map = ({
 
   const [distances, setDistances] = useState({});
   const [durations, setDurations] = useState({});
-  var tempDistance = {},
-    tempDuration = {};
+  var tempDistance = {} as any,
+    tempDuration = {} as any;
   // const [trips, setTrips] = useState(null);
 
   const [bookingDetail, setBookingDetail] = useState(null);
@@ -142,60 +132,14 @@ const Map = ({
     setRegion(getRegion());
   }, [directions]);
 
-  // useEffect(() => {
-  //   if (pickupPositionCoords) {
-  //     setRegion((prevRegion) => ({
-  //       ...prevRegion,
-  //       latitude: pickupPositionCoords.latitude,
-  //       longitude: pickupPositionCoords.longitude,
-  //     }));
-  //   }
-  // }, [pickupPositionCoords]);
-
-  // useEffect(() => {
-  //   if (destinationPositionCoords) {
-  //     setRegion((prevRegion) => ({
-  //       ...prevRegion,
-  //       latitude: destinationPositionCoords.latitude,
-  //       longitude: destinationPositionCoords.longitude,
-  //     }));
-  //   }
-  // }, [destinationPositionCoords]);
-
   const handleDirectionsReady = async (
     result: any,
     directionIndex: string | number
   ) => {
-    // const requestData = {
-    //   // Request body data
-    //   name: `${pickupPosition.name} - ${destinationPosition.name}`,
-    //   distance: result.distance,
-    //   duration: result.duration,
-    //   status: "ACTIVE",
-    //   routineType: "RANDOMLY",
-    //   routeType: "SPECIFIC_ROUTE_SPECIFIC_TIME",
-    //   startStation: {
-    //     longtitude: pickupPosition.geometry.location.lng,
-    //     latitude: pickupPosition.geometry.location.lat,
-    //     name: pickupPosition.name,
-    //     address: pickupPosition.formatted_address,
-    //   },
-    //   endStation: {
-    //     longtitude: destinationPosition.geometry.location.lng,
-    //     latitude: destinationPosition.geometry.location.lat,
-    //     name: destinationPosition.name,
-    //     address: destinationPosition.formatted_address,
-    //   },
-    // };
-
-    // console.log(result);
-
     if (directionIndex == "current") {
       setDistance(result.distance);
       setDuration(result.duration);
     } else {
-      // let newDistances = {...distances};
-
       tempDistance[`${directionIndex}`] = result.distance;
       // console.log(distance);
       setDistances(tempDistance);
@@ -204,21 +148,6 @@ const Map = ({
       // console.log(duration);
       setDurations(tempDuration);
     }
-
-    // if (setDistance) {
-
-    // }
-    // if (setDuration) {
-
-    // }
-
-    // try {
-    //   const response = await createRoute(requestData);
-    //   console.log("response", response.data.id);
-    //   sendRouteId(response.data.id);
-    // } catch (error) {
-    //   console.log("Create Route Error ", error);
-    // }
   };
 
   const displayAddressDialog = (position: any) => {
@@ -257,7 +186,6 @@ const Map = ({
                 <Image
                   size={"xs"}
                   resizeMode="contain"
-                  alignSeft="center"
                   source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
                   alt={"Điểm đi"}
                 />
@@ -277,8 +205,6 @@ const Map = ({
                     {++markerCount}
                   </Badge>
                 )}
-                {/* <Text>{++markerCount}</Text> */}
-                {/* </HStack> */}
               </Marker>
               // </Pressable>
             )}
@@ -295,7 +221,6 @@ const Map = ({
                 <Image
                   size={"xs"}
                   resizeMode="contain"
-                  alignSeft="center"
                   source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
                   alt={"Điểm đến"}
                 />
@@ -303,8 +228,6 @@ const Map = ({
                   <Badge // bg="red.400"
                     colorScheme="danger"
                     rounded="full"
-                    // mb={-4}
-                    // mr={-4}
                     zIndex={1}
                     variant="solid"
                     // alignSelf="flex-end"
@@ -370,9 +293,6 @@ const Map = ({
     secondPoint: any,
     index: string | number
   ) => {
-    // console.log(durations);
-    // console.log(durations[`${index}`]);
-    // console.log(distances[`${index}`]);
     eventEmitter.emit(eventNames.SHOW_TOAST, {
       title: "Thông tin đường đi",
       description: (
@@ -394,7 +314,7 @@ const Map = ({
 
   const renderDirections = (
     directions: Array<MapDirections>,
-    isPickingSchedules: boolean = false
+    isPickingSchedules: boolean | undefined = false
   ) => {
     if (isPickingSchedules) {
       const previousTrip = directions[0];
@@ -617,23 +537,6 @@ const Map = ({
                 // lineDashPattern={[5, 5, 5, 5, 5]}
               />
               {previousTrip && (
-                // <MapViewDirections
-                //   origin={{
-                //     latitude: previousTrip.firstPosition.geometry.location.lat,
-                //     longitude: previousTrip.firstPosition.geometry.location.lng,
-                //   }}
-                //   destination={{
-                //     latitude: direction.firstPosition.geometry.location.lat,
-                //     longitude: direction.firstPosition.geometry.location.lng,
-                //   }}
-                //   apikey={googleMapsApi}
-                //   strokeWidth={mapDirectionLine.dashed.stroke}
-                //   strokeColor={mapDirectionLine.dashed.color}
-                //   mode="DRIVING"
-                //   // onReady={handleDirectionsReady}
-                //   key={`maps-directions-previous-${index}`}
-                //   lineDashPattern={[10, 15, 10, 10]}
-                // />
                 <MapViewDirections
                   origin={{
                     latitude: previousTrip.secondPosition.geometry.location.lat,
@@ -676,69 +579,6 @@ const Map = ({
       <MapView style={{ flex: 1 }} initialRegion={initialRegion}>
         {renderMarkers(directions)}
         {renderDirections(directions, isPickingSchedules)}
-        {/* {directions.map((direction, index, directionsArray) => {
-          return (
-            direction && (
-              <>
-                {direction.firstPosition && (
-                  <Marker
-                    coordinate={{
-                      latitude: direction.firstPosition.geometry.location.lat,
-                      longitude: direction.firstPosition.geometry.location.lng,
-                    }}
-                    key={`first-position-marker-${index}`}
-                    // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-                  >
-                    <Image
-                      size={"xs"}
-                      resizeMode="contain"
-                      alignSeft="center"
-                      source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-                      alt={"Điểm đi"}
-                    />
-                  </Marker>
-                )}
-                {direction.secondPosition && (
-                  <Marker
-                    coordinate={{
-                      latitude: direction.secondPosition.geometry.location.lat,
-                      longitude: direction.secondPosition.geometry.location.lng,
-                    }}
-                    // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                    key={`second-position-marker-${index}`}
-                  >
-                    <Image
-                      size={"xs"}
-                      resizeMode="contain"
-                      alignSeft="center"
-                      source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                      alt={"Điểm đến"}
-                    />
-                  </Marker>
-                )}
-                {direction.firstPosition && direction.secondPosition && (
-                  <MapViewDirections
-                    origin={{
-                      latitude: direction.firstPosition.geometry.location.lat,
-                      longitude: direction.firstPosition.geometry.location.lng,
-                    }}
-                    destination={{
-                      latitude: direction.secondPosition.geometry.location.lat,
-                      longitude: direction.secondPosition.geometry.location.lng,
-                    }}
-                    apikey="AIzaSyCIYCycKF24mQXN1pJYFfCO-6azSETj_Qc"
-                    strokeWidth={direction.strokeWidth}
-                    strokeColor={direction.strokeColor}
-                    mode="DRIVING"
-                    onReady={handleDirectionsReady}
-                    key={`maps-directions-${index}`}
-                    // lineDashPattern={[5, 5, 5, 5, 5]}
-                  />
-                )}
-              </>
-            )
-          );
-        })} */}
       </MapView>
       {!isPickingSchedules && (
         <SwipeablePanel
@@ -749,9 +589,6 @@ const Map = ({
           allowTouchOutside
           smallPanelHeight={360}
           openLarge={true}
-          // onlyLarge={true}
-          // largePanelHeight={680}
-          // closeOnTouchOutside={true}
           onClose={() => setIsPanelActive(false)}
         >
           <Box px="6">

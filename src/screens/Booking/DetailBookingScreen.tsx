@@ -1,11 +1,16 @@
 import { useState, useContext, useEffect } from "react";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
-import { SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  NativeEventEmitter,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { themeColors, vigoStyles } from "../../../assets/theme";
 import {
   Box,
+  Button,
   Center,
-  Checkbox,
   HStack,
   Heading,
   Text,
@@ -14,9 +19,17 @@ import {
 } from "native-base";
 import Header from "../../components/Header/Header";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { getErrorMessage, handleError } from "../../utils/alertUtils";
+import {
+  eventNames,
+  getErrorMessage,
+  handleError,
+} from "../../utils/alertUtils";
 import { getBooking } from "../../services/bookingService";
-import { getAvailableBookingDetailsByBooking } from "../../services/bookingDetailService";
+import {
+  getAvailableBookingDetailsByBooking,
+  getBookingDetailPickFee,
+  pickBookingDetails,
+} from "../../services/bookingDetailService";
 import { UserContext } from "../../context/UserContext";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import ErrorAlert from "../../components/Alert/ErrorAlert";
@@ -27,7 +40,10 @@ import {
   CalendarDaysIcon,
   CalendarIcon,
   ClockIcon,
+  FunnelIcon,
+  MapIcon,
   MapPinIcon,
+  PaperAirplaneIcon,
 } from "react-native-heroicons/solid";
 import Divider from "../../components/Divider/Divider";
 import { vndFormat } from "../../utils/numberUtils";
@@ -36,9 +52,20 @@ import {
   toVnDateString,
   toVnTimeString,
 } from "../../utils/datetimeUtils";
+import { distinct } from "../../utils/arrayUtils";
+import CheckBox from "@react-native-community/checkbox";
+import {
+  InformationCircleIcon,
+  FunnelIcon as FunnelOutlineIcon,
+} from "react-native-heroicons/outline";
+import FilterTripModal from "./FilterTripModal";
+import InfoAlert from "../../components/Alert/InfoAlert";
+import { generateMapPoint } from "../../utils/mapUtils";
+import { PickBookingDetailConfirmAlert } from "../BookingDetail/BookingDetailPanel";
 
 const DetailBookingScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSpinner, setIsSpinner] = useState(false);
   const { isError, setIsError, errorMessage, setErrorMessage } =
     useErrorHandlingHook();
   const route = useRoute();
@@ -49,10 +76,21 @@ const DetailBookingScreen = () => {
   const navigation = useNavigation() as any;
 
   const [booking, setBooking] = useState(null as any);
-  const [availableDetails, setAvailableDetails] = useState([]);
+  const [availableDetails, setAvailableDetails] = useState([] as Array<any>);
+  const [displayDetails, setDisplayDetails] = useState([] as Array<any>);
   const [customer, setCustomer] = useState(null as any);
 
-  const [selectedDetails, setSelectedDetails] = useState([]);
+  const [selectedDetails, setSelectedDetails] = useState([] as Array<string>);
+  // const [selectedCount, setSelectedCount] = useState(0);
+  const [isSelectedAll, setIsSelectedAll] = useState(false);
+
+  const [daysOfWeek, setDaysOfWeek] = useState([] as Array<string>);
+  const [filterDaysOfWeek, setFilterDaysOfWeek] = useState([] as Array<string>);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pickingFee, setPickingFee] = useState(0);
+
+  const eventEmitter = new NativeEventEmitter();
 
   const fetchBookingData = async () => {
     setIsLoading(true);
@@ -67,7 +105,37 @@ const DetailBookingScreen = () => {
         -1,
         1
       );
-      setAvailableDetails(detailsResponse.data);
+
+      let data = detailsResponse.data.map((item: any) => {
+        return {
+          ...item,
+          dayOfWeek: getDayOfWeek(item.date),
+        };
+      });
+
+      let daysOfWeek = detailsResponse.data
+        .map((item: any) => getDayOfWeek(item.date))
+        .filter(distinct)
+        .sort();
+
+      setDaysOfWeek(daysOfWeek);
+
+      setAvailableDetails(data);
+      setDisplayDetails(data);
+
+      // console.log(daysOfWeek);
+      // console.log(data);
+
+      setFilterDaysOfWeek([]);
+
+      // let selected = {} as any;
+      // detailsResponse.data.forEach((item: any) => {
+      //   selected[`${item.id}`] = false;
+      // });
+
+      setSelectedDetails([]);
+      // setSelectedCount(0);
+      // console.log(selected);
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
       setIsError(true);
@@ -80,66 +148,213 @@ const DetailBookingScreen = () => {
     fetchBookingData();
   }, []);
 
-  const renderDetailCard = (item: any) => {
-    return (
-      // <HStack alignItems="center" w="100" key={item.id}>
-      <Checkbox
-        // alignSelf="stretch"
-        marginRight={2}
-        aria-label="Chọn chuyến đi"
-        value={item.id}
-        key={item.id}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.navigate("BookingDetail", { item })}
-        >
-          <HStack
-            justifyContent="space-between"
-            style={[styles.cardInsideDateTime]}
-            py={2}
-            alignItems="center"
-            // flex={"0"}
-            // width="100%"
-            alignSelf="stretch"
-          >
-            <HStack>
-              <VStack>
-                <HStack alignItems="center">
-                  <ClockIcon size={20} color="#00A1A1" />
-                  <Text marginLeft={2} bold color="gray.500">
-                    Giờ đón
-                  </Text>
-                </HStack>
-                <HStack alignItems="center">
-                  <CalendarIcon size={20} color="#00A1A1" />
-                  <Text marginLeft={2} bold color="gray.500">
-                    Ngày đón
-                  </Text>
-                </HStack>
-              </VStack>
-              <VStack marginRight={2} marginLeft={2}>
-                <Text bold color="black">
-                  {toVnTimeString(item.customerDesiredPickupTime)}
-                </Text>
+  const handleClickOnTrip = (selected: boolean, bookingDetailId: string) => {
+    setIsLoading(true);
+    try {
+      let newSelected = [...selectedDetails];
+      // newSelected[`${bookingDetailId}`] = selected;
 
-                <Text bold color="black">
-                  {`${getDayOfWeek(item.date)}, ${toVnDateString(item.date)}`}
-                </Text>
-              </VStack>
+      if (selected == true) {
+        newSelected.push(bookingDetailId);
+      } else {
+        const index = newSelected.indexOf(bookingDetailId);
+        if (index >= 0) {
+          newSelected.splice(index, 1);
+        }
+      }
+
+      setSelectedDetails(newSelected);
+
+      // setSelectedCount(
+      //   selected == true
+      //     ? selectedCount + 1
+      //     : selectedCount > 0
+      //     ? selectedCount - 1
+      //     : 0
+      // );
+
+      if (selected == false) {
+        setIsSelectedAll(false);
+      } else {
+        let all = newSelected.length == displayDetails.length;
+        setIsSelectedAll(all);
+      }
+    } catch (error) {
+      handleError("Có lỗi xảy ra", error);
+    } finally {
+      setIsLoading(false);
+    }
+
+    // console.log(temp);
+  };
+
+  const handleClickOnSelectAll = (selected: boolean) => {
+    let newSelected = [] as Array<string>;
+    if (selected == true) {
+      newSelected = displayDetails.map((item) => item.id);
+    } else {
+      newSelected = [];
+    }
+    setSelectedDetails(newSelected);
+    setIsSelectedAll(selected);
+  };
+
+  const renderDetailCard = (item: any) => {
+    // console.log("Render: " + selectedDetails.length);
+    return (
+      <HStack alignItems="center" key={item.id} alignSelf="stretch">
+        <CheckBox
+          style={{ marginRight: 5 }}
+          aria-label="Chọn chuyến đi"
+          value={selectedDetails.includes(item.id)}
+          key={item.id}
+          onValueChange={(value) => {
+            handleClickOnTrip(value, item.id);
+          }}
+        />
+        <Box style={[styles.cardInsideDateTime]} alignSelf="stretch">
+          <TouchableOpacity
+            onPress={() => navigation.navigate("BookingDetail", { item })}
+          >
+            <HStack justifyContent="space-between" py={2} alignItems="center">
+              <HStack>
+                <VStack>
+                  <HStack alignItems="center">
+                    <ClockIcon size={20} color="#00A1A1" />
+                    <Text marginLeft={2} bold color="gray.500">
+                      Giờ đón
+                    </Text>
+                  </HStack>
+                  <HStack alignItems="center">
+                    <CalendarIcon size={20} color="#00A1A1" />
+                    <Text marginLeft={2} bold color="gray.500">
+                      Ngày đón
+                    </Text>
+                  </HStack>
+                </VStack>
+                <VStack marginRight={2} marginLeft={2}>
+                  <Text bold color="black">
+                    {toVnTimeString(item.customerDesiredPickupTime)}
+                  </Text>
+
+                  <Text bold color="black">
+                    {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
+                  </Text>
+                </VStack>
+              </HStack>
+              <Box
+                // alignSelf="flex-end"
+                backgroundColor={themeColors.linear}
+                p="4"
+                rounded="xl"
+              >
+                <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>
+              </Box>
             </HStack>
-            <Box
-              // alignSelf="flex-end"
-              backgroundColor={themeColors.linear}
-              p="4"
-              rounded="xl"
-            >
-              <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>
-            </Box>
-          </HStack>
-        </TouchableOpacity>
-      </Checkbox>
-      // </HStack>
+          </TouchableOpacity>
+        </Box>
+      </HStack>
     );
+  };
+
+  const handleLocationPress = (title: string, station: any) => {
+    eventEmitter.emit(eventNames.SHOW_TOAST, {
+      title: title,
+      description: `${station.name}, ${station.address}`,
+      status: "info",
+      // placement: "top-right",
+      isDialog: true,
+      primaryButtonText: "OK",
+      displayCloseButton: false,
+    });
+  };
+
+  // Modal
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+
+  const handleFilterSelect = (selectedOptions: Array<string>) => {
+    selectedOptions.sort();
+    setFilterDaysOfWeek(selectedOptions);
+    // setSelectedCount(0);
+    setSelectedDetails([]);
+    setIsSelectedAll(false);
+    // console.log(selectedOptions);
+    if (selectedOptions.length == 0) {
+      setDisplayDetails(availableDetails);
+    } else {
+      let filteredTrips = availableDetails.filter((trip) =>
+        selectedOptions.includes(trip.dayOfWeek)
+      );
+      setDisplayDetails(filteredTrips);
+    }
+  };
+
+  const openConfirmPicking = async () => {
+    try {
+      setIsSpinner(true);
+      if (selectedDetails.length == 0) {
+        throw new Error("Không có chuyến đi nào được chọn!");
+      }
+      const bookingDetailId = selectedDetails[0];
+
+      const pickingFee = await getBookingDetailPickFee(bookingDetailId);
+      setPickingFee(pickingFee);
+      setIsConfirmOpen(true);
+    } catch (error) {
+      handleError("Có lỗi xảy ra", error);
+    } finally {
+      setIsSpinner(false);
+    }
+  };
+
+  const handlePickTrips = async () => {
+    try {
+      setIsSpinner(true);
+      if (selectedDetails.length == 0) {
+        throw new Error("Không có chuyến đi nào được chọn!");
+      }
+
+      const response = await pickBookingDetails(selectedDetails);
+      if (response && response.errorMessage) {
+        eventEmitter.emit(eventNames.SHOW_TOAST, {
+          title: "Xác nhận chuyến đi",
+          description: (
+            <>
+              <Text>
+                Bạn vừa nhận {response.successBookingDetailIds.length} chuyến đi
+                thành công!
+              </Text>
+              <Text marginTop="2">{response.errorMessage}</Text>
+            </>
+          ),
+          status: "warning",
+          // placement: "top",
+          primaryButtonText: "Đã hiểu",
+          isDialog: true,
+        });
+      } else if (response && !response.errorMessage) {
+        eventEmitter.emit(eventNames.SHOW_TOAST, {
+          title: "Xác nhận chuyến đi",
+          description: (
+            <>
+              <Text>
+                Bạn vừa nhận {response.successBookingDetailIds.length} chuyến đi
+                thành công!
+              </Text>
+            </>
+          ),
+          status: "success",
+          // placement: "top",
+          primaryButtonText: "Đã hiểu",
+          isDialog: true,
+        });
+        navigation.navigate("Schedule");
+      }
+    } catch (error) {
+      handleError("Có lỗi xảy ra", error);
+    } finally {
+      setIsSpinner(false);
+    }
   };
 
   return (
@@ -147,7 +362,7 @@ const DetailBookingScreen = () => {
       <Header title="Chi tiết hành trình" />
 
       <View style={vigoStyles.body}>
-        {/* <ViGoSpinner isLoading={isLoading} /> */}
+        <ViGoSpinner isLoading={isSpinner} />
         <ErrorAlert isError={isError} errorMessage={errorMessage}>
           <RefreshableScrollView
             refreshing={isLoading}
@@ -160,7 +375,6 @@ const DetailBookingScreen = () => {
                   bgColor={"white"}
                   borderColor="coolGray.200"
                   borderWidth="1"
-                  // p={5}
                   px={5}
                   py={3}
                   mt={2}
@@ -168,65 +382,125 @@ const DetailBookingScreen = () => {
                   borderRadius={20}
                   shadow={3}
                 >
-                  <HStack alignItems="center">
-                    <VStack alignSelf="center">
-                      <MapPinIcon size={25} color="#00A1A1" />
-                    </VStack>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleLocationPress(
+                        "Thông tin điểm đón",
+                        booking.customerRoute.startStation
+                      )
+                    }
+                  >
+                    <HStack alignItems="center" justifyContent="space-between">
+                      <HStack>
+                        <VStack alignSelf="center">
+                          <MapPinIcon size={25} color="#00A1A1" />
+                        </VStack>
 
-                    <VStack
-                      // alignItems="center"
-                      // justifyContent="center"
-                      marginLeft="3"
-                    >
-                      <Text fontSize="sm" color={themeColors.primary} bold>
-                        Điểm đón
-                      </Text>
+                        <VStack
+                          // alignItems="center"
+                          // justifyContent="center"
+                          marginLeft="3"
+                        >
+                          <Text fontSize="sm" color={themeColors.primary} bold>
+                            Điểm đón
+                          </Text>
 
-                      <Text
-                        style={{
-                          // paddingLeft: 5,
-                          paddingBottom: 5,
-                          fontSize: 15,
-                        }}
-                        bold
-                        isTruncated
-                        // width={"50%"}
-                        // width="95%"
-                      >
-                        {`${booking.customerRoute.startStation.name}`}
-                      </Text>
-                    </VStack>
-                  </HStack>
+                          <Text
+                            style={{
+                              // paddingLeft: 5,
+                              paddingBottom: 5,
+                              fontSize: 15,
+                            }}
+                            bold
+                            isTruncated
+                            // width={"50%"}
+                            // width="95%"
+                          >
+                            {`${booking.customerRoute.startStation.name}`}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                      <Box>
+                        <InformationCircleIcon
+                          color={themeColors.primary}
+                          size={20}
+                        />
+                      </Box>
+                    </HStack>
+                  </TouchableOpacity>
+
                   <Divider style={{}} />
-                  <HStack marginTop="2" alignItems="center">
-                    <VStack alignSelf="center">
-                      <MapPinIcon size={25} color="#00A1A1" />
-                    </VStack>
-
-                    <VStack
-                      // alignItems="center"
-                      // justifyContent="center"
-                      marginLeft="3"
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleLocationPress(
+                        "Thông tin điểm đến",
+                        booking.customerRoute.endStation
+                      )
+                    }
+                  >
+                    <HStack
+                      marginTop="2"
+                      alignItems="center"
+                      justifyContent="space-between"
                     >
-                      <Text fontSize="sm" color={themeColors.primary} bold>
-                        Điểm đến
-                      </Text>
+                      <HStack>
+                        <VStack alignSelf="center">
+                          <MapPinIcon size={25} color="#00A1A1" />
+                        </VStack>
 
-                      <Text
-                        style={{
-                          // paddingLeft: 5,
-                          paddingBottom: 5,
-                          fontSize: 15,
-                        }}
-                        bold
-                        isTruncated
-                        // width={"50%"}
-                      >
-                        {`${booking.customerRoute.endStation.name}`}
-                      </Text>
-                    </VStack>
-                  </HStack>
+                        <VStack
+                          // alignItems="center"
+                          // justifyContent="center"
+                          marginLeft="3"
+                        >
+                          <Text fontSize="sm" color={themeColors.primary} bold>
+                            Điểm đến
+                          </Text>
+
+                          <Text
+                            style={{
+                              // paddingLeft: 5,
+                              paddingBottom: 5,
+                              fontSize: 15,
+                            }}
+                            bold
+                            isTruncated
+                            // width={"50%"}
+                          >
+                            {`${booking.customerRoute.endStation.name}`}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                      <Box>
+                        <InformationCircleIcon
+                          color={themeColors.primary}
+                          size={20}
+                        />
+                      </Box>
+                    </HStack>
+                  </TouchableOpacity>
                 </Box>
+
+                <HStack justifyContent="flex-end" mt="3">
+                  <Button
+                    style={vigoStyles.buttonWhite}
+                    onPress={() => {
+                      navigation.navigate("MapInformation", {
+                        firstPosition: generateMapPoint(
+                          booking.customerRoute.startStation
+                        ),
+                        secondPosition: generateMapPoint(
+                          booking.customerRoute.endStation
+                        ),
+                      });
+                    }}
+                    leftIcon={<MapIcon size={20} color={themeColors.primary} />}
+                  >
+                    <Text style={vigoStyles.buttonWhiteText}>
+                      Xem trên bản đồ
+                    </Text>
+                  </Button>
+                </HStack>
                 <Box marginTop="6">
                   <Heading fontSize="2xl" marginLeft="0">
                     Khách hàng
@@ -278,63 +552,115 @@ const DetailBookingScreen = () => {
                       </HStack>
                     </HStack>
                   </Box>
+                  {availableDetails.length > 0 ? (
+                    <>
+                      <TouchableOpacity
+                        onPress={() => setFilterModalVisible(true)}
+                      >
+                        <HStack mx={2} marginTop="2" alignItems="center">
+                          {filterDaysOfWeek.length === daysOfWeek.length ||
+                          filterDaysOfWeek.length === 0 ? (
+                            <>
+                              <FunnelOutlineIcon size={20} color={"black"} />
+                              <Text marginLeft="3">Hiển thị tất cả</Text>
+                            </>
+                          ) : (
+                            <>
+                              <FunnelIcon size={20} color={"black"} />
 
-                  <HStack mx={0.5} marginTop="2" justifyContent="space-between">
-                    <Checkbox
-                      // alignSelf="stretch"
-                      marginRight={2}
-                      aria-label="Chọn chuyến đi"
-                      value={"All"}
-                      key={"select-all"}
-                    >
-                      Chọn tất cả
-                    </Checkbox>
-                    <Text>{`Đã chọn ${selectedDetails.length}/${availableDetails.length}`}</Text>
-                  </HStack>
-                  <Box mx={0.5}>
-                    <Checkbox.Group
-                      onChange={(values) => setSelectedDetails(values)}
-                      value={selectedDetails}
-                      accessibilityLabel="Chọn chuyến đi"
-                    >
-                      {availableDetails.map((item) => (
-                        <>{renderDetailCard(item)}</>
-                      ))}
-                    </Checkbox.Group>
-                  </Box>
+                              <Text marginLeft="3">
+                                {filterDaysOfWeek.join(", ")}
+                              </Text>
+                            </>
+                          )}
+                        </HStack>
+                      </TouchableOpacity>
+                      <HStack
+                        mx={0.5}
+                        marginTop="2"
+                        justifyContent="space-between"
+                      >
+                        <HStack alignItems="center">
+                          <CheckBox
+                            // alignSelf="stretch"
+                            // marginRight={2}
+                            aria-label="Chọn chuyến đi"
+                            value={isSelectedAll}
+                            key={"select-all"}
+                            style={{ marginRight: 5 }}
+                            onValueChange={(value) =>
+                              handleClickOnSelectAll(value)
+                            }
+                          />
+                          <Text>Chọn tất cả</Text>
+                        </HStack>
+                        <Text>{`Đã chọn ${selectedDetails.length}/${displayDetails.length}`}</Text>
+                      </HStack>
+                      <Box mx={0.5}>
+                        {displayDetails.map((item) => (
+                          <Box key={item.id}>{renderDetailCard(item)}</Box>
+                        ))}
+                      </Box>
+                    </>
+                  ) : (
+                    <Box mt={2}>
+                      <InfoAlert message="Không có chuyến đi nào còn trống" />
+                    </Box>
+                  )}
                 </Box>
               </VStack>
             )}
           </RefreshableScrollView>
+          <FilterTripModal
+            modalVisible={filterModalVisible}
+            initialSelectedOptions={filterDaysOfWeek}
+            setModalVisible={setFilterModalVisible}
+            onModalRequestClose={() => {}}
+            onModalConfirm={handleFilterSelect}
+            options={daysOfWeek.map((day) => {
+              return {
+                text: day,
+                value: day,
+              };
+            })}
+          />
+          {selectedDetails.length > 0 && (
+            <HStack justifyContent="flex-end" paddingTop="2">
+              <TouchableOpacity
+                style={{ ...vigoStyles.buttonPrimary }}
+                onPress={() => {
+                  openConfirmPicking();
+                }}
+                disabled={selectedDetails.length == 0}
+              >
+                <HStack alignItems="center">
+                  <PaperAirplaneIcon size={20} color={"white"} />
+                  <Text
+                    marginLeft={2}
+                    style={{ ...vigoStyles.buttonPrimaryText }}
+                  >
+                    Nhận chuyến
+                  </Text>
+                </HStack>
+              </TouchableOpacity>
+            </HStack>
+          )}
         </ErrorAlert>
+        <PickBookingDetailConfirmAlert
+          key={"detail-booking-screen"}
+          confirmOpen={isConfirmOpen}
+          setConfirmOpen={setIsConfirmOpen}
+          item={null}
+          items={selectedDetails}
+          handleOkPress={handlePickTrips}
+          pickingFee={pickingFee}
+        />
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  // card: {
-  //   flexGrow: 1,
-  //   backgroundColor: "white",
-  //   borderRadius: 8,
-  //   paddingVertical: 5,
-  //   paddingHorizontal: 10,
-  //   width: "100%",
-  //   marginVertical: 10,
-  //   shadowColor: "#000",
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  //   elevation: 5,
-  // },
-  // container: {
-  //   flexDirection: "column", // inner items will be added vertically
-  //   flexGrow: 1, // all the available vertical space will be occupied by it
-  //   justifyContent: "space-between", // will create the gutter between body and footer
-  // },
   cardInsideDateTime: {
     // flexGrow: 1,
     backgroundColor: "white",
@@ -355,25 +681,6 @@ const styles = StyleSheet.create({
     // flexDirection: "row",
     // margin: 5,
   },
-  // cardInsideLocation: {
-  //   flexGrow: 1,
-  //   backgroundColor: "white",
-  //   borderRadius: 8,
-
-  //   paddingHorizontal: 20,
-  //   width: "40%",
-  //   marginVertical: 10,
-  //   shadowColor: "#000",
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  //   elevation: 5,
-
-  //   margin: 5,
-  // },
   body: {
     flex: 1,
   },
@@ -384,10 +691,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingLeft: 10,
   },
-  // list: {
-  //   paddingTop: 10,
-  //   fontSize: 20,
-  // },
   titlePrice: {
     fontSize: 15,
     fontWeight: "bold",

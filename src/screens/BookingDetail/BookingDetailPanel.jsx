@@ -39,6 +39,7 @@ import {
 
 const PickBookingDetailConfirmAlert = ({
   item,
+  items,
   pickingFee,
   handleOkPress,
   confirmOpen,
@@ -46,21 +47,44 @@ const PickBookingDetailConfirmAlert = ({
   // key,
 }) => {
   const description = () => {
-    return (
-      <VStack>
-        <Text>
-          Với việc nhận chuyến xe, bạn sẽ phải trả trước một khoản phí nhận
-          chuyến.
-        </Text>
-        <Text>
-          Sau khi hoàn thành chuyến đi, bạn sẽ được trả toàn bộ số tiền của
-          chuyến đi.
-        </Text>
-        <Text marginTop="2">
-          Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text>
-        </Text>
-      </VStack>
-    );
+    if (item || (items && items.length == 1)) {
+      return (
+        <VStack>
+          <Text>
+            Với việc nhận chuyến xe, bạn sẽ phải trả trước một khoản phí nhận
+            chuyến.
+          </Text>
+          <Text>
+            Sau khi hoàn thành chuyến đi, bạn sẽ được trả toàn bộ số tiền của
+            chuyến đi.
+          </Text>
+          <Text marginTop="2">
+            Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text>
+          </Text>
+        </VStack>
+      );
+    } else if (items && items.length > 1) {
+      return (
+        <VStack>
+          <Text>
+            Với việc nhận {items.length} chuyến xe này, bạn sẽ phải trả trước
+            một khoản phí nhận chuyến.
+          </Text>
+          <Text>
+            Sau khi hoàn thành mỗi chuyến đi, bạn sẽ được trả toàn bộ số tiền
+            của chuyến đi đó.
+          </Text>
+          <Text marginTop="2">
+            Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text> cho mỗi
+            chuyến đi nhận thành công.
+          </Text>
+          <Text marginTop="2">
+            Ước tính: <Text bold>{vndFormat(pickingFee * items.length)}</Text>
+          </Text>
+        </VStack>
+      );
+    }
+    return <></>;
   };
 
   return (
@@ -88,64 +112,6 @@ const BookingDetailPanel = ({
   displayButtons = true,
 }) => {
   const { user } = useContext(UserContext);
-  // const translateY = new Animated.Value(300);
-  // const [pan, setPat] = useState(new Animated.ValueXY({ x: 0, y: 400 }));
-  // const [isOpen, setIsOpen] = useState(false);
-
-  // const panResponder = PanResponder.create({
-  //   onMoveShouldSetPanResponder: () => true,
-  //   onPanResponderMove: Animated.event(
-  //     [
-  //       null,
-  //       {
-  //         dy: pan.y,
-  //       },
-  //     ],
-  //     {
-  //       useNativeDriver: false,
-  //     }
-  //   ),
-  //   onPanResponderRelease: (e, gestureState) => {
-  //     if (gestureState.dy > 0 && gestureState.vy > 0.7) {
-  //       // Swipe down
-  //       closePanel();
-  //     } else if (gestureState.dy < 0 && gestureState.vy < -0.7) {
-  //       // Swipe up
-  //       openPanel();
-  //     }
-  //     // } else {
-  //     //   // Reset position
-  //     //   resetPanelPosition();
-  //     // }
-  //   },
-  // });
-
-  // const openPanel = () => {
-  //   Animated.spring(pan, {
-  //     toValue: {
-  //       x: 0,
-  //       y: 400,
-  //     },
-  //     useNativeDriver: false,
-  //   }).start();
-  //   setIsOpen(true);
-  // };
-
-  // const closePanel = () => {
-  //   Animated.spring(pan, {
-  //     toValue: { x: 0, y: 0 },
-  //     useNativeDriver: false,
-  //   }).start();
-  //   setIsOpen(false);
-  // };
-
-  // const resetPanelPosition = () => {
-  //   Animated.spring(pan, {
-  //     toValue: { x: 0, y: 400 },
-  //     useNativeDriver: false,
-  //   }).start();
-  // };
-
   return (
     <Box>
       <TripFullInformation
@@ -178,32 +144,6 @@ const BookingDetailPanel = ({
             </TouchableOpacity>
           </View>
           {actionButton && actionButton}
-          {/* <View
-            style={[
-              styles.cardInsideLocation,
-              {
-                backgroundColor: themeColors.primary,
-                height: 40,
-                justifyContent: "center",
-                alignItems: "center",
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.assignButton}
-              onPress={() => handlePickBooking()}
-            >
-              <HStack alignItems="center">
-                <PaperAirplaneIcon size={20} color={"white"} />
-                <Text
-                  marginLeft={2}
-                  style={{ color: "white", fontWeight: "bold" }}
-                >
-                  Nhận chuyến
-                </Text>
-              </HStack>
-            </TouchableOpacity>
-          </View> */}
         </HStack>
       )}
     </Box>
@@ -239,32 +179,6 @@ const BookingDetailSmallPanel = ({ item, actionButton, navigation }) => {
           </TouchableOpacity>
         </View>
         {actionButton && actionButton}
-        {/* <View
-          style={[
-            styles.cardInsideLocation,
-            {
-              backgroundColor: themeColors.primary,
-              height: 40,
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.assignButton}
-            onPress={() => handlePickBooking()}
-          >
-            <HStack alignItems="center">
-              <PaperAirplaneIcon size={20} color={"white"} />
-              <Text
-                marginLeft={2}
-                style={{ color: "white", fontWeight: "bold" }}
-              >
-                Nhận chuyến
-              </Text>
-            </HStack>
-          </TouchableOpacity>
-        </View> */}
       </HStack>
     </Box>
   );
