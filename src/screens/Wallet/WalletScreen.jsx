@@ -86,19 +86,6 @@ const WalletScreen = () => {
             )}`}
           </Text>
         </Box>
-        {/* <View style={{ ...vigoStyles.column, width: "10%" }}>
-          {renderTransactionStatus(transaction.status, "list")}
-        </View>
-        <View style={{ ...vigoStyles.column, width: "60%" }}>
-          {renderTransacionType(transaction, "list")}
-        </View>
-        <View style={{ ...vigoStyles.column, width: "30%", paddingLeft: 10 }}>
-          <Text style={{ fontSize: 16 }}>
-            {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
-              transaction.amount
-            )}`}
-          </Text>
-        </View> */}
       </HStack>
     );
   };

@@ -272,8 +272,9 @@ const TripFullInformation = ({
             </HStack>
           </Box>
         </HStack>
-
-        <CustomerInformationCard displayCustomerText customer={customer} />
+        <Box mt={3}>
+          <CustomerInformationCard displayCustomerText customer={customer} />
+        </Box>
 
         {item && (
           <HStack justifyContent="flex-end" marginTop="3">
