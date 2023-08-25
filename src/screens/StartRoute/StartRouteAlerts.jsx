@@ -6,6 +6,7 @@ import ConfirmAlert from "../../components/Alert/ConfirmAlert";
 import { getDifference } from "../../utils/datetimeUtils";
 
 const StartRouteConfirmAlert = ({
+  tripDate,
   pickupTime,
   duration,
   handleOkPress,
@@ -16,20 +17,21 @@ const StartRouteConfirmAlert = ({
   const description = () => {
     // console.log(pickupTime);
     const pickupDateTime = moment(
-      `${moment().format("DD/MM/YYYY")} ${pickupTime}`,
-      "DD/MM/YYYY HH:mmss"
+      `${moment(tripDate, "YYYY-MM-DD").format("DD/MM/YYYY")} ${pickupTime}`,
+      "DD/MM/YYYY HH:mm:ss"
     );
-    const { diffHours, diffMinutes, diffSeconds } = getDifference(
-      pickupDateTime,
-      moment()
+    const { diffDays, diffHours, diffMinutes } = getDifference(
+      moment(),
+      pickupDateTime
     );
 
-    // console.log(diffHours);
-    // console.log(diffMinutes);
-
-    if (diffMinutes > duration + 20) {
+    if (diffDays >= 1 || diffMinutes > duration + 20) {
       let differenceString = "";
-      if (diffHours >= 1) {
+      if (diffDays >= 1) {
+        differenceString = `${diffDays} ngày, ${
+          diffHours - diffDays * 24
+        } giờ, ${diffMinutes - diffHours * 60} phút`;
+      } else if (diffHours >= 1) {
         differenceString = `${diffHours} giờ, ${
           diffMinutes - diffHours * 60
         } phút`;

@@ -97,22 +97,6 @@ const HomeTripInformationCard = ({
           </VStack>
         </TouchableOpacity>
       )}
-      {/* <Badge
-          colorScheme="green"
-          rounded="full"
-          // mb={-4}
-          // mr={-4}
-          zIndex={2}
-          variant={"solid"}
-          // alignSelf={"flex-end"}
-          position={"absolute"}
-          right={0}
-          top={-10}
-          // px={2}
-        >
-          <Text px={1}></Text>
-          <ForwardIcon color="white" size={20} />
-        </Badge> */}
     </Box>
     // </Box>
   );

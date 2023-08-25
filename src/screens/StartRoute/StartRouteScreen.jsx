@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  NativeEventEmitter,
+} from "react-native";
 
 // import BottomNavigationBar from '../../components/NavBar/BottomNavigationBar.jsx'
 
@@ -29,7 +36,7 @@ import { SwipeablePanel } from "../../components/SwipeablePanel";
 import BookingDetailPanel, {
   BookingDetailSmallPanel,
 } from "../BookingDetail/BookingDetailPanel";
-import { getErrorMessage } from "../../utils/alertUtils";
+import { eventNames, getErrorMessage } from "../../utils/alertUtils";
 import { Box, HStack } from "native-base";
 import { getBookingDetailCustomer } from "../../services/userService";
 import { PaperAirplaneIcon } from "react-native-heroicons/solid";
@@ -54,30 +61,14 @@ const StartRouteScreen = () => {
   const [bookingDetail, setBookingDetail] = useState(null);
   const panelRef = useRef(null);
 
-  // const pickupPosition =
-  //   item?.startStation?.latitude && item?.startStation?.longitude
-  //     ? generateMapPoint(item.startStation)
-  //     : null;
-
-  // const destinationPosition =
-  //   item?.endStation?.latitude && item?.endStation?.longitude
-  //     ? generateMapPoint(item.endStation)
-  //     : null;
-
-  // const directions = [
-  //   {
-  //     firstPosition: pickupPosition,
-  //     secondPosition: destinationPosition,
-  //     bookingDetailId: item.id,
-  //   },
-  // ];
-
   const [directions, setDirections] = useState(null);
 
   const [pickupPosition, setPickupPosition] = useState(null);
   const [destinationPosition, setDestinationPosition] = useState(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  const eventEmitter = new NativeEventEmitter();
 
   const getBookingDetailData = async () => {
     setIsLoading(true);
@@ -115,19 +106,12 @@ const StartRouteScreen = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getBookingDetailData();
-
-  //   Animated.spring(translateY, {
-  //     toValue: isBottomSheetVisible ? 0 : 400,
-  //     useNativeDriver: true,
-  //   }).start();
-  // }, [isBottomSheetVisible]);
   useEffect(() => {
     getBookingDetailData();
   }, []);
 
   const handleStartRoute = async () => {
+    setIsLoading(true);
     try {
       const time = new Date();
 
@@ -138,34 +122,50 @@ const StartRouteScreen = () => {
       };
       await updateStatusBookingDetail(item.id, requestData).then((response) => {
         if (response && response.data) {
-          Alert.alert(
-            "Xác nhận nhận chuyến đi",
-            `Bạn hãy đi đón khách đúng giờ nhé!`,
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                  navigation.navigate("PickCus", { response });
-                },
-              },
-            ]
-          );
+          eventEmitter.emit(eventNames.SHOW_TOAST, {
+            title: "Xác nhận chuyến đi",
+            description: (
+              <>
+                <Text>
+                  Bắt đầu chuyến thành công. Bạn hãy đi đón khách đúng giờ nhé!
+                </Text>
+              </>
+            ),
+            status: "success",
+            // placement: "top",
+            primaryButtonText: "Đã hiểu",
+            isDialog: true,
+          });
+          navigation.navigate("PickCus", { response });
+
+          // Alert.alert(
+          //   "Xác nhận nhận chuyến đi",
+          //   `Bạn hãy đi đón khách đúng giờ nhé!`,
+          //   [
+          //     {
+          //       text: "OK",
+          //       onPress: () => {
+          //       },
+          //     },
+          //   ]
+          // );
         } else {
-          Alert.alert("Xác nhận chuyến", "Lỗi: Không bắt đầu được chuyến!");
+          throw new Error("Không bắt đầu được chuyến đi!");
         }
       });
     } catch (error) {
-      console.error("Tài xế bắt đầu chuyến đi", error);
-      Alert.alert("Tài xế bắt đầu", "Bắt đầu không thành công");
+      // console.error("Tài xế bắt đầu chuyến đi", error);
+      // Alert.alert("Tài xế bắt đầu", "Bắt đầu không thành công");
+      setErrorMessage(getErrorMessage(error));
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const openConfirmStartTrip = async () => {
     try {
       setIsLoading(true);
-      // const bookingDetailId = bookingDetail.id;
-      // const pickingFee = await getBookingDetailPickFee(bookingDetailId);
-      // setPickingFee(pickingFee);
       setIsConfirmOpen(true);
     } catch (error) {
       handleError("Có lỗi xảy ra", error);
@@ -202,34 +202,19 @@ const StartRouteScreen = () => {
     );
   };
 
-  // console.log("pickupPosition:", pickupPosition);
-  // console.log("destinationPosition:", destinationPosition);
-
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}><Header title="Thông tin lịch trình" /></View> */}
       <View style={styles.body}>
         <ViGoSpinner isLoading={isLoading} />
         <ErrorAlert isError={isError} errorMessage={errorMessage}>
-          {/* {routeData && (
-          <Map
-            pickupPosition={routeData.startStation}
-            destinationPosition={routeData.endStation}
-          />
-        )} */}
           {pickupPosition && destinationPosition && directions && (
             <Map
-              // pickupPosition={pickupPosition}
-              // destinationPosition={destinationPosition}
-              // sendRouteId={(routeId) => console.log("Received Route ID:", routeId)}
               directions={directions}
               isPickingSchedules={false}
               setIsLoading={setIsLoading}
               isViewToStartTrip={true}
               setDistance={setDistance}
               setDuration={setDuration}
-              // distance={distance}
-              // duration={duration}
               onCurrentTripPress={() => {
                 panelRef.current.openLargePanel();
                 // console.log("Current PRessed!");
@@ -281,10 +266,13 @@ const StartRouteScreen = () => {
           confirmOpen={isConfirmOpen}
           setConfirmOpen={setIsConfirmOpen}
           // item={bookingDetail}
-          handleOkPress={() => {}}
+          handleOkPress={() => {
+            handleStartRoute();
+          }}
           // pickingFee={pickingFee}
           pickupTime={bookingDetail.customerDesiredPickupTime}
           duration={duration}
+          tripDate={bookingDetail.date}
         />
       )}
     </View>

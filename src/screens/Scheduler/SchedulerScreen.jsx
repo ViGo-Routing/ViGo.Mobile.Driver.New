@@ -87,20 +87,6 @@ const SchedulerScreen = () => {
     setIsLoading(true);
     // console.log(user.id);
     try {
-      // const currentDate = new Date();
-
-      // Get the previous date
-      // const previousDate = new Date();
-      // previousDate.setDate(currentDate.getDate() - 1);
-      // const formattedPreviousDate = `${previousDate.getFullYear()}-${(
-      //   previousDate.getMonth() + 1
-      // )
-      //   .toString()
-      //   .padStart(2, "0")}-${previousDate
-      //   .getDate()
-      //   .toString()
-      //   .padStart(2, "0")}`;
-
       const tripsResponse = await getBookingDetailByDriverId(
         user.id,
         formattedCurrentDate,
@@ -153,19 +139,6 @@ const SchedulerScreen = () => {
       ) {
         setDisplayFab(false);
       }
-
-      // console.log(agendaItems);
-      // console.log(items);
-      // const dates = items
-      //   .map((item) => new moment(item.date).format("YYYY-MM-DD"))
-      //   .filter((value, index, array) => array.indexOf(value) === index);
-      // dates.forEach((date) => {
-      //   itemMarkedDates[`${date}`] = {
-      //     marked: true,
-      //   };
-      // });
-      // setMarkedDates(itemMarkedDates);
-      // console.log(itemMarkedDates);
     } catch (error) {
       console.log(error);
       setErrorMessage(getErrorMessage(error));
@@ -190,8 +163,8 @@ const SchedulerScreen = () => {
   }, []);
 
   const handelStartRoute = (item) => {
-    // navigation.navigate("StartRoute", { item });
-    navigation.navigate("CurrentStartingTrip", { bookingDetailId: item.id });
+    navigation.navigate("StartRoute", { item });
+    // navigation.navigate("CurrentStartingTrip", { bookingDetailId: item.id });
   };
 
   const loadItems = (day, items) => {
@@ -228,9 +201,6 @@ const SchedulerScreen = () => {
 
   const renderEmptyDate = () => {
     return (
-      // <View style={styles.itemContainer}>
-      //   <Text> bạn không có chuyến xe vào hôm nay</Text>
-      // </View>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -278,8 +248,6 @@ const SchedulerScreen = () => {
         />
       </View>
 
-      {/* <Text>Phong</Text> */}
-      {/* <ViGoSpinner isLoading={isLoading} /> */}
       <ErrorAlert isError={isError} errorMessage={errorMessage}>
         <Agenda
           items={items}
@@ -296,8 +264,6 @@ const SchedulerScreen = () => {
           minDate={formattedCurrentDate}
           refreshing={isLoading}
           onDayPress={onDatePress}
-          // markedDates={markedDates}
-          // refreshControl={<ViGoSpinner isLoading={isLoading} />}
         />
         {displayFab && (
           <Fab
@@ -314,13 +280,6 @@ const SchedulerScreen = () => {
           />
         )}
       </ErrorAlert>
-
-      {/* <Agenda
-          items={items}
-          renderItem={(item) => renderItem(item)}
-          renderEmptyDate={() => renderEmptyDate()}
-          theme={theme} // Apply the custom theme
-        /> */}
     </SafeAreaView>
   );
 };
