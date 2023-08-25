@@ -131,6 +131,8 @@ export const renderTransacionType = (transaction, renderType) => {
             <Text style={styles.transactionSubtitle}>
               {transaction.bookingDetailId
                 ? `Chuyến đi: ${transaction.bookingDetailId}`
+                : transaction.bookingId
+                ? `Hành trình: ${transaction.bookingId}`
                 : `Không có dữ liệu`}
             </Text>
             <Text style={styles.transactionSubtitle}>

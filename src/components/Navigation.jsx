@@ -27,6 +27,7 @@ import MyNotifcationScreen from "../screens/Notification/MyNotificationScreen";
 import ScheduleInDateScreen from "../screens/Scheduler/ScheduleInDateScreen";
 import CurrentStartingTripScreen from "../screens/StartRoute/CurrentStartingTripScreen";
 import DetailBookingScreen from "../screens/Booking/DetailBookingScreen";
+import MapInformationScreen from "../screens/Booking/MapInformationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -147,6 +148,11 @@ const Navigation = () => {
         name="DetailBooking"
         options={{ headerShown: false }}
         component={DetailBookingScreen}
+      />
+      <Stack.Screen
+        name="MapInformation"
+        options={{ headerShown: false, animation: "slide_from_bottom" }}
+        component={MapInformationScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>

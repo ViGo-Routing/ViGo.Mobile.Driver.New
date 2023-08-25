@@ -46,12 +46,12 @@ const BookingDetailScreen = () => {
   const { item } = route.params;
   const { user } = useContext(UserContext);
 
-  const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
+  // const [isBottomSheetVisible, setBottomSheetVisible] = useState(true);
   const { isError, setIsError, errorMessage, setErrorMessage } =
     useErrorHandlingHook();
   const [isLoading, setIsLoading] = useState(false);
   // Move this block below the 'isBottomSheetVisible' state declaration
-  const translateY = new Animated.Value(400);
+  // const translateY = new Animated.Value(400);
 
   const [customer, setCustomer] = useState({});
 
@@ -150,54 +150,9 @@ const BookingDetailScreen = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getBookingDetailData();
-
-  //   Animated.spring(translateY, {
-  //     toValue: isBottomSheetVisible ? 0 : 400,
-  //     useNativeDriver: true,
-  //   }).start();
-  // }, [isBottomSheetVisible]);
   useEffect(() => {
     getBookingDetailData();
   }, []);
-
-  // useEffect(() => {
-
-  // }, [bookingDetail]);
-
-  // const toggleBottomSheet = () => {
-  //   setBottomSheetVisible(!isBottomSheetVisible);
-  // };
-
-  // const pickupPosition =
-  //   bookingDetail?.startStation?.latitude &&
-  //   bookingDetail?.startStation?.longitude
-  //     ? {
-  //         geometry: {
-  //           location: {
-  //             lat: bookingDetail.startStation.latitude,
-  //             lng: bookingDetail.startStation.longitude,
-  //           },
-  //         },
-  //         name: bookingDetail.startStation.name,
-  //         formatted_address: bookingDetail.startStation.formatted_address,
-  //       }
-  //     : null;
-
-  // const destinationPosition =
-  //   bookingDetail?.endStation?.latitude && bookingDetail?.endStation?.longitude
-  //     ? {
-  //         geometry: {
-  //           location: {
-  //             lat: bookingDetail.endStation.latitude,
-  //             lng: bookingDetail.endStation.longitude,
-  //           },
-  //         },
-  //         name: bookingDetail.endStation.name,
-  //         formatted_address: bookingDetail.endStation.formatted_address,
-  //       }
-  //     : null;
 
   const handleCustomerDetail = async () => {
     navigation.navigate("CustomerDetail");
@@ -222,7 +177,6 @@ const BookingDetailScreen = () => {
   // const
   const handleConfirmPickBooking = async () => {
     const bookingId = bookingDetail.bookingId;
-    // const { user } = useContext(UserContext);
 
     try {
       setIsLoading(true);
@@ -247,9 +201,6 @@ const BookingDetailScreen = () => {
       setIsLoading(false);
     }
   };
-
-  // console.log("pickupPosition:", pickupPosition);
-  // console.log("destinationPosition:", destinationPosition);
 
   const renderActionButton = () => {
     return (
@@ -281,23 +232,11 @@ const BookingDetailScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}><Header title="Thông tin lịch trình" /></View> */}
       <View style={styles.body}>
-        {/* {routeData && (
-          <Map
-            pickupPosition={routeData.startStation}
-            destinationPosition={routeData.endStation}
-          />
-        )} */}
         <ViGoSpinner isLoading={isLoading} />
         <ErrorAlert isError={isError} errorMessage={errorMessage}>
           {pickupPosition && destinationPosition && directions && (
             <Map
-              // pickupPosition={pickupPosition}
-              // destinationPosition={destinationPosition}
-              // sendRouteId={(routeId) =>
-              //   console.log("Received Route ID:", routeId)
-              // }
               directions={directions}
               setDistance={setDistance}
               distance={distance}
@@ -311,48 +250,6 @@ const BookingDetailScreen = () => {
               setIsLoading={setIsLoading}
             />
           )}
-          {/* {!isBottomSheetVisible && (
-            <Box
-              position="absolute"
-              bottom={5}
-              alignSelf="center"
-              alignItems="center"
-              bgColor={themeColors.primary}
-            >
-              <Button
-                backgroundColor={themeColors.primary}
-                onPress={toggleBottomSheet}
-              >
-                Chi tiết
-              </Button>
-            </Box>
-          )} */}
-          {/* <BookingDetailPanel
-            item={bookingDetail}
-            navigation={navigation}
-            toggleBottomSheet={toggleBottomSheet}
-          /> */}
-          {/* <SwipeUpDown
-            itemMini={(show) => (
-              <BookingDetailPanel
-                item={bookingDetail}
-                navigation={navigation}
-                toggleBottomSheet={toggleBottomSheet}
-              />
-            )}
-            itemFull={(hide) => (
-              <BookingDetailPanel
-                item={bookingDetail}
-                navigation={navigation}
-                toggleBottomSheet={toggleBottomSheet}
-              />
-            )}
-            animation="easeInEaseOut"
-            style={{ backgroundColor: "white" }}
-            iconColor={themeColors.primary}
-            iconSize={30}
-          /> */}
-          {/* {isBottomSheetVisible && ( */}
           {bookingDetail && (
             <SwipeablePanel
               isActive={true}
@@ -408,48 +305,11 @@ const BookingDetailScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // card: {
-  //   flexGrow: 1,
-  //   backgroundColor: "white",
-  //   borderRadius: 8,
-  //   paddingVertical: 5,
-  //   paddingHorizontal: 15,
-  //   width: "100%",
-  //   marginVertical: 10,
-  //   shadowColor: "#000",
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  //   elevation: 5,
-  // },
   container: {
     flexDirection: "column", // inner items will be added vertically
     flexGrow: 1, // all the available vertical space will be occupied by it
     justifyContent: "space-between", // will create the gutter between body and footer
   },
-  // cardInsideDateTime: {
-  //   flexGrow: 1,
-  //   backgroundColor: "white",
-  //   borderRadius: 8,
-
-  //   paddingHorizontal: 15,
-  //   width: "40%",
-  //   marginVertical: 10,
-  //   shadowColor: "#000",
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  //   elevation: 5,
-  //   flexDirection: "row",
-  //   flexGrow: 1,
-  //   margin: 5,
-  // },
   cardInsideLocation: {
     flexGrow: 1,
     backgroundColor: "white",
@@ -472,17 +332,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
-  // title: {
-  //   color: themeColors.primary,
-  //   fontSize: 16,
-  //   fontWeight: "bold",
-  //   paddingTop: 10,
-  //   // paddingLeft: 10,
-  // },
-  // list: {
-  //   paddingTop: 10,
-  //   fontSize: 20,
-  // },
 });
 
 export default BookingDetailScreen;

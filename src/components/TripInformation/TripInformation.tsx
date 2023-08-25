@@ -17,125 +17,190 @@ import { ClockIcon as ClockOutlineIcon } from "react-native-heroicons/outline";
 import CustomerInformationCard from "../Card/CustomerInformationCard";
 
 interface TripBasicInformationProps {
-  item: any;
-  displayFull: boolean;
+  item?: any;
+  displayFull?: boolean;
+  firstPosition?: any;
+  secondPosition?: any;
 }
 
 const TripBasicInformation = ({
   item,
   displayFull = false,
+  firstPosition,
+  secondPosition,
 }: TripBasicInformationProps) => {
   return (
     <Box>
-      <HStack alignItems="center" justifyContent="space-between">
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              <CalendarDaysIcon size={25} color="#00A1A1" />
-            </VStack>
-            <VStack paddingLeft="3">
-              <Text bold>Ngày đón</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 1,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnDateString(item.date)}
-              </Text>
-            </VStack>
+      {item && (
+        <>
+          <HStack alignItems="center" justifyContent="space-between">
+            <Box>
+              <HStack alignItems="center">
+                <VStack alignItems="center" justifyContent="center">
+                  <CalendarDaysIcon size={25} color="#00A1A1" />
+                </VStack>
+                <VStack paddingLeft="3">
+                  <Text bold>Ngày đón</Text>
+                  <Text
+                    style={{
+                      // paddingLeft: 5,
+                      paddingBottom: 1,
+                      fontSize: 15,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {toVnDateString(item.date)}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
+            <Box paddingRight={6}>
+              <HStack alignItems="center">
+                <VStack alignItems="center" justifyContent="center">
+                  {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
+                  <ClockIcon size={25} color="#00A1A1" />
+                </VStack>
+
+                <VStack paddingLeft="3">
+                  <Text bold>Giờ đón</Text>
+
+                  <Text
+                    style={{
+                      // paddingLeft: 5,
+                      paddingBottom: 5,
+                      fontSize: 15,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {toVnTimeString(item.customerDesiredPickupTime)}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
           </HStack>
-        </Box>
-        <Box paddingRight={6}>
-          <HStack alignItems="center">
-            <VStack alignItems="center" justifyContent="center">
-              {/* <Ionicons name="time-outline" size={25} color="#00A1A1" /> */}
-              <ClockIcon size={25} color="#00A1A1" />
-            </VStack>
 
-            <VStack paddingLeft="3">
-              <Text bold>Giờ đón</Text>
+          <HStack alignItems="center" marginTop={3}>
+            <Box>
+              <HStack alignItems="center">
+                <VStack alignItems="center">
+                  <MapPinIcon size={25} color="#00A1A1" />
+                </VStack>
 
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-              >
-                {toVnTimeString(item.customerDesiredPickupTime)}
-              </Text>
-            </VStack>
+                <VStack paddingLeft="3">
+                  <Text bold>Điểm đón</Text>
+
+                  <Text
+                    style={{
+                      // paddingLeft: 5,
+                      paddingBottom: 5,
+                      fontSize: 15,
+                    }}
+                    maxWidth="95%"
+                    paddingRight="0.5"
+                    isTruncated={!displayFull}
+                  >
+                    {`${item.startStation.name}, ${item.startStation.address}`}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
           </HStack>
-        </Box>
-      </HStack>
 
-      <HStack alignItems="center" marginTop={3}>
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
+          <HStack alignItems="center" width="100%" marginTop={3}>
+            <Box>
+              <HStack alignItems="center">
+                <VStack alignItems="center">
+                  <MapPinIcon size={25} color="#00A1A1" />
+                </VStack>
 
-            <VStack paddingLeft="3">
-              <Text bold>Điểm đón</Text>
-
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                maxWidth="95%"
-                paddingRight="0.5"
-                isTruncated={!displayFull}
-              >
-                {`${item.startStation.name}, ${item.startStation.address}`}
-              </Text>
-            </VStack>
+                <VStack paddingLeft="3">
+                  <Text bold>Điểm đến</Text>
+                  <Text
+                    style={{
+                      // paddingLeft: 5,
+                      paddingBottom: 5,
+                      fontSize: 15,
+                    }}
+                    width="95%"
+                    paddingRight="0.5"
+                    maxWidth="95%"
+                    isTruncated={!displayFull}
+                  >
+                    {`${item.endStation.name}, ${item.endStation.address}`}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
           </HStack>
-        </Box>
-      </HStack>
-      <HStack alignItems="center" width="100%" marginTop={3}>
-        <Box>
-          <HStack alignItems="center">
-            <VStack alignItems="center">
-              <MapPinIcon size={25} color="#00A1A1" />
-            </VStack>
+        </>
+      )}
+      {!item && firstPosition && secondPosition && (
+        <>
+          <HStack alignItems="center" marginTop={3}>
+            <Box>
+              <HStack>
+                <VStack alignItems="center">
+                  <MapPinIcon size={25} color="#00A1A1" />
+                </VStack>
 
-            <VStack paddingLeft="3">
-              <Text bold>Điểm đến</Text>
-              <Text
-                style={{
-                  // paddingLeft: 5,
-                  paddingBottom: 5,
-                  fontSize: 15,
-                }}
-                width="95%"
-                paddingRight="0.5"
-                maxWidth="95%"
-                isTruncated={!displayFull}
-              >
-                {`${item.endStation.name}, ${item.endStation.address}`}
-              </Text>
-            </VStack>
+                <VStack paddingLeft="3">
+                  <Text bold>Điểm đón</Text>
+
+                  <Text
+                    style={{
+                      paddingBottom: 5,
+                      fontSize: 15,
+                    }}
+                    maxWidth="95%"
+                    paddingRight="0.5"
+                    isTruncated={!displayFull}
+                  >
+                    {`${firstPosition.name}, ${firstPosition.formatted_address}`}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
           </HStack>
-        </Box>
-      </HStack>
+          <HStack alignItems="center" width="100%" marginTop={3}>
+            <Box>
+              <HStack>
+                <VStack alignItems="center">
+                  <MapPinIcon size={25} color="#00A1A1" />
+                </VStack>
+
+                <VStack paddingLeft="3">
+                  <Text bold>Điểm đến</Text>
+                  <Text
+                    style={{
+                      paddingBottom: 5,
+                      fontSize: 15,
+                    }}
+                    width="95%"
+                    paddingRight="0.5"
+                    maxWidth="95%"
+                    isTruncated={!displayFull}
+                  >
+                    {`${secondPosition.name}, ${secondPosition.formatted_address}`}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
+          </HStack>
+        </>
+      )}
     </Box>
   );
 };
 
 interface TripFullInformationProps {
-  item: any;
+  item?: any;
   // handlePickBooking: () => void | undefined;
-  customer: any;
+  customer?: any;
   // navigation: any;
   duration: number;
   distance: number;
+  firstPosition?: any;
+  secondPosition?: any;
 }
 const TripFullInformation = ({
   item,
@@ -145,11 +210,18 @@ const TripFullInformation = ({
   // toggleBottomSheet,
   duration,
   distance,
+  firstPosition,
+  secondPosition,
 }: TripFullInformationProps) => {
   return (
     <Box>
       <ScrollView>
-        <TripBasicInformation item={item} displayFull={true} />
+        <TripBasicInformation
+          item={item}
+          firstPosition={firstPosition}
+          secondPosition={secondPosition}
+          displayFull={true}
+        />
         <HStack alignItems="center">
           <Box>
             <HStack paddingTop={3} alignItems="center">
@@ -203,13 +275,15 @@ const TripFullInformation = ({
 
         <CustomerInformationCard displayCustomerText customer={customer} />
 
-        <HStack justifyContent="flex-end" marginTop="3">
-          <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
-            <Text fontSize="2xl" style={styles.titlePrice}>
-              {vndFormat(item.price)}
-            </Text>
-          </Box>
-        </HStack>
+        {item && (
+          <HStack justifyContent="flex-end" marginTop="3">
+            <Box backgroundColor={themeColors.linear} p="4" rounded="xl">
+              <Text fontSize="2xl" style={styles.titlePrice}>
+                {vndFormat(item.price)}
+              </Text>
+            </Box>
+          </HStack>
+        )}
         {/* <Box p="4" rounded="xl">
         <Text bold fontSize="2xl" textAlign="right" color={themeColors.primary}>
           {vndFormat(item.price)}

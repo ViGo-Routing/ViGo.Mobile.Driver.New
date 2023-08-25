@@ -30,23 +30,20 @@ export const getAvailableBookingDetailsByBooking = async (
 };
 
 export const pickBookingDetailById = async (bookingDetailId) => {
-  console.log(bookingDetailId);
+  // console.log(bookingDetailId);
   // try {
   const response = await apiManager.post(
     `/api/BookingDetail/Driver/Pick/${bookingDetailId}`
   );
   return response;
-  // } catch (error) {
-  //   if (error.response && error.response.data) {
-  //     // Assuming the error response has a 'data' property containing error details
-  //     const errorDetails = error.response.data;
-  //     Alert.alert(errorDetails);
-  //     return null;
-  //   } else {
-  //     console.log("Error response structure not recognized.");
-  //     return null;
-  //   }
-  // }
+};
+
+export const pickBookingDetails = async (bookingDetailIds) => {
+  const response = await apiManager.post(
+    `api/BookingDetail/Driver/Pick`,
+    bookingDetailIds
+  );
+  return response.data;
 };
 
 export const getBookingDetailByDriverId = async (
