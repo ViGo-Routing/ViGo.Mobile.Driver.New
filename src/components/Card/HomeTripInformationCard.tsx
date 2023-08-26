@@ -22,7 +22,7 @@ const HomeTripInformationCard = ({
     switch (status) {
       case "GOING_TO_PICKUP":
         return `Giờ đón khách: ${toVnTimeString(
-          upcomingTrip.customerDesiredPickupTime
+          bookingDetail.customerDesiredPickupTime
         )}`;
       // break;
       case "ARRIVE_AT_PICKUP":
@@ -61,12 +61,17 @@ const HomeTripInformationCard = ({
           }
         >
           <VStack>
-            <Text
+            {/* <Text
               opacity={0.5}
               color={getBookingDetailStatusColor(currentTrip.status)}
             >
               {getBookingDetailStatusString(currentTrip.status)}
-            </Text>
+            </Text> */}
+            <HStack mt="2">
+              <Badge colorScheme={"info"}>
+                {getBookingDetailStatusString(currentTrip.status)}
+              </Badge>
+            </HStack>
             <Text fontSize={18} bold isTruncated>
               {currentTrip.startStation.name} - {currentTrip.endStation.name}
             </Text>
@@ -83,7 +88,9 @@ const HomeTripInformationCard = ({
           }
         >
           <VStack>
-            <Text opacity={0.5}>Sắp tới</Text>
+            <HStack mt="2">
+              <Badge colorScheme={"success"}>Sắp tới</Badge>
+            </HStack>
             <Text fontSize={18} bold isTruncated width="95%">
               {upcomingTrip.startStation.name} - {upcomingTrip.endStation.name}
             </Text>

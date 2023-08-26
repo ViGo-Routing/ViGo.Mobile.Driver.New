@@ -85,18 +85,21 @@ export const getBookingDetailByDriverId = async (
   // }
 };
 
-export const updateStatusBookingDetail = async (bookingId, requestData) => {
-  console.log(requestData);
-  try {
-    const response = await apiManager.put(
-      `/api/BookingDetail/UpdateStatus/${bookingId}`,
-      requestData
-    );
-    return response;
-  } catch (error) {
-    console.error("Driver Pick Booking Detail By Id failed:", error);
-    return null;
-  }
+export const updateStatusBookingDetail = async (
+  bookingDetailId,
+  requestData
+) => {
+  // console.log(requestData);
+  // try {
+  const response = await apiManager.put(
+    `/api/BookingDetail/UpdateStatus/${bookingDetailId}`,
+    requestData
+  );
+  return response;
+  // } catch (error) {
+  //   console.error("Driver Pick Booking Detail By Id failed:", error);
+  //   return null;
+  // }
 };
 
 export const getBookingDetail = async (bookingDetailId) => {

@@ -136,7 +136,10 @@ const StartRouteScreen = () => {
             primaryButtonText: "Đã hiểu",
             isDialog: true,
           });
-          navigation.navigate("PickCus", { response });
+          // navigation.navigate("PickCus", { response });
+          navigation.navigate("CurrentStartingTrip", {
+            bookingDetailId: item.id,
+          });
 
           // Alert.alert(
           //   "Xác nhận nhận chuyến đi",

@@ -51,14 +51,16 @@ interface MapDirections {
 
 interface MapProps {
   directions: Array<MapDirections>;
-  setDistance: React.Dispatch<React.SetStateAction<{}>>;
+  setDistance: React.Dispatch<React.SetStateAction<number>>;
   // distance: {};
-  setDuration: React.Dispatch<React.SetStateAction<{}>>;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
   // duration: {};
   isPickingSchedules: boolean | null;
   isViewToStartTrip: boolean | null;
   onCurrentTripPress: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  firstPositionIcon?: any;
+  secondPositionIcon?: any;
 }
 
 export const mapDirectionLine = {
@@ -87,6 +89,8 @@ const Map = ({
   isViewToStartTrip = false,
   onCurrentTripPress = () => {},
   setIsLoading,
+  firstPositionIcon,
+  secondPositionIcon,
 }: MapProps) => {
   const eventEmitter = new NativeEventEmitter();
   const navigation = useNavigation();
@@ -114,6 +118,8 @@ const Map = ({
   const dashPattern = [5, 5];
 
   const initialRegion = getRegion();
+
+  // console.log(initialRegion);
 
   const [region, setRegion] = useState(initialRegion);
 
@@ -183,12 +189,15 @@ const Map = ({
                 // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
               >
                 {/* <HStack> */}
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-                  alt={"Điểm đi"}
-                />
+                {firstPositionIcon && firstPositionIcon}
+                {!firstPositionIcon && (
+                  <Image
+                    size={"xs"}
+                    resizeMode="contain"
+                    source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                    alt={"Điểm đi"}
+                  />
+                )}
                 {directionsCount > 1 && (
                   <Badge // bg="red.400"
                     colorScheme="danger"
@@ -218,12 +227,15 @@ const Map = ({
                 key={`second-position-marker-${index}`}
                 onPress={() => displayAddressDialog(direction.secondPosition)}
               >
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                  alt={"Điểm đến"}
-                />
+                {secondPositionIcon && secondPositionIcon}
+                {!secondPositionIcon && (
+                  <Image
+                    size={"xs"}
+                    resizeMode="contain"
+                    source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+                    alt={"Điểm đến"}
+                  />
+                )}
                 {directionsCount > 1 && (
                   <Badge // bg="red.400"
                     colorScheme="danger"
@@ -472,6 +484,8 @@ const Map = ({
       );
     } else if (isViewToStartTrip) {
       const currentTrip = directions[0];
+      // console.log(currentTrip);
+      // console.log(currentTrip.firstPosition);
       return (
         currentTrip &&
         currentTrip.firstPosition &&
@@ -479,12 +493,12 @@ const Map = ({
           <Box key={`directions-view-bookingdetails`}>
             <MapViewDirections
               origin={{
-                latitude: currentTrip.firstPosition.geometry.location.lat,
-                longitude: currentTrip.firstPosition.geometry.location.lng,
+                latitude: currentTrip?.firstPosition?.geometry?.location.lat,
+                longitude: currentTrip?.firstPosition?.geometry?.location.lng,
               }}
               destination={{
-                latitude: currentTrip.secondPosition.geometry.location.lat,
-                longitude: currentTrip.secondPosition.geometry.location.lng,
+                latitude: currentTrip?.secondPosition?.geometry?.location.lat,
+                longitude: currentTrip?.secondPosition?.geometry?.location.lng,
               }}
               apikey={googleMapsApi}
               strokeWidth={mapDirectionLine.primary.stroke}

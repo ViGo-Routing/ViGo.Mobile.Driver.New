@@ -88,6 +88,10 @@ const HomeScreen = () => {
         // Has no Current trip
         const upcomingTrip = await getUpcomingTrip(user.id);
         setUpcomingTrip(upcomingTrip);
+      } else {
+        navigation.navigate("CurrentStartingTrip", {
+          bookingDetailId: currentTrip.id,
+        });
       }
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
