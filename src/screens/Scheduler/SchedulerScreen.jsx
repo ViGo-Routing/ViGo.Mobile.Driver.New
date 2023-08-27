@@ -78,6 +78,10 @@ const SchedulerScreen = () => {
     useErrorHandlingHook();
 
   const formattedCurrentDate = moment().format("YYYY-MM-DD").toString();
+  const maximumViewDate = moment()
+    .add(6, "months")
+    .format("YYYY-MM-DD")
+    .toString();
 
   const [displayFab, setDisplayFab] = useState(true);
   const [selectedDate, setSelectedDate] = useState(formattedCurrentDate);
@@ -264,6 +268,9 @@ const SchedulerScreen = () => {
           minDate={formattedCurrentDate}
           refreshing={isLoading}
           onDayPress={onDatePress}
+          maxDate={maximumViewDate}
+          futureScrollRange={6}
+          pastScrollRange={1}
         />
         {displayFab && (
           <Fab

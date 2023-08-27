@@ -46,18 +46,33 @@ const MapInformationScreen = (/*{
   const navigation = useNavigation();
 
   const eventEmitter = new NativeEventEmitter();
+
   const getRegion = () => {
-    const { lat: currentLat, lng: currentLong } =
+    // const lastPoint = directions[-1];
+
+    const { lat: currentFirstLat, lng: currentFirstLong } =
       firstPosition?.geometry?.location || {};
-    const currentCoords =
-      currentLat && currentLong
-        ? { latitude: currentLat, longitude: currentLong }
+    const currentFirstCoords =
+      currentFirstLat && currentFirstLong
+        ? { latitude: currentFirstLat, longitude: currentFirstLong }
         : null;
     // const lastCoords = lastLat && lastLong ? {lastLat, lastLong} : null;
+    const { lat: currentSecondLat, lng: currentSecondLong } =
+      secondPosition?.geometry?.location || {};
+    const currentSecondCoords =
+      currentSecondLat && currentSecondLong
+        ? { latitude: currentSecondLat, longitude: currentSecondLong }
+        : null;
 
+    let sumLat = currentFirstCoords?.latitude + currentSecondCoords?.latitude;
+    let sumLong =
+      currentFirstCoords?.longitude + currentSecondCoords?.longitude;
+
+    let avgLat = sumLat / 2 || 0;
+    let avgLong = sumLong / 2 || 0;
     return {
-      latitude: currentCoords?.latitude || 10.762622,
-      longitude: currentCoords?.longitude || 106.660172,
+      latitude: avgLat - 0.003 || 10.762622,
+      longitude: avgLong || 106.660172,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     } as Region;
@@ -206,7 +221,7 @@ const MapInformationScreen = (/*{
           smallPanelHeight={300}
           // openLarge={openLargePanel}
           ref={panelRef}
-          largePanelHeight={500}
+          largePanelHeight={510}
           // onlySmall
         >
           {<Box px="6">{renderFullTripInformation()}</Box>}

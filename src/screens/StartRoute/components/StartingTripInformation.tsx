@@ -5,20 +5,37 @@ import {
   getBookingDetailStatusLongString,
 } from "../../../utils/enumUtils/bookingEnumUtils";
 import {
+  ArrowPathRoundedSquareIcon,
   ClockIcon,
   MapPinIcon,
   PaperAirplaneIcon,
 } from "react-native-heroicons/solid";
 import CustomerInformationCard from "../../../components/Card/CustomerInformationCard";
-import { TouchableOpacity } from "react-native";
+import { Linking, TouchableOpacity, PermissionsAndroid } from "react-native";
 import { themeColors, vigoStyles } from "../../../../assets/theme";
 import StepIndicator from "react-native-step-indicator";
 import { toVnDateTimeString } from "../../../utils/datetimeUtils";
+import {
+  showFloatingBubble,
+  hideFloatingBubble,
+  requestPermission,
+  initialize,
+} from "react-native-floating-bubble";
+
+const googleMapOpenUrl = ({ latitude, longitude, address }: any) => {
+  const latLng = `${latitude},${longitude}`;
+  return address
+    ? `google.navigation:q=${address}`
+    : `google.navigation:q=${latLng}`;
+};
 
 const renderActionButton = (
   item: any,
-  handleActionButtonClick?: () => void
+  handleActionButtonClick?: () => void,
+  destination?: any
 ) => {
+  // console.log("Render Action");
+  // console.log(destination);
   const actionButtonText = () => {
     switch (item.status) {
       case "GOING_TO_PICKUP":
@@ -32,8 +49,59 @@ const renderActionButton = (
     }
   };
 
+  const handleGoogleMapsRoutingClick = async () => {
+    // const permission =
+    //   PermissionsAndroid.PERMISSIONS.ACTION_MANAGE_OVERLAY_PERMISSION;
+    // const results = await PermissionsAndroid.request(permission);
+    // // setIsLoading(false);
+    // if (results == PermissionsAndroid.RESULTS.GRANTED) {
+    // To display the bubble over other apps you need to get 'Draw Over Other Apps' permission from androind.
+    // If you initialize without having the permission App could crash
+    requestPermission()
+      .then(() => {
+        console.log("Permission Granted");
+        // Initialize bubble manage
+        initialize().then(() => console.log("Initialized the bubble mange"));
+
+        Linking.openURL(googleMapOpenUrl(destination)).then(() => {
+          hideFloatingBubble();
+
+          showFloatingBubble(10, 10).then(() =>
+            console.log("Floating Bubble Added")
+          );
+        });
+
+        // Show Floating Bubble: x=10, y=10 position of the bubble
+      })
+      .catch(() => console.log("Permission is not granted"));
+
+    // } else {
+    //   console.log("Some permissions denied");
+    //   // Handle the case where one or both permissions are denied
+    // }
+  };
+
   return (
-    <HStack justifyContent="flex-end" paddingTop="2">
+    <HStack
+      justifyContent={destination ? "space-between" : "flex-end"}
+      alignItems="center"
+      paddingTop="2"
+    >
+      {destination && (
+        <TouchableOpacity
+          onPress={() => {
+            handleGoogleMapsRoutingClick();
+          }}
+        >
+          <HStack alignItems="center">
+            <ArrowPathRoundedSquareIcon size={20} color={themeColors.primary} />
+            <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
+              Mở Google Maps
+            </Text>
+          </HStack>
+        </TouchableOpacity>
+      )}
+
       <TouchableOpacity
         style={{ ...vigoStyles.buttonPrimary }}
         onPress={() => {
@@ -52,7 +120,7 @@ const renderActionButton = (
   );
 };
 
-interface StartingTripInformationProps {
+interface StartingTripBasicInformationProps {
   trip: any;
   duration: number;
   distance: number;
@@ -68,7 +136,7 @@ const StartingTripBasicInformation = ({
   currentStep,
   isInFull,
   handleActionButtonClick,
-}: StartingTripInformationProps) => {
+}: StartingTripBasicInformationProps) => {
   const renderInformation = () => {
     let estimatedArriveTime;
 
@@ -98,7 +166,7 @@ const StartingTripBasicInformation = ({
                   paddingRight="0.5"
                   maxWidth="95%"
                 >
-                  {`${trip.startStation.name}, ${trip.endStation.address}`}
+                  {`${trip.startStation.name}, ${trip.startStation.address}`}
                 </Text>
               </VStack>
             </HStack>
@@ -123,7 +191,12 @@ const StartingTripBasicInformation = ({
                 </Text>
               </VStack>
             </HStack>
-            {!isInFull && renderActionButton(trip, handleActionButtonClick)}
+            {!isInFull &&
+              renderActionButton(trip, handleActionButtonClick, {
+                latitude: trip.startStation.latitude,
+                longitude: trip.startStation.longitude,
+                address: trip.startStation.address,
+              })}
           </>
         );
       case "ARRIVE_AT_PICKUP":
@@ -174,6 +247,61 @@ const StartingTripBasicInformation = ({
           </>
         );
       case "GOING_TO_DROPOFF":
+        estimatedArriveTime = moment()
+          .add(duration, "minutes")
+          .format("HH:mm")
+          .toString();
+        return (
+          <>
+            <HStack>
+              <VStack alignItems="center">
+                <MapPinIcon size={24} color="#00A1A1" />
+              </VStack>
+
+              <VStack paddingLeft="3">
+                <Text bold>Điểm trả khách</Text>
+                <Text
+                  style={{
+                    paddingBottom: 5,
+                    fontSize: 15,
+                  }}
+                  width="95%"
+                  paddingRight="0.5"
+                  maxWidth="95%"
+                >
+                  {`${trip.endStation.name}, ${trip.endStation.address}`}
+                </Text>
+              </VStack>
+            </HStack>
+
+            <HStack alignItems="center">
+              <VStack alignItems="center">
+                <ClockIcon size={24} color="#00A1A1" />
+              </VStack>
+
+              <VStack paddingLeft="3">
+                <Text bold>Thời gian đến (dự kiến)</Text>
+                <Text
+                  style={{
+                    paddingBottom: 5,
+                    fontSize: 15,
+                  }}
+                  width="95%"
+                  paddingRight="0.5"
+                  maxWidth="95%"
+                >
+                  {estimatedArriveTime}
+                </Text>
+              </VStack>
+            </HStack>
+            {!isInFull &&
+              renderActionButton(trip, handleActionButtonClick, {
+                latitude: trip.endStation.latitude,
+                longitude: trip.endStation.longitude,
+                address: trip.endStation.address,
+              })}
+          </>
+        );
         return <></>;
       case "ARRIVE_AT_DROPOFF":
         return <></>;
@@ -202,6 +330,32 @@ const StartingTripFullInformation = ({
   currentStep,
   handleActionButtonClick,
 }: StartingTripFullInformationProps) => {
+  const renderButtons = () => {
+    switch (trip.status) {
+      case "ASSIGNED":
+        return <></>;
+      case "GOING_TO_PICKUP":
+        return renderActionButton(trip, handleActionButtonClick, {
+          latitude: trip.startStation.latitude,
+          longitude: trip.startStation.longitude,
+          address: trip.startStation.address,
+        });
+      case "ARRIVE_AT_PICKUP":
+        return renderActionButton(trip, handleActionButtonClick);
+      case "GOING_TO_DROPOFF":
+        return renderActionButton(trip, handleActionButtonClick, {
+          latitude: trip.endStation.latitude,
+          longitude: trip.endStation.longitude,
+          address: trip.endStation.address,
+        });
+        return <></>;
+      case "ARRIVE_AT_DROPOFF":
+        return <></>;
+      default:
+        return <></>;
+    }
+  };
+
   return (
     <Box>
       <StartingTripBasicInformation
@@ -238,7 +392,7 @@ const StartingTripFullInformation = ({
           displayCall
         />
       </Box>
-      {renderActionButton(trip, handleActionButtonClick)}
+      {renderButtons()}
     </Box>
   );
 };

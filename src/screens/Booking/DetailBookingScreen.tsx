@@ -62,6 +62,7 @@ import FilterTripModal from "./FilterTripModal";
 import InfoAlert from "../../components/Alert/InfoAlert";
 import { generateMapPoint } from "../../utils/mapUtils";
 import { PickBookingDetailConfirmAlert } from "../BookingDetail/BookingDetailPanel";
+import BookingDetailSmallCard from "../../components/Card/BookingDetailSmallCard";
 
 const DetailBookingScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -202,58 +203,65 @@ const DetailBookingScreen = () => {
   const renderDetailCard = (item: any) => {
     // console.log("Render: " + selectedDetails.length);
     return (
-      <HStack alignItems="center" key={item.id} alignSelf="stretch">
-        <CheckBox
-          style={{ marginRight: 5 }}
-          aria-label="Chọn chuyến đi"
-          value={selectedDetails.includes(item.id)}
-          key={item.id}
-          onValueChange={(value) => {
-            handleClickOnTrip(value, item.id);
-          }}
-        />
-        <Box style={[styles.cardInsideDateTime]} alignSelf="stretch">
-          <TouchableOpacity
-            onPress={() => navigation.navigate("BookingDetail", { item })}
-          >
-            <HStack justifyContent="space-between" py={2} alignItems="center">
-              <HStack>
-                <VStack>
-                  <HStack alignItems="center">
-                    <ClockIcon size={20} color="#00A1A1" />
-                    <Text marginLeft={2} bold color="gray.500">
-                      Giờ đón
-                    </Text>
-                  </HStack>
-                  <HStack alignItems="center">
-                    <CalendarIcon size={20} color="#00A1A1" />
-                    <Text marginLeft={2} bold color="gray.500">
-                      Ngày đón
-                    </Text>
-                  </HStack>
-                </VStack>
-                <VStack marginRight={2} marginLeft={2}>
-                  <Text bold color="black">
-                    {toVnTimeString(item.customerDesiredPickupTime)}
-                  </Text>
+      // <HStack alignItems="center" key={item.id} alignSelf="stretch">
+      //   <CheckBox
+      //     style={{ marginRight: 5 }}
+      //     aria-label="Chọn chuyến đi"
+      //     value={selectedDetails.includes(item.id)}
+      //     key={item.id}
+      //     onValueChange={(value) => {
+      //       handleClickOnTrip(value, item.id);
+      //     }}
+      //   />
+      //   <Box style={[styles.cardInsideDateTime]} alignSelf="stretch">
+      //     <TouchableOpacity
+      //       onPress={() => navigation.navigate("BookingDetail", { item })}
+      //     >
+      //       <HStack justifyContent="space-between" py={2} alignItems="center">
+      //         <HStack>
+      //           <VStack>
+      //             <HStack alignItems="center">
+      //               <ClockIcon size={20} color="#00A1A1" />
+      //               <Text marginLeft={2} bold color="gray.500">
+      //                 Giờ đón
+      //               </Text>
+      //             </HStack>
+      //             <HStack alignItems="center">
+      //               <CalendarIcon size={20} color="#00A1A1" />
+      //               <Text marginLeft={2} bold color="gray.500">
+      //                 Ngày đón
+      //               </Text>
+      //             </HStack>
+      //           </VStack>
+      //           <VStack marginRight={2} marginLeft={2}>
+      //             <Text bold color="black">
+      //               {toVnTimeString(item.customerDesiredPickupTime)}
+      //             </Text>
 
-                  <Text bold color="black">
-                    {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
-                  </Text>
-                </VStack>
-              </HStack>
-              <Box
-                // alignSelf="flex-end"
-                backgroundColor={themeColors.linear}
-                p="4"
-                rounded="xl"
-              >
-                <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>
-              </Box>
-            </HStack>
-          </TouchableOpacity>
-        </Box>
-      </HStack>
+      //             <Text bold color="black">
+      //               {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
+      //             </Text>
+      //           </VStack>
+      //         </HStack>
+      //         <Box
+      //           // alignSelf="flex-end"
+      //           backgroundColor={themeColors.linear}
+      //           p="4"
+      //           rounded="xl"
+      //         >
+      //           <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>
+      //         </Box>
+      //       </HStack>
+      //     </TouchableOpacity>
+      //   </Box>
+      // </HStack>
+      <BookingDetailSmallCard
+        item={item}
+        navigation={navigation}
+        selectedDetails={selectedDetails}
+        handleClickOnTrip={handleClickOnTrip}
+        key={`card-${item.id}`}
+      />
     );
   };
 

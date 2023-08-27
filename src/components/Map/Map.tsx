@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -61,6 +61,8 @@ interface MapProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   firstPositionIcon?: any;
   secondPositionIcon?: any;
+  showCurrentLocation?: boolean;
+  tracksViewChanges?: boolean;
 }
 
 export const mapDirectionLine = {
@@ -91,6 +93,8 @@ const Map = ({
   setIsLoading,
   firstPositionIcon,
   secondPositionIcon,
+  showCurrentLocation = false,
+  tracksViewChanges = false,
 }: MapProps) => {
   const eventEmitter = new NativeEventEmitter();
   const navigation = useNavigation();
@@ -99,17 +103,29 @@ const Map = ({
     const currentPoint = isPickingSchedules ? directions[1] : directions[0];
     // const lastPoint = directions[-1];
 
-    const { lat: currentLat, lng: currentLong } =
+    const { lat: currentFirstLat, lng: currentFirstLong } =
       currentPoint.firstPosition?.geometry?.location || {};
-    const currentCoords =
-      currentLat && currentLong
-        ? { latitude: currentLat, longitude: currentLong }
+    const currentFirstCoords =
+      currentFirstLat && currentFirstLong
+        ? { latitude: currentFirstLat, longitude: currentFirstLong }
         : null;
     // const lastCoords = lastLat && lastLong ? {lastLat, lastLong} : null;
+    const { lat: currentSecondLat, lng: currentSecondLong } =
+      currentPoint.secondPosition?.geometry?.location || {};
+    const currentSecondCoords =
+      currentSecondLat && currentSecondLong
+        ? { latitude: currentSecondLat, longitude: currentSecondLong }
+        : null;
 
+    let sumLat = currentFirstCoords?.latitude + currentSecondCoords?.latitude;
+    let sumLong =
+      currentFirstCoords?.longitude + currentSecondCoords?.longitude;
+
+    let avgLat = sumLat / 2 || 0;
+    let avgLong = sumLong / 2 || 0;
     return {
-      latitude: currentCoords?.latitude || 10.762622,
-      longitude: currentCoords?.longitude || 106.660172,
+      latitude: avgLat - 0.003 || 10.762622,
+      longitude: avgLong || 106.660172,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     } as Region;
@@ -133,6 +149,8 @@ const Map = ({
   const [customer, setCustomer] = useState(null);
   const [isPanelActive, setIsPanelActive] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const [markerRefs, setMarkerRefs] = useState([]);
 
   useEffect(() => {
     setRegion(getRegion());
@@ -174,7 +192,13 @@ const Map = ({
       (direction) => direction != null
     ).length;
 
+    let newMarkerRefs = [];
+
     return directions.map((direction, index) => {
+      let currentRefLength = newMarkerRefs.length;
+      newMarkerRefs[currentRefLength] = useRef(null);
+      newMarkerRefs[currentRefLength + 1] = useRef(null);
+
       return (
         direction && (
           <Box key={`markers-${index}`}>
@@ -184,9 +208,10 @@ const Map = ({
                   latitude: direction.firstPosition.geometry.location.lat,
                   longitude: direction.firstPosition.geometry.location.lng,
                 }}
-                key={`first-position-marker-${index}`}
+                key={`first-position-marker-${index}-${Date.now()}`}
                 onPress={() => displayAddressDialog(direction.firstPosition)}
                 // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                tracksViewChanges={tracksViewChanges}
               >
                 {/* <HStack> */}
                 {firstPositionIcon && firstPositionIcon}
@@ -224,8 +249,9 @@ const Map = ({
                   longitude: direction.secondPosition.geometry.location.lng,
                 }}
                 // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                key={`second-position-marker-${index}`}
+                key={`second-position-marker-${index}-${Date.now()}`}
                 onPress={() => displayAddressDialog(direction.secondPosition)}
+                tracksViewChanges={tracksViewChanges}
               >
                 {secondPositionIcon && secondPositionIcon}
                 {!secondPositionIcon && (
@@ -588,9 +614,15 @@ const Map = ({
     }
   };
 
+  // console.log(firstPositionIcon);
+
   return (
     <View style={{ flex: 1 }}>
-      <MapView style={{ flex: 1 }} initialRegion={initialRegion}>
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={initialRegion}
+        showsUserLocation={showCurrentLocation}
+      >
         {renderMarkers(directions)}
         {renderDirections(directions, isPickingSchedules)}
       </MapView>

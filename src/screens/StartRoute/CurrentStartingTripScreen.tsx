@@ -12,7 +12,7 @@ import { Box, Button, Image, Text, View } from "native-base";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import ErrorAlert from "../../components/Alert/ErrorAlert";
 import Map from "../../components/Map/Map";
-import { StyleSheet } from "react-native";
+import { StyleSheet, BackHandler, DeviceEventEmitter } from "react-native";
 import { SwipeablePanel } from "../../components/SwipeablePanel";
 import {
   StartingTripBasicInformation,
@@ -24,6 +24,8 @@ import { themeColors } from "../../../assets/theme";
 import Geolocation from "@react-native-community/geolocation";
 import SignalRService from "../../utils/signalRUtils";
 import moment from "moment";
+import { hideFloatingBubble } from "react-native-floating-bubble";
+import invokeApp from "react-native-invoke-app";
 
 interface CurrentStartingTripScreenProps {
   bookingDetailId: string;
@@ -48,6 +50,9 @@ const CurrentStartingTripScreen = () => {
   const [destinationPosition, setDestinationPosition] = useState(null as any);
 
   const [activeStep, setActiveStep] = useState(0);
+
+  const [firstPositionIcon, setFirstPositionIcon] = useState(<></>);
+  const [secondPositionIcon, setSecondPositionIcon] = useState(<></>);
 
   const navigation = useNavigation();
 
@@ -108,12 +113,63 @@ const CurrentStartingTripScreen = () => {
           // setPickupPosition(
           //   generateMapPoint(bookingDetailResponse.startStation)
           // );
+          // setFirstPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/vigobike.png")}
+          //     alt={"Điểm đi"}
+          //   />
+          // );
+          // setSecondPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+          //     alt={"Điểm đến"}
+          //   />
+          // );
           setDestinationPosition(generateMapPoint(bookingDetail.startStation));
           break;
         case "ARRIVE_AT_PICKUP":
+          // setFirstPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+          //     alt={"Điểm đi"}
+          //   />
+          // );
+          // setSecondPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+          //     alt={"Điểm đến"}
+          //   />
+          // );
+
+          setFirstPosition(generateMapPoint(bookingDetail.startStation));
+          setDestinationPosition(generateMapPoint(bookingDetail.endStation));
           break;
         case "GOING_TO_DROPOFF":
           setDestinationPosition(generateMapPoint(bookingDetail.endStation));
+          // setFirstPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/vigobike.png")}
+          //     alt={"Điểm đi"}
+          //   />
+          // );
+          // setSecondPositionIcon(
+          //   <Image
+          //     size={"xs"}
+          //     resizeMode="contain"
+          //     source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+          //     alt={"Điểm đến"}
+          //   />
+          // );
           break;
         case "ARRIVE_AT_DROPOFF":
           break;
@@ -130,17 +186,19 @@ const CurrentStartingTripScreen = () => {
           bookingDetail.status == "GOING_TO_DROPOFF")
       ) {
         handleGetDriverLocation();
-      }
-      // setIsLoading(true);
-      if (
-        bookingDetail &&
-        (bookingDetail.status == "GOING_TO_PICKUP" ||
-          bookingDetail.status == "GOING_TO_DROPOFF")
-      ) {
+
         driverLocationTimer = setInterval(() => {
           handleGetDriverLocation();
         }, 5000);
       }
+      // setIsLoading(true);
+      // if (
+      //   bookingDetail &&
+      //   (bookingDetail.status == "GOING_TO_PICKUP" ||
+      //     bookingDetail.status == "GOING_TO_DROPOFF")
+      // ) {
+
+      // }
     }
 
     return () => {
@@ -167,10 +225,26 @@ const CurrentStartingTripScreen = () => {
   useEffect(() => {
     const focus_unsub = navigation.addListener("focus", () => {
       getBookingDetailData();
+      hideFloatingBubble();
     });
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+
+    const backToApp = DeviceEventEmitter.addListener(
+      "floating-bubble-press",
+      (e) => {
+        invokeApp();
+        hideFloatingBubble();
+      }
+    );
 
     return () => {
       focus_unsub();
+      backHandler.remove();
+      backToApp.remove();
     };
   }, []);
 
@@ -245,7 +319,10 @@ const CurrentStartingTripScreen = () => {
       );
 
       if (response && response.data) {
-        if ((updatedStatus = "ARRIVE_AT_DROPOFF")) {
+        if (driverLocationTimer) {
+          clearInterval(driverLocationTimer);
+        }
+        if (updatedStatus == "ARRIVE_AT_DROPOFF") {
           navigation.navigate("Home");
         } else {
           await getBookingDetailData();
@@ -294,13 +371,151 @@ const CurrentStartingTripScreen = () => {
   const getPanelFullHeight = () => {
     switch (bookingDetail.status) {
       case "GOING_TO_PICKUP":
-        return 510;
+        return 615;
       case "ARRIVE_AT_PICKUP":
         return 615;
       case "GOING_TO_DROPOFF":
-        return 510;
+        return 615;
       default:
         return 600;
+    }
+  };
+
+  // const renderFirstPositionIcon = () => {
+
+  //   return <></>;
+  // };
+
+  // const renderSecondPositionIcon = () => {
+  //   if (bookingDetail) {
+  //     if (bookingDetail.status == "GOING_TO_PICKUP") {
+  //       return (
+  //         <Image
+  //           size={"xs"}
+  //           resizeMode="contain"
+  //           source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+  //           alt={"Điểm đi"}
+  //         />
+  //       );
+  //     } else {
+  //       return (
+  //         <Image
+  //           size={"xs"}
+  //           resizeMode="contain"
+  //           source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+  //           alt={"Điểm đến"}
+  //         />
+  //       );
+  //     }
+  //   }
+  //   return <></>;
+  // };
+
+  const renderMap = (
+    status: string,
+    firstPosition: any,
+    destinationPosition: any,
+    directions: any
+  ) => {
+    switch (status) {
+      case "ASSIGNED":
+        return <></>;
+      case "GOING_TO_PICKUP":
+        return (
+          <Map
+            directions={directions}
+            setDistance={setDistance}
+            setDuration={setDuration}
+            isPickingSchedules={false}
+            onCurrentTripPress={() => {}}
+            setIsLoading={setIsLoading}
+            isViewToStartTrip={true}
+            firstPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/vigobike.png")}
+                alt={"Điểm đi"}
+              />
+            }
+            secondPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                alt={"Điểm đến"}
+              />
+            }
+          />
+        );
+        break;
+      case "ARRIVE_AT_PICKUP":
+        return (
+          <Map
+            directions={directions}
+            setDistance={setDistance}
+            setDuration={setDuration}
+            isPickingSchedules={false}
+            onCurrentTripPress={() => {}}
+            setIsLoading={setIsLoading}
+            isViewToStartTrip={true}
+            firstPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                alt={"Điểm đi"}
+              />
+            }
+            secondPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+                alt={"Điểm đến"}
+              />
+            }
+            showCurrentLocation
+          />
+        );
+        break;
+      case "GOING_TO_DROPOFF":
+        return (
+          <Map
+            directions={directions}
+            setDistance={setDistance}
+            setDuration={setDuration}
+            isPickingSchedules={false}
+            onCurrentTripPress={() => {}}
+            setIsLoading={setIsLoading}
+            isViewToStartTrip={true}
+            firstPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/vigobike.png")}
+                alt={"Điểm đi"}
+              />
+            }
+            secondPositionIcon={
+              <Image
+                size={"xs"}
+                resizeMode="contain"
+                source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+                alt={"Điểm đến"}
+              />
+            }
+            showCurrentLocation
+          />
+        );
+        break;
+      case "ARRIVE_AT_DROPOFF":
+        break;
+      default:
+        // handleError("Trạng thái chuyến đi không hợp lệ", "")
+        setErrorMessage("Trạng thái chuyến đi không hợp lệ");
+        setIsError(true);
+        break;
     }
   };
 
@@ -309,33 +524,15 @@ const CurrentStartingTripScreen = () => {
       <View style={styles.body}>
         <ViGoSpinner isLoading={isLoading} />
         <ErrorAlert isError={isError} errorMessage={errorMessage}>
-          {firstPosition && destinationPosition && directions && (
-            <Map
-              directions={directions}
-              setDistance={setDistance}
-              setDuration={setDuration}
-              isPickingSchedules={false}
-              onCurrentTripPress={() => {}}
-              setIsLoading={setIsLoading}
-              isViewToStartTrip={true}
-              firstPositionIcon={
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/vigobike.png")}
-                  alt={"Điểm đi"}
-                />
-              }
-              secondPositionIcon={
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-                  alt={"Điểm đi"}
-                />
-              }
-            />
-          )}
+          {firstPosition &&
+            destinationPosition &&
+            directions &&
+            renderMap(
+              bookingDetail.status,
+              firstPosition,
+              destinationPosition,
+              directions
+            )}
 
           {bookingDetail && (
             <SwipeablePanel

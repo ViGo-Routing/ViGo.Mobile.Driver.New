@@ -126,11 +126,11 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    // const unsubscribe = navigation.addListener("focus", () => {
-    fetchRouteData();
-    // });
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchRouteData();
+    });
 
-    // return unsubscribe;
+    return unsubscribe;
   }, []);
 
   handleSendData = (item) => {
@@ -318,7 +318,7 @@ const HomeScreen = () => {
           contentContainerStyle={{
             // paddingHorizontal: 20,
             paddingVertical: 10,
-            paddingBottom: 40,
+            paddingBottom: currentTrip || upcomingTrip ? 50 : 10,
           }}
         />
       </View>
