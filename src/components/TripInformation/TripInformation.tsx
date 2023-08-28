@@ -81,7 +81,7 @@ const TripBasicInformation = ({
 
           <HStack alignItems="center" marginTop={3}>
             <Box>
-              <HStack alignItems="center">
+              <HStack>
                 <VStack alignItems="center">
                   <MapPinIcon size={25} color="#00A1A1" />
                 </VStack>
@@ -108,7 +108,7 @@ const TripBasicInformation = ({
 
           <HStack alignItems="center" width="100%" marginTop={3}>
             <Box>
-              <HStack alignItems="center">
+              <HStack>
                 <VStack alignItems="center">
                   <MapPinIcon size={25} color="#00A1A1" />
                 </VStack>

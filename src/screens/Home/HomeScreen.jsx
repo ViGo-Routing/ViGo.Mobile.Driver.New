@@ -88,6 +88,10 @@ const HomeScreen = () => {
         // Has no Current trip
         const upcomingTrip = await getUpcomingTrip(user.id);
         setUpcomingTrip(upcomingTrip);
+      } else {
+        navigation.navigate("CurrentStartingTrip", {
+          bookingDetailId: currentTrip.id,
+        });
       }
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
@@ -122,11 +126,11 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    // const unsubscribe = navigation.addListener("focus", () => {
-    fetchRouteData();
-    // });
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchRouteData();
+    });
 
-    // return unsubscribe;
+    return unsubscribe;
   }, []);
 
   handleSendData = (item) => {
@@ -314,7 +318,7 @@ const HomeScreen = () => {
           contentContainerStyle={{
             // paddingHorizontal: 20,
             paddingVertical: 10,
-            paddingBottom: 40,
+            paddingBottom: currentTrip || upcomingTrip ? 50 : 10,
           }}
         />
       </View>

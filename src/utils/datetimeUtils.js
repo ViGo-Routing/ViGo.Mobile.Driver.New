@@ -2,6 +2,7 @@ import moment from "moment";
 import Moment from "moment";
 
 export const toVnDateTimeString = (datetime) => {
+  // console.log(datetime);
   return Moment(datetime).format("HH:mm - DD-MM-YYYY");
 };
 

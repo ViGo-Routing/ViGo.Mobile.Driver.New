@@ -136,7 +136,10 @@ const StartRouteScreen = () => {
             primaryButtonText: "Đã hiểu",
             isDialog: true,
           });
-          navigation.navigate("PickCus", { response });
+          // navigation.navigate("PickCus", { response });
+          navigation.navigate("CurrentStartingTrip", {
+            bookingDetailId: item.id,
+          });
 
           // Alert.alert(
           //   "Xác nhận nhận chuyến đi",
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     flexDirection: "row",
-    flexGrow: 1,
+    // flexGrow: 1,
     margin: 5,
   },
   cardInsideLocation: {
@@ -339,7 +342,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     flexDirection: "row",
-    flexGrow: 1,
+    // flexGrow: 1,
     margin: 5,
   },
   body: {

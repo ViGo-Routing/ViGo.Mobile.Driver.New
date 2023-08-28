@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -51,14 +51,18 @@ interface MapDirections {
 
 interface MapProps {
   directions: Array<MapDirections>;
-  setDistance: React.Dispatch<React.SetStateAction<{}>>;
+  setDistance: React.Dispatch<React.SetStateAction<number>>;
   // distance: {};
-  setDuration: React.Dispatch<React.SetStateAction<{}>>;
+  setDuration: React.Dispatch<React.SetStateAction<number>>;
   // duration: {};
   isPickingSchedules: boolean | null;
   isViewToStartTrip: boolean | null;
   onCurrentTripPress: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  firstPositionIcon?: any;
+  secondPositionIcon?: any;
+  showCurrentLocation?: boolean;
+  tracksViewChanges?: boolean;
 }
 
 export const mapDirectionLine = {
@@ -87,6 +91,10 @@ const Map = ({
   isViewToStartTrip = false,
   onCurrentTripPress = () => {},
   setIsLoading,
+  firstPositionIcon,
+  secondPositionIcon,
+  showCurrentLocation = false,
+  tracksViewChanges = false,
 }: MapProps) => {
   const eventEmitter = new NativeEventEmitter();
   const navigation = useNavigation();
@@ -95,17 +103,29 @@ const Map = ({
     const currentPoint = isPickingSchedules ? directions[1] : directions[0];
     // const lastPoint = directions[-1];
 
-    const { lat: currentLat, lng: currentLong } =
+    const { lat: currentFirstLat, lng: currentFirstLong } =
       currentPoint.firstPosition?.geometry?.location || {};
-    const currentCoords =
-      currentLat && currentLong
-        ? { latitude: currentLat, longitude: currentLong }
+    const currentFirstCoords =
+      currentFirstLat && currentFirstLong
+        ? { latitude: currentFirstLat, longitude: currentFirstLong }
         : null;
     // const lastCoords = lastLat && lastLong ? {lastLat, lastLong} : null;
+    const { lat: currentSecondLat, lng: currentSecondLong } =
+      currentPoint.secondPosition?.geometry?.location || {};
+    const currentSecondCoords =
+      currentSecondLat && currentSecondLong
+        ? { latitude: currentSecondLat, longitude: currentSecondLong }
+        : null;
 
+    let sumLat = currentFirstCoords?.latitude + currentSecondCoords?.latitude;
+    let sumLong =
+      currentFirstCoords?.longitude + currentSecondCoords?.longitude;
+
+    let avgLat = sumLat / 2 || 0;
+    let avgLong = sumLong / 2 || 0;
     return {
-      latitude: currentCoords?.latitude || 10.762622,
-      longitude: currentCoords?.longitude || 106.660172,
+      latitude: avgLat - 0.003 || 10.762622,
+      longitude: avgLong || 106.660172,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     } as Region;
@@ -114,6 +134,8 @@ const Map = ({
   const dashPattern = [5, 5];
 
   const initialRegion = getRegion();
+
+  // console.log(initialRegion);
 
   const [region, setRegion] = useState(initialRegion);
 
@@ -127,6 +149,8 @@ const Map = ({
   const [customer, setCustomer] = useState(null);
   const [isPanelActive, setIsPanelActive] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const [markerRefs, setMarkerRefs] = useState([]);
 
   useEffect(() => {
     setRegion(getRegion());
@@ -168,7 +192,13 @@ const Map = ({
       (direction) => direction != null
     ).length;
 
+    let newMarkerRefs = [];
+
     return directions.map((direction, index) => {
+      let currentRefLength = newMarkerRefs.length;
+      newMarkerRefs[currentRefLength] = useRef(null);
+      newMarkerRefs[currentRefLength + 1] = useRef(null);
+
       return (
         direction && (
           <Box key={`markers-${index}`}>
@@ -178,17 +208,21 @@ const Map = ({
                   latitude: direction.firstPosition.geometry.location.lat,
                   longitude: direction.firstPosition.geometry.location.lng,
                 }}
-                key={`first-position-marker-${index}`}
+                key={`first-position-marker-${index}-${Date.now()}`}
                 onPress={() => displayAddressDialog(direction.firstPosition)}
                 // icon={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                tracksViewChanges={tracksViewChanges}
               >
                 {/* <HStack> */}
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
-                  alt={"Điểm đi"}
-                />
+                {firstPositionIcon && firstPositionIcon}
+                {!firstPositionIcon && (
+                  <Image
+                    size={"xs"}
+                    resizeMode="contain"
+                    source={require("../../../assets/icons/maps-pickup-location-icon-3x.png")}
+                    alt={"Điểm đi"}
+                  />
+                )}
                 {directionsCount > 1 && (
                   <Badge // bg="red.400"
                     colorScheme="danger"
@@ -215,15 +249,19 @@ const Map = ({
                   longitude: direction.secondPosition.geometry.location.lng,
                 }}
                 // image={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                key={`second-position-marker-${index}`}
+                key={`second-position-marker-${index}-${Date.now()}`}
                 onPress={() => displayAddressDialog(direction.secondPosition)}
+                tracksViewChanges={tracksViewChanges}
               >
-                <Image
-                  size={"xs"}
-                  resizeMode="contain"
-                  source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
-                  alt={"Điểm đến"}
-                />
+                {secondPositionIcon && secondPositionIcon}
+                {!secondPositionIcon && (
+                  <Image
+                    size={"xs"}
+                    resizeMode="contain"
+                    source={require("../../../assets/icons/maps-dropoff-location-icon-3x.png")}
+                    alt={"Điểm đến"}
+                  />
+                )}
                 {directionsCount > 1 && (
                   <Badge // bg="red.400"
                     colorScheme="danger"
@@ -472,6 +510,8 @@ const Map = ({
       );
     } else if (isViewToStartTrip) {
       const currentTrip = directions[0];
+      // console.log(currentTrip);
+      // console.log(currentTrip.firstPosition);
       return (
         currentTrip &&
         currentTrip.firstPosition &&
@@ -479,12 +519,12 @@ const Map = ({
           <Box key={`directions-view-bookingdetails`}>
             <MapViewDirections
               origin={{
-                latitude: currentTrip.firstPosition.geometry.location.lat,
-                longitude: currentTrip.firstPosition.geometry.location.lng,
+                latitude: currentTrip?.firstPosition?.geometry?.location.lat,
+                longitude: currentTrip?.firstPosition?.geometry?.location.lng,
               }}
               destination={{
-                latitude: currentTrip.secondPosition.geometry.location.lat,
-                longitude: currentTrip.secondPosition.geometry.location.lng,
+                latitude: currentTrip?.secondPosition?.geometry?.location.lat,
+                longitude: currentTrip?.secondPosition?.geometry?.location.lng,
               }}
               apikey={googleMapsApi}
               strokeWidth={mapDirectionLine.primary.stroke}
@@ -574,9 +614,15 @@ const Map = ({
     }
   };
 
+  // console.log(firstPositionIcon);
+
   return (
     <View style={{ flex: 1 }}>
-      <MapView style={{ flex: 1 }} initialRegion={initialRegion}>
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={initialRegion}
+        showsUserLocation={showCurrentLocation}
+      >
         {renderMarkers(directions)}
         {renderDirections(directions, isPickingSchedules)}
       </MapView>
