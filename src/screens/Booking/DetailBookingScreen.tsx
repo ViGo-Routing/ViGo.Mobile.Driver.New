@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useCallback } from "react";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
 import {
   NativeEventEmitter,
@@ -149,45 +149,39 @@ const DetailBookingScreen = () => {
     fetchBookingData();
   }, []);
 
-  const handleClickOnTrip = (selected: boolean, bookingDetailId: string) => {
-    setIsLoading(true);
-    try {
-      let newSelected = [...selectedDetails];
-      // newSelected[`${bookingDetailId}`] = selected;
+  const handleClickOnTrip = useCallback(
+    (selected: boolean, bookingDetailId: string) => {
+      setIsLoading(true);
+      try {
+        let newSelected = [...selectedDetails];
+        // newSelected[`${bookingDetailId}`] = selected;
 
-      if (selected == true) {
-        newSelected.push(bookingDetailId);
-      } else {
-        const index = newSelected.indexOf(bookingDetailId);
-        if (index >= 0) {
-          newSelected.splice(index, 1);
+        if (selected == true) {
+          newSelected.push(bookingDetailId);
+        } else {
+          const index = newSelected.indexOf(bookingDetailId);
+          if (index >= 0) {
+            newSelected.splice(index, 1);
+          }
         }
+
+        setSelectedDetails(newSelected);
+        if (selected == false) {
+          setIsSelectedAll(false);
+        } else {
+          let all = newSelected.length == displayDetails.length;
+          setIsSelectedAll(all);
+        }
+      } catch (error) {
+        handleError("Có lỗi xảy ra", error);
+      } finally {
+        setIsLoading(false);
       }
 
-      setSelectedDetails(newSelected);
-
-      // setSelectedCount(
-      //   selected == true
-      //     ? selectedCount + 1
-      //     : selectedCount > 0
-      //     ? selectedCount - 1
-      //     : 0
-      // );
-
-      if (selected == false) {
-        setIsSelectedAll(false);
-      } else {
-        let all = newSelected.length == displayDetails.length;
-        setIsSelectedAll(all);
-      }
-    } catch (error) {
-      handleError("Có lỗi xảy ra", error);
-    } finally {
-      setIsLoading(false);
-    }
-
-    // console.log(temp);
-  };
+      // console.log(temp);
+    },
+    [availableDetails]
+  );
 
   const handleClickOnSelectAll = (selected: boolean) => {
     let newSelected = [] as Array<string>;
@@ -203,58 +197,6 @@ const DetailBookingScreen = () => {
   const renderDetailCard = (item: any) => {
     // console.log("Render: " + selectedDetails.length);
     return (
-      // <HStack alignItems="center" key={item.id} alignSelf="stretch">
-      //   <CheckBox
-      //     style={{ marginRight: 5 }}
-      //     aria-label="Chọn chuyến đi"
-      //     value={selectedDetails.includes(item.id)}
-      //     key={item.id}
-      //     onValueChange={(value) => {
-      //       handleClickOnTrip(value, item.id);
-      //     }}
-      //   />
-      //   <Box style={[styles.cardInsideDateTime]} alignSelf="stretch">
-      //     <TouchableOpacity
-      //       onPress={() => navigation.navigate("BookingDetail", { item })}
-      //     >
-      //       <HStack justifyContent="space-between" py={2} alignItems="center">
-      //         <HStack>
-      //           <VStack>
-      //             <HStack alignItems="center">
-      //               <ClockIcon size={20} color="#00A1A1" />
-      //               <Text marginLeft={2} bold color="gray.500">
-      //                 Giờ đón
-      //               </Text>
-      //             </HStack>
-      //             <HStack alignItems="center">
-      //               <CalendarIcon size={20} color="#00A1A1" />
-      //               <Text marginLeft={2} bold color="gray.500">
-      //                 Ngày đón
-      //               </Text>
-      //             </HStack>
-      //           </VStack>
-      //           <VStack marginRight={2} marginLeft={2}>
-      //             <Text bold color="black">
-      //               {toVnTimeString(item.customerDesiredPickupTime)}
-      //             </Text>
-
-      //             <Text bold color="black">
-      //               {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
-      //             </Text>
-      //           </VStack>
-      //         </HStack>
-      //         <Box
-      //           // alignSelf="flex-end"
-      //           backgroundColor={themeColors.linear}
-      //           p="4"
-      //           rounded="xl"
-      //         >
-      //           <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>
-      //         </Box>
-      //       </HStack>
-      //     </TouchableOpacity>
-      //   </Box>
-      // </HStack>
       <BookingDetailSmallCard
         item={item}
         navigation={navigation}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   // Button,
   SafeAreaView,
@@ -133,11 +133,14 @@ const HomeScreen = () => {
     return unsubscribe;
   }, []);
 
-  handleSendData = (item) => {
-    // navigation.navigate("DetailBooking", { item, user });
-    navigation.navigate("DetailBooking", { bookingId: item.id });
-    // console.log(item);
-  };
+  const handleSendData = useCallback(
+    (item) => {
+      // navigation.navigate("DetailBooking", { item, user });
+      navigation.navigate("DetailBooking", { bookingId: item.id });
+      // console.log(item);
+    },
+    [bookingsAvailable]
+  );
 
   // const [response, setResponse] = useState(null);
 

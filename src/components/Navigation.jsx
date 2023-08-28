@@ -49,7 +49,12 @@ const Navigation = () => {
   return (
     // <UserProvider>
     //     <NavigationContainer>
-    <Stack.Navigator initialRouteName={initialScreen}>
+    <Stack.Navigator
+      initialRouteName={initialScreen}
+      screenOptions={{
+        animation: "slide_from_right",
+      }}
+    >
       <Stack.Screen
         name="Login"
         component={LoginScreen}
