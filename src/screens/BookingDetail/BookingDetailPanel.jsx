@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     flexDirection: "row",
-    flexGrow: 1,
+    // flexGrow: 1,
     margin: 5,
   },
   cardInsideLocation: {
