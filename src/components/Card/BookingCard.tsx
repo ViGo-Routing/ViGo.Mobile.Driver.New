@@ -1,4 +1,12 @@
-import { Box, VStack, HStack, Image, Text, Pressable } from "native-base";
+import {
+  Box,
+  VStack,
+  HStack,
+  Image,
+  Text,
+  Pressable,
+  Skeleton,
+} from "native-base";
 import { vndFormat } from "../../utils/numberUtils";
 import { themeColors } from "../../../assets/theme";
 import { StyleSheet, TouchableOpacity } from "react-native";
@@ -15,10 +23,7 @@ interface BookingCardProps {
   element: any;
   handleBookingClick: (element: any) => void;
 }
-const BookingDetailCard = ({
-  element,
-  handleBookingClick,
-}: BookingCardProps) => {
+const BookingCard = ({ element, handleBookingClick }: BookingCardProps) => {
   const getAvailableCountColor = (element: any): ColorType => {
     const availableRate =
       (element.totalBookingDetailsCount -
@@ -131,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(BookingDetailCard);
+export default memo(BookingCard);

@@ -53,7 +53,8 @@ export const getBookingDetailByDriverId = async (
   minPickupTime = null,
   status = "",
   pageSize = 10,
-  pageNumber = 1
+  pageNumber = 1,
+  orderBy = null
 ) => {
   // try {
   let endpoint = `/api/BookingDetail/Driver/${driverId}?pageSize=${pageSize}&pageNumber=${pageNumber}`;
@@ -68,6 +69,9 @@ export const getBookingDetailByDriverId = async (
   }
   if (status) {
     endpoint += `&status=${status}`;
+  }
+  if (orderBy) {
+    endpoint += `&orderBy=${orderBy}`;
   }
 
   const response = await apiManager.get(endpoint);

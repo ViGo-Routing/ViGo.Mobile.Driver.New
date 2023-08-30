@@ -30,13 +30,24 @@ const WalletTransactionDetailScreen = ({ route }) => {
     setDetails(transactionDetails);
   };
 
+  const getTransactionColor = (transaction) => {
+    if (renderTransactionTypeOperator(transaction.type) == "+") {
+      return "green.600";
+    }
+    return "red.500";
+  };
+
   const renderTransactionDetail = (transactionDetail) => {
     if (transactionDetail) {
       return (
         <View>
           <HStack>{renderTransacionType(transactionDetail, "details")}</HStack>
           <Box>
-            <Text bold fontSize={"3xl"}>{`${renderTransactionTypeOperator(
+            <Text
+              color={getTransactionColor(transactionDetail)}
+              bold
+              fontSize={"3xl"}
+            >{`${renderTransactionTypeOperator(
               transactionDetail.type
             )}${vndFormat(transactionDetail.amount)}`}</Text>
           </Box>

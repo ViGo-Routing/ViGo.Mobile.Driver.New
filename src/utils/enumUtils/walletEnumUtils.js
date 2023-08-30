@@ -228,6 +228,65 @@ export const renderTransacionType = (transaction, renderType) => {
           </>
         );
     }
+  } else if (renderType == "trip") {
+    switch (transaction.type) {
+      case "TOPUP":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Nạp tiền vào tài khoản</Text>
+          </>
+        );
+      case "TRIP_INCOME":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Tiền công Chuyến đi</Text>
+          </>
+        );
+      case "TRIP_PAID":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Trả tiền Chuyến đi</Text>
+          </>
+        );
+      case "CANCEL_FEE":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Phí hủy chuyến đi</Text>
+          </>
+        );
+      case "CANCEL_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>
+              Hoàn tiền - Hủy chuyến đi
+            </Text>
+          </>
+        );
+      case "BOOKING_PAID":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Phí đặt hành trình</Text>
+          </>
+        );
+      case "TRIP_PICK":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Phí nhận chuyến đi</Text>
+          </>
+        );
+      case "TRIP_PICK_REFUND":
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Hoàn phí nhận chuyến đi</Text>
+          </>
+        );
+      default:
+        return (
+          <>
+            <Text style={styles.transactionTrip}>Khác</Text>
+          </>
+        );
+    }
   }
 };
 
@@ -274,6 +333,9 @@ const styles = StyleSheet.create({
   transactionNameDetail: {
     fontSize: 16,
     textTransform: "uppercase",
+  },
+  transactionTrip: {
+    fontSize: 14,
   },
   transactionSubtitle: {
     // marginLeft: 10,

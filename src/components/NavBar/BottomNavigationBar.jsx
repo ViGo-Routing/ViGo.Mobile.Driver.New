@@ -8,9 +8,10 @@ import {
   ChatBubbleLeftRightIcon,
   HomeIcon,
   MapIcon,
+  QueueListIcon,
   UserIcon,
 } from "react-native-heroicons/solid";
-import { Box, HStack, Pressable } from "native-base";
+import { Box, HStack, Pressable, Text, VStack } from "native-base";
 
 const BottomNavigationBar = () => {
   const navigation = useNavigation();
@@ -40,7 +41,7 @@ const BottomNavigationBar = () => {
         justifyContent="space-between"
         safeAreaBottom
         height={"60"}
-        px="10"
+        px="5"
       >
         <Pressable
           opacity={selected === "Home" ? 1 : 0.75}
@@ -51,7 +52,12 @@ const BottomNavigationBar = () => {
             navigation.navigate("Home");
           }}
         >
-          <HomeIcon size={24} color="white" />
+          <VStack justifyContent="center">
+            <HomeIcon size={24} color="white" alignSelf="center" />
+            <Text fontSize="xs" color="white" alignSelf="center">
+              TRANG CHỦ
+            </Text>
+          </VStack>
           {/* <Ionicons name="home" size={24} color="white" /> */}
         </Pressable>
         {/* <TouchableOpacity onPress={() => navigation.navigate('Promotion')}>
@@ -66,12 +72,35 @@ const BottomNavigationBar = () => {
             navigation.navigate("Schedule");
           }}
         >
-          <MapIcon size={24} color="white" />
-          {/* <Ionicons name="git-branch" size={24} color="white" /> */}
+          <VStack justifyContent="center">
+            <MapIcon size={24} color="white" alignSelf="center" />
+            <Text fontSize="xs" color="white" alignSelf="center">
+              LỊCH TRÌNH
+            </Text>
+            {/* <Ionicons name="git-branch" size={24} color="white" /> */}
+          </VStack>
         </Pressable>
         {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
             <ChatBubbleLeftRightIcon size={24} color="white" />
           </TouchableOpacity> */}
+
+        <Pressable
+          opacity={selected === "History" ? 1 : 0.75}
+          py="3"
+          // flex={1}
+          onPress={() => {
+            setSelected("History");
+            navigation.navigate("History");
+          }}
+        >
+          <VStack justifyContent="center">
+            <QueueListIcon size={24} color="white" alignSelf="center" />
+            <Text fontSize="xs" color="white" alignSelf="center">
+              LỊCH SỬ
+            </Text>
+            {/* <Ionicons name="git-branch" size={24} color="white" /> */}
+          </VStack>
+        </Pressable>
         <Pressable
           opacity={selected === "Profile" ? 1 : 0.75}
           py="3"
@@ -82,7 +111,12 @@ const BottomNavigationBar = () => {
           }}
         >
           {/* <Ionicons name="person" size={24} color="white" /> */}
-          <UserIcon size={24} color="white" />
+          <VStack justifyContent="center">
+            <UserIcon size={24} color="white" alignSelf="center" />
+            <Text fontSize="xs" color="white" alignSelf="center">
+              CÁ NHÂN
+            </Text>
+          </VStack>
         </Pressable>
       </HStack>
     </Box>

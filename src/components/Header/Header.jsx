@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { themeColors } from "../../../assets/theme";
 // import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from "@react-navigation/native";
-import { ArrowLeftIcon } from "react-native-heroicons/solid";
+import { ArrowLeftIcon, ChevronDownIcon } from "react-native-heroicons/solid";
 import { Box, HStack, Text, VStack } from "native-base";
 import { TouchableOpacity } from "react-native";
 
@@ -11,6 +11,7 @@ const Header = ({
   title,
   isBackButtonShown = true,
   onBackButtonPress = undefined,
+  backButtonDirection = "left",
 }) => {
   const navigation = useNavigation();
   const onBackPress = () => {
@@ -20,6 +21,17 @@ const Header = ({
   if (onBackButtonPress === undefined) {
     onBackButtonPress = onBackPress;
   }
+
+  const renderBackButton = () => {
+    switch (backButtonDirection) {
+      case "down":
+        return <ChevronDownIcon size={25} color="white" />;
+      case "left":
+      default:
+        return <ArrowLeftIcon size={25} color="white" />;
+    }
+  };
+
   return (
     // <View style={styles.container}>
     //   {isBackButtonShown && (
@@ -43,7 +55,7 @@ const Header = ({
             style={styles.backButton}
             onPress={onBackButtonPress}
           >
-            <ArrowLeftIcon size={25} color="white" />
+            {renderBackButton()}
           </TouchableOpacity>
         )}
         <Text marginLeft={3} bold fontSize={"2xl"} color={"white"}>

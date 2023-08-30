@@ -31,6 +31,7 @@ import {
   Popover,
   Button,
   Pressable,
+  Skeleton,
 } from "native-base";
 import ViGoSpinner from "../../components/Spinner/ViGoSpinner";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
@@ -42,7 +43,9 @@ import InfoAlert from "../../components/Alert/InfoAlert";
 import BookingDetailCard from "../../components/Card/BookingDetailCard";
 import HomeTripInformationCard from "../../components/Card/HomeTripInformationCard";
 import { getAvailableBookings } from "../../services/bookingService";
-import BookingCard from "../../components/Card/BookingCard";
+import BookingCard, {
+  BookingCardSkeleton,
+} from "../../components/Card/BookingCard";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -298,6 +301,8 @@ const HomeScreen = () => {
         {/* <ErrorAlert isError={isError} errorMessage={errorMessage}>
           <Box marginTop="4"> */}
 
+        {/* {isLoading && <BookingCardSkeleton />} */}
+        {/* {!isLoading && ( */}
         <FlatList
           // style={vigoStyles.list}
           marginTop="3"
@@ -324,6 +329,7 @@ const HomeScreen = () => {
             paddingBottom: currentTrip || upcomingTrip ? 50 : 10,
           }}
         />
+        {/* )} */}
       </View>
       {/* </Box>
         </ErrorAlert> */}

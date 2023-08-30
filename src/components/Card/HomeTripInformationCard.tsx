@@ -89,7 +89,7 @@ const HomeTripInformationCard = ({
         >
           <VStack>
             <HStack mt="2">
-              <Badge colorScheme={"success"}>Sắp tới</Badge>
+              <Badge colorScheme={"info"}>Sắp tới</Badge>
             </HStack>
             <Text fontSize={18} bold isTruncated width="95%">
               {upcomingTrip.startStation.name} - {upcomingTrip.endStation.name}
