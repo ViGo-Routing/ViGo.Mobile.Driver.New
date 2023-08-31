@@ -12,7 +12,9 @@ const WelcomeDriverHeader = ({ title, subtitle, onBack }) => {
         </Text>
       </TouchableOpacity> */}
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title} bold>
+          {title}
+        </Text>
         {/* <Text style={styles.subtitle} numberOfLines={null}>
           {subtitle}
         </Text> */}
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
-    fontWeight: "600",
+    fontWeight: "800",
     color: "white",
     paddingTop: 10,
   },

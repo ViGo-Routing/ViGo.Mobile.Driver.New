@@ -106,17 +106,21 @@ const HistoryCard = ({ trip, navigation }: HistoryCardProps) => {
                   </Text> */}
               {/* <HStack mb="2">{renderBadge(trip.status)}</HStack> */}
 
-              <HStack>
+              <HStack w="100%">
                 <Text w={20} bold>
                   Bắt đầu:
                 </Text>
-                <Text isTruncated>{trip.startStation.name}</Text>
+                <Text w="55%" isTruncated>
+                  {trip.startStation.name}
+                </Text>
               </HStack>
-              <HStack>
+              <HStack w="100%">
                 <Text w={20} bold>
                   Kết thúc:
                 </Text>
-                <Text isTruncated>{trip.endStation.name}</Text>
+                <Text w="55%" isTruncated>
+                  {trip.endStation.name}
+                </Text>
               </HStack>
 
               {trip.status == "ASSIGNED" && (

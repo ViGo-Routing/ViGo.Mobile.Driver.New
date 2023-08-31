@@ -21,7 +21,10 @@ import {
   MinusIcon,
   PaperAirplaneIcon,
 } from "react-native-heroicons/solid";
-import { ClockIcon as ClockOutlineIcon } from "react-native-heroicons/outline";
+import {
+  ClockIcon as ClockOutlineIcon,
+  XCircleIcon,
+} from "react-native-heroicons/outline";
 import { themeColors, vigoStyles } from "../../../assets/theme";
 import {
   calculateAge,
@@ -101,6 +104,70 @@ const PickBookingDetailConfirmAlert = ({
   );
 };
 
+const CancelBookingDetailConfirmAlert = ({
+  item,
+  // items,
+  cancelFee,
+  handleOkPress,
+  confirmOpen,
+  setConfirmOpen,
+  // key,
+}) => {
+  const description = () => {
+    if (item || (items && items.length == 1)) {
+      return (
+        <VStack>
+          <Text>
+            Với việc nhận chuyến xe, bạn sẽ phải trả trước một khoản phí nhận
+            chuyến.
+          </Text>
+          <Text>
+            Sau khi hoàn thành chuyến đi, bạn sẽ được trả toàn bộ số tiền của
+            chuyến đi.
+          </Text>
+          <Text marginTop="2">
+            Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text>
+          </Text>
+        </VStack>
+      );
+    } else if (items && items.length > 1) {
+      return (
+        <VStack>
+          <Text>
+            Với việc nhận {items.length} chuyến xe này, bạn sẽ phải trả trước
+            một khoản phí nhận chuyến.
+          </Text>
+          <Text>
+            Sau khi hoàn thành mỗi chuyến đi, bạn sẽ được trả toàn bộ số tiền
+            của chuyến đi đó.
+          </Text>
+          <Text marginTop="2">
+            Phí nhận chuyến: <Text bold>{vndFormat(pickingFee)}</Text> cho mỗi
+            chuyến đi nhận thành công.
+          </Text>
+          <Text marginTop="2">
+            Ước tính: <Text bold>{vndFormat(pickingFee * items.length)}</Text>
+          </Text>
+        </VStack>
+      );
+    }
+    return <></>;
+  };
+
+  return (
+    <ConfirmAlert
+      title="Nhận chuyến xe"
+      description={description()}
+      okButtonText="Xác nhận"
+      cancelButtonText="Hủy"
+      onOkPress={() => handleOkPress()}
+      isOpen={confirmOpen}
+      setIsOpen={setConfirmOpen}
+      key={`confirm-booking-detail-alert`}
+    />
+  );
+};
+
 const BookingDetailPanel = ({
   item,
   actionButton = undefined,
@@ -112,6 +179,7 @@ const BookingDetailPanel = ({
   displayButtons = true,
 }) => {
   const { user } = useContext(UserContext);
+  // console.log(item.status);
   return (
     <Box>
       <TripFullInformation
@@ -121,30 +189,58 @@ const BookingDetailPanel = ({
         customer={customer}
       />
       {displayButtons && (
-        <HStack>
-          <View
-            style={[
-              styles.cardInsideLocation,
-              {
-                backgroundColor: themeColors.primary,
-                height: 40,
-                justifyContent: "center",
-                alignItems: "center",
-              },
-              vigoStyles.buttonWhite,
-            ]}
-          >
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <HStack alignItems="center">
-                <ArrowLeftIcon size={20} color={themeColors.primary} />
-                <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
-                  Quay lại
-                </Text>
-              </HStack>
-            </TouchableOpacity>
-          </View>
-          {actionButton && actionButton}
-        </HStack>
+        <VStack>
+          <HStack>
+            <View
+              style={[
+                styles.cardInsideLocation,
+                {
+                  backgroundColor: themeColors.primary,
+                  height: 40,
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+                vigoStyles.buttonWhite,
+              ]}
+            >
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <HStack alignItems="center">
+                  <ArrowLeftIcon size={20} color={themeColors.primary} />
+                  <Text marginLeft={2} style={vigoStyles.buttonWhiteText}>
+                    Quay lại
+                  </Text>
+                </HStack>
+              </TouchableOpacity>
+            </View>
+            {actionButton && actionButton}
+          </HStack>
+          {item.status == "ASSIGNED" && (
+            <HStack>
+              <View
+                flex={1}
+                style={[
+                  styles.cardInsideLocation,
+                  {
+                    backgroundColor: "red",
+                    height: 40,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  },
+                  vigoStyles.buttonWhite,
+                ]}
+              >
+                <TouchableOpacity onPress={() => {}}>
+                  <HStack alignItems="center">
+                    <XCircleIcon size={20} color={"red"} />
+                    <Text marginLeft={2} color="red.500" bold>
+                      Hủy nhận chuyến
+                    </Text>
+                  </HStack>
+                </TouchableOpacity>
+              </View>
+            </HStack>
+          )}
+        </VStack>
       )}
     </Box>
   );
@@ -228,7 +324,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   cardInsideLocation: {
-    flexGrow: 1,
+    // flexGrow: 1,
     backgroundColor: "white",
     borderRadius: 8,
 

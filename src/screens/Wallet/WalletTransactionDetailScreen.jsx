@@ -93,7 +93,9 @@ const WalletTransactionDetailScreen = ({ route }) => {
             {transactionDetail.bookingId && (
               <VStack>
                 <Text>Mã hành trình</Text>
-                <Text>{transactionDetail.bookingId}</Text>
+                <Text style={{ textAlign: "right" }}>
+                  {transactionDetail.bookingId}
+                </Text>
               </VStack>
             )}
           </Box>

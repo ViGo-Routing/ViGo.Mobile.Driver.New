@@ -21,7 +21,7 @@ const BookingDetailSmallCard = ({
   navigation,
 }: BookingDetailSmallCardProps) => {
   return (
-    <HStack alignItems="center" key={item.id} alignSelf="stretch">
+    <HStack alignItems="center" key={item.id} justifyContent={"stretch"}>
       <CheckBox
         style={{ marginRight: 5 }}
         aria-label="Chọn chuyến đi"
@@ -36,35 +36,37 @@ const BookingDetailSmallCard = ({
           onPress={() => navigation.navigate("BookingDetail", { item })}
         >
           <HStack justifyContent="space-between" py={2} alignItems="center">
-            <HStack>
-              <VStack>
-                <HStack alignItems="center">
-                  <ClockIcon size={20} color="#00A1A1" />
-                  <Text marginLeft={2} bold color="gray.500">
-                    Giờ đón
-                  </Text>
-                </HStack>
-                <HStack alignItems="center">
-                  <CalendarIcon size={20} color="#00A1A1" />
-                  <Text marginLeft={2} bold color="gray.500">
-                    Ngày đón
-                  </Text>
-                </HStack>
-              </VStack>
-              <VStack marginRight={2} marginLeft={2}>
-                <Text bold color="black">
-                  {toVnTimeString(item.customerDesiredPickupTime)}
+            <VStack>
+              <HStack alignItems="center">
+                <ClockIcon size={20} color="#00A1A1" />
+                <Text marginLeft={2} bold color="gray.500">
+                  Giờ đón
                 </Text>
+              </HStack>
+              <HStack alignItems="center">
+                <CalendarIcon size={20} color="#00A1A1" />
+                <Text marginLeft={2} bold color="gray.500">
+                  Ngày đón
+                </Text>
+              </HStack>
+            </VStack>
+            <VStack marginRight={2} marginLeft={2}>
+              <Text bold color="black">
+                {toVnTimeString(item.customerDesiredPickupTime)}
+              </Text>
 
-                <Text bold color="black">
-                  {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
-                </Text>
-              </VStack>
-            </HStack>
+              <Text bold color="black">
+                {`${item.dayOfWeek}, ${toVnDateString(item.date)}`}
+              </Text>
+            </VStack>
+          </HStack>
+          <HStack justifyContent="flex-end" mb="2">
             <Box
               // alignSelf="flex-end"
               backgroundColor={themeColors.linear}
-              p="4"
+              // p="4"
+              px="3"
+              py="2"
               rounded="xl"
             >
               <Text style={styles.titlePrice}>{vndFormat(item.price)}</Text>

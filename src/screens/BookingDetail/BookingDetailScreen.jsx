@@ -187,11 +187,14 @@ const BookingDetailScreen = () => {
       const response = await pickBookingDetailById(bookingDetail.id);
       if (response && response.data) {
         eventEmitter.emit(eventNames.SHOW_TOAST, {
-          title: "Xác nhận chuyến đi",
-          description: "Bạn vừa nhận chuyến thành công!",
+          // title: "Xác nhận chuyến đi",
+          title: "Bạn vừa nhận chuyến thành công!",
+          description: "",
           status: "success",
           // placement: "top",
-          isDialog: true,
+          // isDialog: true,
+          isSlide: true,
+          duration: 5000,
         });
         navigation.navigate("Schedule", { date: bookingDetail.date });
       }
@@ -221,7 +224,7 @@ const BookingDetailScreen = () => {
         >
           <HStack alignItems="center">
             <PaperAirplaneIcon size={20} color={"white"} />
-            <Text marginLeft={2} style={{ color: "white", fontWeight: "bold" }}>
+            <Text marginLeft={3} style={{ color: "white", fontWeight: "bold" }}>
               Nhận chuyến
             </Text>
           </HStack>
@@ -271,6 +274,9 @@ const BookingDetailScreen = () => {
               // openLarge={openLargePanel}
               ref={panelRef}
               // largePanelHeight={680}
+              scrollViewProps={{
+                scrollEnabled: true,
+              }}
             >
               <Box px="6">
                 <BookingDetailPanel
