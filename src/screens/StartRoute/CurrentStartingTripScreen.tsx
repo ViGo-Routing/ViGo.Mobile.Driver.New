@@ -21,7 +21,7 @@ import {
 import { getBookingStatusStepNumber } from "../../utils/enumUtils/bookingEnumUtils";
 import StepIndicator from "react-native-step-indicator";
 import { themeColors } from "../../../assets/theme";
-import Geolocation from "@react-native-community/geolocation";
+import Geolocation from "react-native-geolocation-service";
 import SignalRService from "../../utils/signalRUtils";
 import moment from "moment";
 import { hideFloatingBubble } from "react-native-floating-bubble";
@@ -323,7 +323,24 @@ const CurrentStartingTripScreen = () => {
           clearInterval(driverLocationTimer);
         }
         if (updatedStatus == "ARRIVE_AT_DROPOFF") {
-          navigation.navigate("Home");
+          // navigation.navigate("Home");/
+          navigation.reset({
+            index: 1,
+            routes: [
+              {
+                name: "Home",
+                // params: {
+                //   bookingDetailId: bookingDetail.id,
+                // },
+              },
+              {
+                name: "CompletedBookingDetail",
+                params: {
+                  bookingDetailId: bookingDetail.id,
+                },
+              },
+            ],
+          });
         } else {
           await getBookingDetailData();
         }
@@ -568,6 +585,9 @@ const CurrentStartingTripScreen = () => {
               }
               smallPanelHeight={380}
               largePanelHeight={getPanelFullHeight()}
+              scrollViewProps={{
+                scrollEnabled: true,
+              }}
             >
               <>
                 <Box mx="2">

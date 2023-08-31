@@ -87,17 +87,21 @@ const BookingCard = ({ element, handleBookingClick }: BookingCardProps) => {
                 {/* <Text style={styles.title}>
                     {toVnDateString(element.date)}
                   </Text> */}
-                <HStack>
+                <HStack w={"100%"}>
                   <Text w={20} bold>
                     Bắt đầu:
                   </Text>
-                  <Text>{element.customerRoute.startStation.name}</Text>
+                  <Text isTruncated w="55%">
+                    {element.customerRoute.startStation.name}
+                  </Text>
                 </HStack>
-                <HStack>
+                <HStack w={"100%"}>
                   <Text w={20} bold>
                     Kết thúc:
                   </Text>
-                  <Text>{element.customerRoute.endStation.name}</Text>
+                  <Text isTruncated w="55%">
+                    {element.customerRoute.endStation.name}
+                  </Text>
                 </HStack>
                 <HStack>
                   <Text w={20} bold>

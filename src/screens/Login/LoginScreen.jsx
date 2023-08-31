@@ -8,6 +8,7 @@ import {
   PermissionsAndroid,
   DeviceEventEmitter,
   NativeEventEmitter,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 // IMPORT THEME
@@ -139,14 +140,18 @@ export default function LoginScreen() {
           buttonPositive: "Đồng ý",
         });
         // setIsLoading(false);
+        // console.log(Platform.constants["Version"]);
+        // console.log(results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]);
         if (
-          results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
-            PermissionsAndroid.RESULTS.GRANTED &&
+          (Platform.constants["Version"] < 33 ||
+            results[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] ===
+              PermissionsAndroid.RESULTS.GRANTED) &&
           results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
             PermissionsAndroid.RESULTS.GRANTED
         ) {
           await messaging().registerDeviceForRemoteMessages();
           const fcmToken = await messaging().getToken();
+          console.log("FCM: " + fcmToken);
           await updateUserFcmToken(response.user.id, fcmToken);
         } else {
           console.log("Some permissions denied");
@@ -158,6 +163,7 @@ export default function LoginScreen() {
           status: "success",
           placement: "top",
           duration: 3000,
+          isSlide: true,
         });
         if (response.user.status == "PENDING") {
           navigation.reset({

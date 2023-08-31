@@ -22,9 +22,11 @@ const TransactionItem = ({ transaction, renderType }: TransactionItemProps) => {
 
   return (
     <HStack>
-      {/* <Box width={"10%"}>
-        {renderTransactionStatus(transaction.status, "list")}
-      </Box> */}
+      {renderType != "trip" && (
+        <Box width={"10%"}>
+          {renderTransactionStatus(transaction.status, "list")}
+        </Box>
+      )}
       <Box width={"60%"}>{renderTransacionType(transaction, renderType)}</Box>
       <Box width={"30%"} paddingLeft={5} alignItems="flex-end">
         <Text bold color={getTransactionColor()} style={{ fontSize: 16 }}>

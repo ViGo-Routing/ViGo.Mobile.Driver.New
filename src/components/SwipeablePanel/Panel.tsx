@@ -7,13 +7,14 @@ import {
   PanResponderInstance,
   ScrollViewProps,
   StyleSheet,
+  TouchableHighlight,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 
 import { Bar } from "./Bar";
 import { Close } from "./Close";
-import { Box } from "native-base";
+import { Box, ScrollView } from "native-base";
 
 let FULL_HEIGHT = Dimensions.get("window").height;
 let FULL_WIDTH = Dimensions.get("window").width;
@@ -370,11 +371,40 @@ class SwipeablePanel extends React.Component<
             />
           )}
           {/* <AnimatedBox style={{ opacity: this.state.opacity }}> */}
-          {this.props.smallPanelItem
-            ? this.state.status == STATUS.SMALL
-              ? this.props.smallPanelItem
-              : this.props.children
-            : this.props.children}
+
+          <ScrollView
+            onTouchStart={() => {
+              return false;
+            }}
+            onTouchEnd={() => {
+              return false;
+            }}
+            contentContainerStyle={
+              SwipeablePanelStyles.scrollViewContentContainerStyle
+            }
+            {...this.props.scrollViewProps}
+          >
+            {this.state.canScroll ? (
+              <TouchableHighlight>
+                <React.Fragment>
+                  {this.props.smallPanelItem
+                    ? this.state.status == STATUS.SMALL
+                      ? this.props.smallPanelItem
+                      : this.props.children
+                    : this.props.children}
+                </React.Fragment>
+              </TouchableHighlight>
+            ) : this.props.smallPanelItem ? (
+              this.state.status == STATUS.SMALL ? (
+                this.props.smallPanelItem
+              ) : (
+                this.props.children
+              )
+            ) : (
+              this.props.children
+            )}
+          </ScrollView>
+
           {/* </AnimatedBox> */}
           {/* {this.props.children} */}
         </Animated.View>

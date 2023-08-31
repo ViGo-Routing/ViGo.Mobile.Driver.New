@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import { useErrorHandlingHook } from "../../hooks/useErrorHandlingHook";
 import {
   NativeEventEmitter,
@@ -153,24 +153,27 @@ const DetailBookingScreen = () => {
     (selected: boolean, bookingDetailId: string) => {
       setIsLoading(true);
       try {
-        let newSelected = [...selectedDetails];
-        // newSelected[`${bookingDetailId}`] = selected;
+        // console.log(selectedDetails);
+
+        // let newSelected = [...selectedDetails];
+        // // newSelected[`${bookingDetailId}`] = selected;
+
+        // if (selected == true) {
+        //   newSelected.push(bookingDetailId);
+        // } else {
+        //   const index = newSelected.indexOf(bookingDetailId);
+        //   if (index >= 0) {
+        //     newSelected.splice(index, 1);
+        //   }
+        // }
+        // setSelectedDetails(newSelected);
 
         if (selected == true) {
-          newSelected.push(bookingDetailId);
+          setSelectedDetails((prev) => [...prev, bookingDetailId]);
         } else {
-          const index = newSelected.indexOf(bookingDetailId);
-          if (index >= 0) {
-            newSelected.splice(index, 1);
-          }
-        }
-
-        setSelectedDetails(newSelected);
-        if (selected == false) {
-          setIsSelectedAll(false);
-        } else {
-          let all = newSelected.length == displayDetails.length;
-          setIsSelectedAll(all);
+          setSelectedDetails(
+            selectedDetails.filter((id) => id !== bookingDetailId)
+          );
         }
       } catch (error) {
         handleError("Có lỗi xảy ra", error);
@@ -182,6 +185,11 @@ const DetailBookingScreen = () => {
     },
     [availableDetails]
   );
+
+  useEffect(() => {
+    console.log(selectedDetails);
+    setIsSelectedAll(selectedDetails.length == displayDetails.length);
+  }, [selectedDetails]);
 
   const handleClickOnSelectAll = (selected: boolean) => {
     let newSelected = [] as Array<string>;
@@ -282,23 +290,32 @@ const DetailBookingScreen = () => {
           primaryButtonText: "Đã hiểu",
           isDialog: true,
         });
+        await fetchBookingData();
       } else if (response && !response.errorMessage) {
         eventEmitter.emit(eventNames.SHOW_TOAST, {
-          title: "Xác nhận chuyến đi",
-          description: (
+          title: `Bạn vừa nhận ${response.successBookingDetailIds.length} chuyến đi thành công!`,
+          description:
+            /*(
             <>
               <Text>
                 Bạn vừa nhận {response.successBookingDetailIds.length} chuyến đi
                 thành công!
               </Text>
             </>
-          ),
+          ),*/ "",
           status: "success",
-          // placement: "top",
-          primaryButtonText: "Đã hiểu",
-          isDialog: true,
+          placement: "top",
+          // primaryButtonText: "Đã hiểu",
+          // isDialog: true,
+          isSlide: true,
+          duration: 5000,
         });
-        navigation.navigate("Schedule");
+
+        const firstTrip = displayDetails.filter(
+          (trip: any) => trip.id === selectedDetails[0]
+        )[0];
+
+        navigation.navigate("Schedule", { date: firstTrip.date });
       }
     } catch (error) {
       handleError("Có lỗi xảy ra", error);
@@ -546,11 +563,13 @@ const DetailBookingScreen = () => {
                         </HStack>
                         <Text>{`Đã chọn ${selectedDetails.length}/${displayDetails.length}`}</Text>
                       </HStack>
-                      <Box mx={0.5}>
+                      <VStack mx={0.5}>
                         {displayDetails.map((item) => (
-                          <Box key={item.id}>{renderDetailCard(item)}</Box>
+                          <React.Fragment key={item.id}>
+                            {renderDetailCard(item)}
+                          </React.Fragment>
                         ))}
-                      </Box>
+                      </VStack>
                     </>
                   ) : (
                     <Box mt={2}>
