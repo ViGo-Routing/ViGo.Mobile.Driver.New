@@ -143,6 +143,30 @@ const MapInformationScreen = (/*{
     );
   };
 
+  const mapRef = useRef();
+  const fitMap = () => {
+    // console.log(results);
+    const coords = [
+      {
+        latitude: firstPosition?.geometry?.location.lat,
+        longitude: firstPosition?.geometry?.location.lng,
+      },
+      {
+        latitude: secondPosition?.geometry?.location.lat,
+        longitude: secondPosition?.geometry?.location.lng,
+      },
+    ];
+    // console.log(coords);
+    mapRef.current.fitToCoordinates(coords, {
+      edgePadding: {
+        top: 0,
+        right: 20,
+        bottom: 80,
+        left: 20,
+      },
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={{ flex: 1 }}>
       {/* <VStack> */}
@@ -150,6 +174,8 @@ const MapInformationScreen = (/*{
         <MapView
           style={{ minHeight: "80%", ...styles.maps }}
           initialRegion={initialRegion}
+          ref={mapRef}
+          // onLayout={() => fitMap()}
         >
           <Box key={`markers`}>
             <Marker

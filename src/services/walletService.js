@@ -37,3 +37,10 @@ export const getWalletTransactionDetail = async (walletTransactionId) => {
     console.log(`Get Wallet Transaction details error: ${error}`);
   }
 };
+
+export const getBookingDetailTransactions = async (bookingDetailId) => {
+  const response = await apiManager.get(
+    `api/WalletTransaction/BookingDetail/${bookingDetailId}`
+  );
+  return response.data;
+};

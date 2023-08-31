@@ -193,7 +193,7 @@ const BookingDetailScreen = () => {
           // placement: "top",
           isDialog: true,
         });
-        navigation.navigate("Schedule");
+        navigation.navigate("Schedule", { date: bookingDetail.date });
       }
     } catch (error) {
       handleError("Có lỗi xảy ra", error);

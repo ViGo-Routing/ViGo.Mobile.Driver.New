@@ -8,7 +8,7 @@ import call from "react-native-phone-call";
 import { handleError } from "../../utils/alertUtils";
 interface CustomerInformationCardProps {
   customer: any;
-  displayCustomerText: boolean | undefined;
+  displayCustomerText?: boolean | undefined;
   displayCall?: boolean;
 }
 

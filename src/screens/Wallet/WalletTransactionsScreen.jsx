@@ -19,6 +19,7 @@ import Divider from "../../components/Divider/Divider";
 import { vndFormat } from "../../utils/numberUtils";
 import { Text, FlatList, HStack, Box } from "native-base";
 import InfoAlert from "../../components/Alert/InfoAlert";
+import TransactionItem from "../../components/WalletTransaction/TransactionItem";
 
 const WalletTransactionsScreen = ({ route }) => {
   const { walletId } = route.params;
@@ -83,19 +84,11 @@ const WalletTransactionsScreen = ({ route }) => {
 
   const renderTransactionListItem = (transaction) => {
     return (
-      <HStack>
-        <Box width={"10%"}>
-          {renderTransactionStatus(transaction.status, "list")}
-        </Box>
-        <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
-        <Box width={"30%"} paddingLeft={5} alignItems="flex-end">
-          <Text style={{ fontSize: 16 }}>
-            {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
-              transaction.amount
-            )}`}
-          </Text>
-        </Box>
-      </HStack>
+      <TransactionItem
+        renderType="list"
+        key={transaction.id}
+        transaction={transaction}
+      />
     );
   };
 

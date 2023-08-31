@@ -615,6 +615,47 @@ const Map = ({
   };
 
   // console.log(firstPositionIcon);
+  const mapRef = useRef();
+
+  const fitMap = () => {
+    // console.log(results);
+    const coords = directions
+      .map((direction: any) => {
+        if (direction == null) {
+          return [];
+        }
+        return [
+          {
+            latitude: direction.firstPosition?.geometry?.location.lat,
+            longitude: direction.firstPosition?.geometry?.location.lng,
+          },
+          {
+            latitude: direction.secondPosition?.geometry?.location.lat,
+            longitude: direction.secondPosition?.geometry?.location.lng,
+          },
+        ];
+      })
+      .flat();
+    // const coords = [
+    //   {
+    //     latitude: firstPosition?.geometry?.location.lat,
+    //     longitude: firstPosition?.geometry?.location.lng,
+    //   },
+    //   {
+    //     latitude: secondPosition?.geometry?.location.lat,
+    //     longitude: secondPosition?.geometry?.location.lng,
+    //   },
+    // ];
+    // console.log(coords);
+    mapRef.current.fitToCoordinates(coords, {
+      edgePadding: {
+        top: 0,
+        right: 5,
+        bottom: 50,
+        left: 5,
+      },
+    });
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -622,6 +663,10 @@ const Map = ({
         style={{ flex: 1 }}
         initialRegion={initialRegion}
         showsUserLocation={showCurrentLocation}
+        // onLayout={() => fitMap()}
+        ref={mapRef}
+
+        // loadingEnabled={true}
       >
         {renderMarkers(directions)}
         {renderDirections(directions, isPickingSchedules)}

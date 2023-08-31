@@ -45,6 +45,7 @@ import {
   Button,
   FlatList,
 } from "native-base";
+import TransactionItem from "../../components/WalletTransaction/TransactionItem";
 
 const WalletScreen = () => {
   const navigation = useNavigation();
@@ -73,21 +74,7 @@ const WalletScreen = () => {
   };
 
   const renderTransactionListItem = (transaction) => {
-    return (
-      <HStack>
-        <Box width={"10%"}>
-          {renderTransactionStatus(transaction.status, "list")}
-        </Box>
-        <Box width={"60%"}>{renderTransacionType(transaction, "list")}</Box>
-        <Box width={"30%"} paddingLeft={5} alignItems="flex-end">
-          <Text style={{ fontSize: 16 }}>
-            {`${renderTransactionTypeOperator(transaction.type)}${vndFormat(
-              transaction.amount
-            )}`}
-          </Text>
-        </Box>
-      </HStack>
-    );
+    return <TransactionItem renderType="list" transaction={transaction} />;
   };
 
   useEffect(() => {
@@ -108,9 +95,12 @@ const WalletScreen = () => {
       <View style={vigoStyles.body}>
         <View style={styles.balanceContainer}>
           <View style={vigoStyles.textContainer}>
-            <Text bold fontSize={"xl"}>
-              Số dư: {vndFormat(walletBalance)}
-            </Text>
+            <VStack>
+              <Text bold fontSize={"3xl"} color={themeColors.primary}>
+                {vndFormat(walletBalance)}
+              </Text>
+              <Text fontSize={"xs"}>Số dư hiện tại</Text>
+            </VStack>
           </View>
         </View>
         <Box flexDirection={"row-reverse"} marginTop={5}>

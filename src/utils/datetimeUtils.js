@@ -28,6 +28,7 @@ export const calculateAge = (dateOfBirth) => {
 };
 
 export const getDifference = (startTime, endTime) => {
+  // console.log(startTime, endTime);
   const first = moment(startTime);
   const second = moment(endTime);
   const diffDays = second.diff(first, "days");

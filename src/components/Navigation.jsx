@@ -28,6 +28,9 @@ import ScheduleInDateScreen from "../screens/Scheduler/ScheduleInDateScreen";
 import CurrentStartingTripScreen from "../screens/StartRoute/CurrentStartingTripScreen";
 import DetailBookingScreen from "../screens/Booking/DetailBookingScreen";
 import MapInformationScreen from "../screens/Booking/MapInformationScreen";
+import HistoryScreen from "../screens/History/HistoryScreen";
+import CompletedBookingDetailScreen from "../screens/BookingDetail/CompletedBookingDetailScreen";
+import CanceledBookingDetailScreen from "../screens/BookingDetail/CanceledBookingDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +52,12 @@ const Navigation = () => {
   return (
     // <UserProvider>
     //     <NavigationContainer>
-    <Stack.Navigator initialRouteName={initialScreen}>
+    <Stack.Navigator
+      initialRouteName={initialScreen}
+      screenOptions={{
+        animation: "slide_from_right",
+      }}
+    >
       <Stack.Screen
         name="Login"
         component={LoginScreen}
@@ -153,6 +161,21 @@ const Navigation = () => {
         name="MapInformation"
         options={{ headerShown: false, animation: "slide_from_bottom" }}
         component={MapInformationScreen}
+      />
+      <Stack.Screen
+        name="History"
+        options={{ headerShown: false }}
+        component={HistoryScreen}
+      />
+      <Stack.Screen
+        name="CompletedBookingDetail"
+        options={{ headerShown: false, animation: "slide_from_bottom" }}
+        component={CompletedBookingDetailScreen}
+      />
+      <Stack.Screen
+        name="CanceledBookingDetail"
+        options={{ headerShown: false, animation: "slide_from_bottom" }}
+        component={CanceledBookingDetailScreen}
       />
     </Stack.Navigator>
     //     </NavigationContainer>

@@ -10,7 +10,7 @@ import { Agenda, LocaleConfig } from "react-native-calendars";
 import { getBookingDetailByDriverId } from "../../services/bookingDetailService";
 import { UserContext } from "../../context/UserContext";
 import { themeColors, vigoStyles } from "../../../assets/theme";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Header from "../../components/Header/Header";
 import InfoAlert from "../../components/Alert/InfoAlert";
 import { Box, Fab, HStack, ScrollView, Text } from "native-base";
@@ -68,6 +68,9 @@ LocaleConfig.defaultLocale = "vn";
 
 const SchedulerScreen = () => {
   const { user } = useContext(UserContext);
+  const route = useRoute();
+  const date = route.params?.date;
+
   const [items, setItems] = useState({});
   const [tripId, setId] = useState("");
   // const [markedDates, setMarkedDates] = useState([]);
@@ -137,11 +140,23 @@ const SchedulerScreen = () => {
 
       setItems(agendaItems);
 
-      if (
-        !agendaItems[formattedCurrentDate] ||
-        agendaItems[formattedCurrentDate].length == 0
-      ) {
-        setDisplayFab(false);
+      // console.log(date);
+      if (date) {
+        const formattedDate = moment(date).format("YYYY-MM-DD").toString();
+        // console.log(displayFab);
+        if (
+          !agendaItems[formattedDate] ||
+          agendaItems[formattedDate].length == 0
+        ) {
+          setDisplayFab(false);
+        }
+      } else {
+        if (
+          !agendaItems[formattedCurrentDate] ||
+          agendaItems[formattedCurrentDate].length == 0
+        ) {
+          setDisplayFab(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -165,6 +180,10 @@ const SchedulerScreen = () => {
 
     return () => hardwareBackPress.remove();
   }, []);
+
+  useEffect(() => {
+    console.log(displayFab);
+  }, [displayFab]);
 
   const handelStartRoute = (item) => {
     navigation.navigate("StartRoute", { item });
@@ -255,7 +274,7 @@ const SchedulerScreen = () => {
       <ErrorAlert isError={isError} errorMessage={errorMessage}>
         <Agenda
           items={items}
-          // selected={new moment().format("YYYY-MM-DD")}
+          selected={date ? moment(date).format("YYYY-MM-DD") : undefined}
           renderItem={(item) => renderItem(item)}
           // renderEmptyDate={() => renderEmptyDate()}
           renderEmptyData={() => renderEmptyDate()}
